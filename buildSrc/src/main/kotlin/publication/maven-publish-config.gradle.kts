@@ -9,9 +9,9 @@ plugins {
 publishing {
     publications {
         withType<MavenPublication>().all {
-            val projectGitUrl = "https://github.com/Merseyside/mersey-android-library"
+            val projectGitUrl = "https://github.com/Merseyside/mersey-adapters.git"
             pom {
-                name.set("Mersey android library")
+                name.set("Mersey adapters library")
                 description.set("Adapters, delegates, compose styled adapters")
                 url.set(projectGitUrl)
 
