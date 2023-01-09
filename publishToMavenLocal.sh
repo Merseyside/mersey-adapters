@@ -1,3 +1,4 @@
+./gradlew -PlibraryPublish :adapters-core:publishToMavenLocal
 ./gradlew -PlibraryPublish :adapters:publishToMavenLocal
 ./gradlew -PlibraryPublish :adapters-delegates:publishToMavenLocal
 ./gradlew -PlibraryPublish :adapters-compose:publishToMavenLocal

@@ -18,11 +18,11 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         val callback = object : SortedList.Callback<Model>() {
             override fun onInserted(position: Int, count: Int) {
                 val models = getModels().subList(position, position + count)
-                onInserted(models, position, count)
+                onInserted(models, position)
             }
 
             override fun onRemoved(position: Int, count: Int) {
-                onRemoved(emptyList(), position, count)
+                onRemoved(emptyList(), position)
             }
 
             override fun onMoved(fromPosition: Int, toPosition: Int) {

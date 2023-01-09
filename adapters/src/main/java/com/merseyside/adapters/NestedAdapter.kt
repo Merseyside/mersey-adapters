@@ -2,6 +2,7 @@ package com.merseyside.adapters
 
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.config.NestedAdapterConfig
+import com.merseyside.adapters.core.config.nestedConfig
 import com.merseyside.adapters.core.holder.TypedBindingHolder
 import com.merseyside.adapters.core.model.NestedAdapterViewModel
 import com.merseyside.adapters.core.model.VM

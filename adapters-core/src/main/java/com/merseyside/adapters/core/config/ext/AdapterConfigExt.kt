@@ -4,6 +4,7 @@ import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.FilterProvider
 import com.merseyside.adapters.core.config.feature.Feature
 import com.merseyside.adapters.core.feature.filtering.AdapterFilter
+import com.merseyside.adapters.core.feature.filtering.AdapterQueryFilter
 import com.merseyside.adapters.core.feature.selecting.AdapterSelect
 import com.merseyside.adapters.core.feature.selecting.SelectProvider
 import com.merseyside.adapters.core.feature.sorting.ComparatorProvider
@@ -26,6 +27,11 @@ fun <Parent, F : Feature<Parent, *>>
 fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterFilter(): AdapterFilter<Parent, Model>? {
     return featureList.filterIsInstance<FilterProvider<Parent, Model>>()
         .firstOrNull()?.adapterFilter
+}
+
+fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterQueryFilter(): AdapterQueryFilter<Parent, Model>? {
+    return featureList.filterIsInstance<FilterProvider<Parent, Model>>()
+        .firstOrNull()?.adapterFilter as? AdapterQueryFilter<Parent, Model>
 }
 
 fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterComparator(): Comparator<Parent, Model>? {

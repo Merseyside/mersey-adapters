@@ -12,7 +12,7 @@ class QueryFilterFeature<Parent, Model> :
     FilterProvider<Parent, Model>
         where Model : VM<Parent> {
 
-    override lateinit var adapterFilter: QueryAdapterFilter<Parent, Model>
+    override lateinit var adapterFilter: AdapterQueryFilter<Parent, Model>
     override val config: QueryConfig<Parent, Model> = QueryConfig()
 
     override fun prepare(configure: QueryConfig<Parent, Model>.() -> Unit) {
@@ -38,7 +38,7 @@ class QueryFilterFeature<Parent, Model> :
 class QueryConfig<Parent, Model>
         where Model : VM<Parent> {
 
-    var filter: QueryAdapterFilter<Parent, Model>? = null
+    var filter: AdapterQueryFilter<Parent, Model>? = null
 }
 
 @Suppress("UNCHECKED_CAST")

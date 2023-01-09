@@ -1,7 +1,7 @@
 package com.merseyside.adapters.core.feature.filtering.ext
 
 import com.merseyside.adapters.core.feature.filtering.AdapterFilter
-import com.merseyside.adapters.core.feature.filtering.QueryAdapterFilter
+import com.merseyside.adapters.core.feature.filtering.AdapterQueryFilter
 
 
 /**
@@ -18,6 +18,6 @@ fun AdapterFilter<*, *>.applyFiltersAsync(onComplete: (Boolean) -> Unit = {}) {
     ) { applyFilters() }
 }
 
-fun QueryAdapterFilter<*, *>.setQueryAsync(query: String?, onComplete: (Boolean) -> Unit = {}) {
+fun AdapterQueryFilter<*, *>.setQueryAsync(query: String?, onComplete: (Boolean) -> Unit = {}) {
     workManager.doAsync(onComplete) { setQuery(query) }
 }

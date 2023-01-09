@@ -119,7 +119,7 @@ class AdapterSelect<Parent, Model>(
         }
     }
 
-    suspend fun selectItem(item: Parent) {
+    fun selectItem(item: Parent) {
         val selectable = modelList.getModelByItem(item).requireSelectable()
         changeItemSelectedState(selectable)
     }

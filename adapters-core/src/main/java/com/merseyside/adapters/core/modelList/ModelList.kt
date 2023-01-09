@@ -12,11 +12,13 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         callbacks.add(callback)
     }
 
-    fun onInserted(models: List<Model>, position: Int, count: Int = 1) {
+    fun onInserted(models: List<Model>, position: Int) {
+        val count = models.size
         callbacks.forEach { it.onInserted(models, position, count) }
     }
 
-    fun onRemoved(models: List<Model>, position: Int, count: Int = 1) {
+    fun onRemoved(models: List<Model>, position: Int) {
+        val count = models.size
         callbacks.forEach { it.onRemoved(models, position, count) }
     }
 
@@ -29,6 +31,9 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
     }
 
     abstract fun getModels(): List<Model>
+
+    val lastIndex: Int
+        get() = getModels().lastIndex
 
     override val size: Int
         get() = getModels().size

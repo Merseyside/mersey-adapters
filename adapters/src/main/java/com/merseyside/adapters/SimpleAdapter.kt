@@ -8,6 +8,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
+import com.merseyside.adapters.core.config.config
 import com.merseyside.adapters.core.holder.TypedBindingHolder
 import com.merseyside.adapters.core.model.AdapterViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi

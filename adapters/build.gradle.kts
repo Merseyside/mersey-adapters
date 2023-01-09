@@ -17,7 +17,6 @@ android {
 
     defaultConfig {
         minSdk = Application.minSdk
-        targetSdk = Application.targetSdk
     }
     
     buildFeatures.dataBinding = true
@@ -62,7 +61,5 @@ dependencies {
     api(projects.adaptersCore)
 
     androidLibz.forEach { lib -> implementation(lib) }
-
     api(androidLibs.paging)
-    api(common.bundles.mersey.time)
 }

@@ -57,17 +57,17 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
 
     override suspend fun addAll(models: List<Model>) {
         mutModels.addAll(models)
-        onInserted(models, size, models.size)
+        onInserted(models, size - models.size)
     }
 
     override suspend fun add(model: Model) {
         mutModels.add(model)
-        onInserted(listOf(model), size)
+        onInserted(listOf(model), lastIndex)
     }
 
     override suspend fun addAll(position: Int, models: List<Model>) {
         mutModels.addAll(position, models)
-        onInserted(models, position, models.size)
+        onInserted(models, position)
     }
 
     override suspend fun add(position: Int, model: Model) {
@@ -89,11 +89,25 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     }
 
     override fun listIterator(index: Int): ListIterator<Model> {
-        return mutModels.listIterator(index)
+        return SimpleModelListIterator(index, mutModels)
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): List<Model> {
         return mutModels.subList(fromIndex, toIndex)
+    }
+
+    internal class SimpleModelListIterator<Model>(
+        startIndex: Int,
+        private val list: List<Model>
+    ): ModelListIterator<Model>(startIndex) {
+        override fun getItem(index: Int): Model {
+            return list[index]
+        }
+
+        override fun getSize(): Int {
+            return list.size
+        }
+
     }
 
     override val tag: String = "SimpleModelList"

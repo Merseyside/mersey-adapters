@@ -13,7 +13,7 @@ fun <Parent, Model : VM<Parent>> config(
 
 @Suppress("UNCHECKED_CAST")
 fun <R : AdapterConfig<Parent, Model>, Parent, Model : VM<Parent>> config(
-    init: AdapterConfig<Parent, Model>.() -> Unit
+    init: AdapterConfig<Parent, Model>.() -> Unit = {}
 ): R {
     return AdapterConfig(init) as R
 }
@@ -21,8 +21,8 @@ fun <R : AdapterConfig<Parent, Model>, Parent, Model : VM<Parent>> config(
 @Suppress("UNCHECKED_CAST")
 fun <R : NestedAdapterConfig<Parent, Model, InnerData, InnerAdapter>, Parent,
         Model : NestedAdapterParentViewModel<out Parent, Parent, InnerData>,
-        InnerData, InnerAdapter : BaseAdapter<InnerData, out VM<InnerData>>> config(
-    init: NestedAdapterConfig<Parent, Model, InnerData, InnerAdapter>.() -> Unit
+        InnerData, InnerAdapter : BaseAdapter<InnerData, out VM<InnerData>>> nestedConfig(
+    init: NestedAdapterConfig<Parent, Model, InnerData, InnerAdapter>.() -> Unit = {}
 ): R {
     val config = NestedAdapterConfig<Parent, Model, InnerData, InnerAdapter>()
     config.apply(init)

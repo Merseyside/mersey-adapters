@@ -84,9 +84,11 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
     }
 
     override suspend fun add(items: List<Parent>): List<Model> {
-        val models = createModels(items)
-        addModels(models)
-        return models
+        return checkNotEmpty(items) {
+            val models = createModels(items)
+            addModels(models)
+            models
+        } ?: emptyList()
     }
 
     suspend fun add(position: Int, item: Parent): Model {
@@ -97,10 +99,12 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
     }
 
     override suspend fun add(position: Int, items: List<Parent>): List<Model> {
-        requireValidPosition(position)
-        val models = createModels(items)
-        addModels(position, models)
-        return models
+        return checkNotEmpty(items) {
+            requireValidPosition(position)
+            val models = createModels(items)
+            addModels(position, models)
+            models
+        } ?: emptyList()
     }
 
     suspend fun remove(item: Parent): Model? {
@@ -126,7 +130,9 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
     }
 
     suspend fun remove(items: List<Parent>): List<Model> {
-        return items.mapNotNull { item -> remove(item) }
+        return checkNotEmpty(items) {
+            items.mapNotNull { item -> remove(item) }
+        } ?: emptyList()
     }
 
     suspend fun update(items: List<Parent>): Boolean {
@@ -199,5 +205,10 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
             "Models size is ${models.size}" +
                     " but position is $position."
         )
+    }
+
+    suspend fun <M, R> checkNotEmpty(list: List<M>, block: suspend (list: List<M>) -> R): R? {
+        return if (list.isNotEmpty()) block(list)
+        else null
     }
 }

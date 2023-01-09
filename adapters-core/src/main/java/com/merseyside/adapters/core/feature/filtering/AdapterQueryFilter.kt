@@ -3,7 +3,7 @@ package com.merseyside.adapters.core.feature.filtering
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.extensions.isNotNullAndEmpty
 
-abstract class QueryAdapterFilter<Parent, Model : VM<Parent>> :
+abstract class AdapterQueryFilter<Parent, Model : VM<Parent>> :
     AdapterFilter<Parent, Model>() {
 
     abstract fun filter(model: Model, query: String): Boolean
