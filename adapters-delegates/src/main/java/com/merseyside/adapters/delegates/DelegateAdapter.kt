@@ -1,4 +1,4 @@
-package com.merseyside.adapters.delegates.delegate
+package com.merseyside.adapters.delegates
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

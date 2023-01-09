@@ -9,7 +9,7 @@ import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.manager.DelegatesManager
-import com.merseyside.adapters.delegates.delegate.IDelegateAdapter
+import com.merseyside.adapters.delegates.IDelegateAdapter
 import com.merseyside.merseyLib.kotlin.extensions.remove
 
 interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapter>

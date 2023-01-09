@@ -1,6 +1,6 @@
 package com.merseyside.adapters.sample.features.adapters.delegate.adapter
 
-import com.merseyside.adapters.delegates.delegate.DelegateAdapter
+import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
 import com.merseyside.adapters.sample.features.adapters.delegate.entity.Animal

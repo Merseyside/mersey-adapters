@@ -6,7 +6,7 @@ import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.holder.TypedBindingHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.delegate.DA
+import com.merseyside.adapters.delegates.DA
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 
 open class CompositeAdapter<Parent, ParentModel>(

@@ -1,4 +1,4 @@
-package com.merseyside.adapters.delegates.delegate
+package com.merseyside.adapters.delegates
 
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.model.AdapterParentViewModel
