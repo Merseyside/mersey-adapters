@@ -1,5 +1,6 @@
 package com.merseyside.adapters.core.config
 
+import com.merseyside.adapters.core.AdaptersContext
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.config.contract.ModelListProvider
 import com.merseyside.adapters.core.config.contract.UpdateLogicProvider
@@ -20,6 +21,7 @@ import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 open class AdapterConfig<Parent, Model> internal constructor(
     config: AdapterConfig<Parent, Model>.() -> Unit = {}
@@ -38,13 +40,16 @@ open class AdapterConfig<Parent, Model> internal constructor(
     var errorHandler: ((Exception) -> Unit)? = null
 
     var coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
-    val workManager: AdapterWorkManager
+    var coroutineContext: CoroutineContext = AdaptersContext.coroutineContext
+
+    internal val workManager: AdapterWorkManager
 
     init {
         apply(config)
         if (errorHandler == null) errorHandler = { e -> throw e }
         workManager = AdapterWorkManager(
             CoroutineQueue<Any, Unit>(coroutineScope).apply { fallOnException = true },
+            coroutineContext,
             errorHandler!!
         )
     }

@@ -39,7 +39,7 @@ fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterComparat
         .firstOrNull()?.comparator
 }
 
-fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterSelect(): AdapterSelect<Parent, *>? {
+fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterSelect(): AdapterSelect<Parent, Model>? {
     return featureList.filterIsInstance<SelectProvider<Parent, Model>>()
         .firstOrNull()?.adapterSelect
 }

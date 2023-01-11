@@ -57,7 +57,7 @@ class AdapterExpand<Parent, Model>(
         modelList.addModelListCallback(this)
     }
 
-    override fun onInserted(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
         val items = models.filterIsInstance<ExpandableItem>()
         initNewItems(items)
     }
@@ -68,18 +68,18 @@ class AdapterExpand<Parent, Model>(
         notifyItemsExpanded(expandedItems, false)
     }
 
-    override fun onRemoved(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
         val expandableItems = models.mapNotNull { it.asExpandable() }
         expandedList.removeAll(expandableItems)
     }
 
-    override fun onChanged(
+    override suspend fun onChanged(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
     ) {}
 
-    override fun onMoved(fromPosition: Int, toPosition: Int) {}
+    override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
 
     fun changeItemExpandedState(item: ExpandableItem, isExpandedByUser: Boolean = true) {
         with(item) {

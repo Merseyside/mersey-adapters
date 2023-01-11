@@ -24,6 +24,7 @@ import com.merseyside.adapters.sample.features.adapters.colors.di.ColorsModule
 import com.merseyside.adapters.sample.features.adapters.colors.di.DaggerColorsComponent
 import com.merseyside.adapters.sample.features.adapters.colors.model.ColorsViewModel
 import com.merseyside.archy.presentation.view.valueSwitcher.ValueSwitcher
+import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
 import com.merseyside.merseyLib.kotlin.extensions.isZero
 import com.merseyside.utils.view.ext.addTextChangeListener
 

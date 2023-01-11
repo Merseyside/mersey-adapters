@@ -12,21 +12,20 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         callbacks.add(callback)
     }
 
-    fun onInserted(models: List<Model>, position: Int) {
+    suspend fun onInserted(models: List<Model>, position: Int) {
         val count = models.size
         callbacks.forEach { it.onInserted(models, position, count) }
     }
 
-    fun onRemoved(models: List<Model>, position: Int) {
-        val count = models.size
+    suspend fun onRemoved(models: List<Model>, position: Int, count: Int = models.size) {
         callbacks.forEach { it.onRemoved(models, position, count) }
     }
 
-    fun onChanged(model: Model, position: Int, payloads: List<AdapterParentViewModel.Payloadable>) {
+    suspend fun onChanged(model: Model, position: Int, payloads: List<AdapterParentViewModel.Payloadable>) {
         callbacks.forEach { it.onChanged(model, position, payloads) }
     }
 
-    fun onMoved(fromPosition: Int, toPosition: Int) {
+    suspend fun onMoved(fromPosition: Int, toPosition: Int) {
         callbacks.forEach { it.onMoved(fromPosition, toPosition) }
     }
 

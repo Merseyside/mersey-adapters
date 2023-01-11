@@ -3,6 +3,7 @@ package com.merseyside.adapters.sample.features.adapters.racers.view
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.core.config.init.initAdapter
 import com.merseyside.adapters.core.feature.positioning.Positioning
 import com.merseyside.adapters.core.feature.sorting.Sorting
@@ -22,6 +23,8 @@ import com.merseyside.adapters.sample.features.adapters.racers.model.RacingViewM
 class RacingFragment : BaseSampleFragment<FragmentRacingBinding, RacingViewModel>() {
 
     private val adapter = initAdapter(::RacersAdapter) {
+        coroutineScope = lifecycleScope
+
         Sorting {
             comparator = RacersComparator
         }

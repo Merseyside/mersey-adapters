@@ -7,9 +7,11 @@ import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
 import com.merseyside.merseyLib.kotlin.logger.Logger
 import kotlinx.coroutines.Job
+import kotlin.coroutines.CoroutineContext
 
 class AdapterWorkManager(
     private val coroutineQueue: CoroutineQueue<Any, Unit>,
+    private val coroutineContext: CoroutineContext,
     private val errorHandler: (Exception) -> Unit
 ) {
 
@@ -31,11 +33,11 @@ class AdapterWorkManager(
         work: suspend () -> Result,
     ): Job? {
         add(onComplete, onError, work)
-        return coroutineQueue.executeAsync()
+        return coroutineQueue.executeAsync(coroutineContext)
     }
 
     private fun executeAsync(): Job? {
-        return coroutineQueue.executeAsync()
+        return coroutineQueue.executeAsync(coroutineContext)
     }
 
     fun <Result> add(

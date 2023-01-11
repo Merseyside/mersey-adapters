@@ -99,7 +99,7 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     internal class SimpleModelListIterator<Model>(
         startIndex: Int,
         private val list: List<Model>
-    ): ModelListIterator<Model>(startIndex) {
+    ) : ModelListIterator<Model>(startIndex) {
         override fun getItem(index: Int): Model {
             return list[index]
         }

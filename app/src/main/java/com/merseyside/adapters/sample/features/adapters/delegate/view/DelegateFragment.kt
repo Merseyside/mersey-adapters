@@ -3,6 +3,7 @@ package com.merseyside.adapters.sample.features.adapters.delegate.view
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.base.callback.onClick
@@ -20,6 +21,7 @@ import com.merseyside.adapters.sample.features.adapters.delegate.entity.Animal
 import com.merseyside.adapters.sample.features.adapters.delegate.entity.Cat
 import com.merseyside.adapters.sample.features.adapters.delegate.entity.Dog
 import com.merseyside.adapters.sample.features.adapters.delegate.model.DelegateViewModel
+import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
 import com.merseyside.utils.view.ext.onClick
 
 class DelegateFragment : BaseSampleFragment<FragmentDelegateBinding, DelegateViewModel>() {
