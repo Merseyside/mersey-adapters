@@ -6,7 +6,6 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.viewProvider.addView
 import com.merseyside.adapters.compose.view.text.ComposingText
 import com.merseyside.adapters.compose.view.text.ComposingTextStyle
