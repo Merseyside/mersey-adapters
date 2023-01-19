@@ -1,7 +1,6 @@
 package com.merseyside.adapters.compose.view.text
 
 import android.content.Context
-import android.util.TypedValue
 import android.widget.TextView
 import androidx.databinding.ViewDataBinding
 import com.merseyside.adapters.compose.BR

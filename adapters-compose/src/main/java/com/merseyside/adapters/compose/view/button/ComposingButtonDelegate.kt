@@ -1,6 +1,7 @@
 package com.merseyside.adapters.compose.view.button
 
 import android.content.Context
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.ViewDataBinding
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.R
@@ -33,9 +34,6 @@ open class ComposingButtonDelegate<View : ComposingButton<Style>,
             }
             safeLet(style.textAllCaps) { allCaps ->
                 isAllCaps = allCaps
-            }
-            safeLet(style.height) { height ->
-
             }
         }
     }
