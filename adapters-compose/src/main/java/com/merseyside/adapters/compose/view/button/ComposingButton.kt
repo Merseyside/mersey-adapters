@@ -36,12 +36,18 @@ open class ComposingButton<Style : ComposingButtonStyle>(
 open class ComposingButtonStyle(context: Context) : ComposingTextStyle(context) {
 
     var backgroundTint: ColorStateList? = null
+    var textColorStateList: ColorStateList? = null
+    var textAllCaps: Boolean? = null
 
     fun setBackgroundTint(@ColorRes colorRes: Int?) {
         colorRes?.let {
             backgroundTint =
                 AppCompatResources.getColorStateList(context, colorRes)
         }
+    }
+
+    fun setTextColorStateList(@ColorRes stateList: Int) {
+        textColorStateList = AppCompatResources.getColorStateList(context, stateList)
     }
 
     var isEnabled: Boolean? = null

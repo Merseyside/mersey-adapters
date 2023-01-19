@@ -28,6 +28,15 @@ open class ComposingButtonDelegate<View : ComposingButton<Style>,
             safeLet(style.isEnabled) { enabled ->
                 isEnabled = enabled
             }
+            safeLet(style.textColorStateList) { stateList ->
+                setTextColor(stateList)
+            }
+            safeLet(style.textAllCaps) { allCaps ->
+                isAllCaps = allCaps
+            }
+            safeLet(style.height) { height ->
+
+            }
         }
     }
 
