@@ -20,4 +20,14 @@ abstract class NestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAd
         super.onBindViewHolder(holder, model, position)
         bindNestedAdapter(holder, model, position)
     }
+
+    @InternalAdaptersApi
+    override fun onBindViewHolder(
+        holder: TypedBindingHolder<Model>,
+        model: Model,
+        position: Int,
+        payloads: List<Any>
+    ) {
+        onModelUpdated(model)
+    }
 }

@@ -1,16 +1,15 @@
 package com.merseyside.adapters.compose.view.button
 
 import android.content.Context
-import android.widget.Button as ButtonView
 import androidx.databinding.ViewDataBinding
-import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.BR
+import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.text.ComposingTextDelegate
 import com.merseyside.merseyLib.kotlin.utils.safeLet
+import android.widget.Button as ButtonView
 
-class ComposingButtonDelegate :
-    ComposingTextDelegate<Button, ComposingButtonStyle, ComposingButtonViewModel>() {
+class ComposingButtonDelegate : ComposingTextDelegate<Button, ComposingButtonStyle, ComposingButtonViewModel>() {
 
     override fun applyStyle(
         context: Context,
@@ -37,5 +36,4 @@ class ComposingButtonDelegate :
     override fun isResponsibleForItemClass(clazz: Class<out SCV>): Boolean {
         return clazz == ComposingButton::class.java
     }
-
 }

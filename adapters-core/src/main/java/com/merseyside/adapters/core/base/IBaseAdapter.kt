@@ -14,11 +14,10 @@ import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelListCallback
-import com.merseyside.adapters.core.workManager.AdapterWorkManager
-import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
+import com.merseyside.adapters.core.utils.InternalAdaptersApi
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -68,6 +67,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
     ) {
+
         adapter.notifyItemChanged(position, payloads)
     }
 

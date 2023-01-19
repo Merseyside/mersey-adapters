@@ -60,7 +60,7 @@ open class ListConfig: HasOnItemClickListener<SCV> {
 open class ComposingListStyle(context: Context) : ComposingViewGroupStyle(context) {
 
     @Orientation
-    val orientation: Int = RecyclerView.VERTICAL
+    var orientation: Int = RecyclerView.VERTICAL
 
     companion object {
         operator fun invoke(context: Context, init: ComposingListStyle.() -> Unit): ComposingListStyle {

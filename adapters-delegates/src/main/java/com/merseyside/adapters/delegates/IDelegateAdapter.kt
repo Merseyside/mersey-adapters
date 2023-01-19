@@ -11,5 +11,4 @@ interface IDelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickListene
     val onClick: (Item) -> Unit
 
     fun getBindingVariable(): Int
-
 }

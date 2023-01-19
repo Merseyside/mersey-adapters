@@ -8,6 +8,7 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
+import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.utils.ext.containsKey
 import com.merseyside.utils.ext.filterValues
 import com.merseyside.utils.ext.findKey
@@ -149,6 +150,9 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         val delegate = requireDelegate {
             delegates.findValue {
                 it.second.isResponsibleFor(item)
+            } ?: run {
+                Logger.logErr("Can not find delegate for ${item!!::class}")
+                null
             }
         }
         return delegate.createViewModel(item)
@@ -161,9 +165,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     private fun requireDelegate(
         block: () -> Delegate?
     ): Delegate {
-        return block() ?: run {
-            throw NullPointerException("Delegate was required but have null!")
-        }
+        return block() ?: throw NullPointerException("Delegate was required but have null!")
     }
 }
 
