@@ -17,8 +17,8 @@ open class ComposingButton<Style : ComposingButtonStyle>(
 ) : ComposingText<Style>(id, composingStyle) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
-        return ComposingButtonDelegate() as ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *>
+    override fun getSuitableDelegate(): ViewDelegateAdapter<out ComposingButton<Style>, Style, *> {
+        return ComposingButtonDelegate()
     }
 
     companion object {
