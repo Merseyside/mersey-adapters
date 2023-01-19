@@ -6,7 +6,6 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.viewProvider.addView
 import com.merseyside.adapters.compose.view.text.ComposingText
 import com.merseyside.adapters.compose.view.text.ComposingTextStyle
@@ -17,8 +16,8 @@ open class ComposingButton<Style : ComposingButtonStyle>(
 ) : ComposingText<Style>(id, composingStyle) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
-        return ComposingButtonDelegate() as ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *>
+    override fun getSuitableDelegate(): ViewDelegateAdapter<out ComposingButton<Style>, Style, *> {
+        return ComposingButtonDelegate()
     }
 
     companion object {
@@ -37,12 +36,18 @@ open class ComposingButton<Style : ComposingButtonStyle>(
 open class ComposingButtonStyle(context: Context) : ComposingTextStyle(context) {
 
     var backgroundTint: ColorStateList? = null
+    var textColorStateList: ColorStateList? = null
+    var textAllCaps: Boolean? = null
 
     fun setBackgroundTint(@ColorRes colorRes: Int?) {
         colorRes?.let {
             backgroundTint =
                 AppCompatResources.getColorStateList(context, colorRes)
         }
+    }
+
+    fun setTextColorStateList(@ColorRes stateList: Int) {
+        textColorStateList = AppCompatResources.getColorStateList(context, stateList)
     }
 
     var isEnabled: Boolean? = null
