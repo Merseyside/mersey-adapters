@@ -29,7 +29,7 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
     override fun getNestedView(binding: ViewDataBinding, model: Model): RecyclerView? {
         return (binding.root as RecyclerView).also { recyclerView ->
             with(model.item.listConfig) {
-                safeLet(layoutManager) { recyclerView.layoutManager = it }
+                recyclerView.layoutManager = layoutManager(binding.root.context)
                 safeLet(decorator) { recyclerView.addItemDecoration(it) }
             }
         }
