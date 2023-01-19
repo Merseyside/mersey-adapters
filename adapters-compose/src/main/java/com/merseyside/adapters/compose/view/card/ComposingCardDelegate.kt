@@ -5,8 +5,8 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.BR
+import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.manager.ViewDelegatesManager
@@ -85,7 +85,7 @@ class ComposingCardDelegate : NestedViewDelegateAdapter<ComposingCard, Composing
         return (binding.root as CardView).findViewById<RecyclerView?>(R.id.list)
             .also { recyclerView ->
                 with(model.item.listConfig) {
-                    safeLet(layoutManager) { recyclerView.layoutManager = it }
+                    recyclerView.layoutManager = layoutManager(binding.root.context)
                     safeLet(decorator) { recyclerView.addItemDecoration(it) }
                 }
             }
