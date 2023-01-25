@@ -24,11 +24,7 @@ open class BaseBindingHolder(val binding: ViewDataBinding)
     @CallSuper
     fun bind(variable: Int, obj: Any) {
         _model = obj
-
-        binding.apply {
-            setVariable(variable, obj)
-            executePendingBindings()
-        }
+        binding.setVariable(variable, obj)
     }
 
     val context: Context

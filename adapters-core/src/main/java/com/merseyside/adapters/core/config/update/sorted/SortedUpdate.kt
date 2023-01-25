@@ -6,6 +6,7 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.async.runWithDefault
 import com.merseyside.merseyLib.kotlin.extensions.subtractBy
+import com.merseyside.merseyLib.kotlin.logger.log
 
 class SortedUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>

@@ -9,6 +9,7 @@ import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.async.addOrUpdateAsync
+import com.merseyside.adapters.core.async.runForUI
 
 
 interface HasCompositeAdapter {
@@ -26,11 +27,13 @@ interface HasCompositeAdapter {
             adapter.delegatesManager.addDelegateList(delegates)
         }
 
-        val screenContext = compose(context, viewLifecycleOwner, composeScreen()).apply {
-            relativeAdapter = adapter
+        val screenContext = runForUI {
+            compose(context, viewLifecycleOwner, composeScreen()).apply {
+                relativeAdapter = adapter
+            }
         }
 
-        showViews(screenContext.views)
+        showViews(runForUI { screenContext.getViews() })
     }
 
     fun showViews(views: List<SCV>) {

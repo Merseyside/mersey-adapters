@@ -3,6 +3,15 @@ package com.merseyside.adapters.core.async
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
+import kotlinx.coroutines.Job
+
+fun <Parent, Model : VM<Parent>, Result> IBaseAdapter<Parent, Model>.doAsync(
+    onComplete: (Result) -> Unit = {},
+    onError: ((e: Exception) -> Unit)? = null,
+    work: suspend IBaseAdapter<Parent, Model>.() -> Result,
+): Job? {
+    return workManager.doAsync(onComplete, onError) { work() }
+}
 
 fun <Parent, Model : VM<Parent>> IBaseAdapter<Parent, Model>.addAsync(
     item: Parent,

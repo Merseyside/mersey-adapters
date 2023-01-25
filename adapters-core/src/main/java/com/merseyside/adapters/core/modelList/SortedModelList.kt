@@ -16,20 +16,20 @@ class SortedModelList<Parent, Model : VM<Parent>>(
 
     init {
         val callback = object : SortedList.Callback<Model>() {
-            override fun onInserted(position: Int, count: Int) {
+            override suspend fun onInserted(position: Int, count: Int) {
                 val models = getModels().subList(position, position + count)
                 onInserted(models, position)
             }
 
-            override fun onRemoved(position: Int, count: Int) {
-                onRemoved(emptyList(), position)
+            override suspend fun onRemoved(position: Int, count: Int) {
+                onRemoved(emptyList(), position, count)
             }
 
-            override fun onMoved(fromPosition: Int, toPosition: Int) {
+            override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
                 this@SortedModelList.onMoved(fromPosition, toPosition)
             }
 
-            override fun onChanged(position: Int, count: Int) {}
+            override suspend fun onChanged(position: Int, count: Int) {}
 
             override fun compare(item1: Model, item2: Model): Int {
                 return comparator.compare(item1, item2)
@@ -83,8 +83,8 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         return indexOf(element)
     }
 
-    override fun indexOf(element: Model): Int = runBlocking {
-        sortedList.indexOf(element)
+    override fun indexOf(element: Model): Int {
+        return sortedList.indexOf(element)
     }
 
     override suspend fun addAll(models: List<Model>) {
@@ -107,7 +107,7 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     }
 
     override fun clear() {
-        sortedList.clear()
+        //sortedList.clear()
     }
 
     override fun listIterator(): ListIterator<Model> {

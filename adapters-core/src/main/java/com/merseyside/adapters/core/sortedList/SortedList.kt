@@ -1,13 +1,13 @@
 package com.merseyside.adapters.core.sortedList
 
-import androidx.recyclerview.widget.BatchingListUpdateCallback
+import android.annotation.SuppressLint
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.async.runWithDefault
-import java.util.*
+import com.merseyside.adapters.core.sortedList.SortedList.Callback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 
 
 /**
@@ -699,7 +699,7 @@ class SortedList<T> @JvmOverloads constructor(
      * @return The position of the provided item or [.INVALID_POSITION] if item is not in the
      * list.
      */
-    suspend fun indexOf(item: T): Int {
+    fun indexOf(item: T): Int {
         if (mOldData != null) {
             var index = findIndexOf(item, mData, 0, mNewDataStart, LOOKUP)
             if (index != INVALID_POSITION) {
@@ -713,7 +713,7 @@ class SortedList<T> @JvmOverloads constructor(
         return findIndexOf(item, mData, 0, mSize, LOOKUP)
     }
 
-    private suspend fun findIndexOf(item: T, mData: Array<T>, left: Int, right: Int, reason: Int): Int = runWithDefault {
+    private fun findIndexOf(item: T, mData: Array<T>, left: Int, right: Int, reason: Int): Int {
         var left = left
         var right = right
         while (left < right) {
@@ -723,11 +723,11 @@ class SortedList<T> @JvmOverloads constructor(
             if (cmp < 0) {
                 left = middle + 1
             } else if (cmp == 0) {
-                if (mCallback.areItemsTheSame(myItem, item)) {
-                    return@runWithDefault middle
+                return if (mCallback.areItemsTheSame(myItem, item)) {
+                    middle
                 } else {
                     val exact = linearEqualitySearch(item, middle, left, right)
-                    return@runWithDefault if (reason == INSERTION) {
+                    if (reason == INSERTION) {
                         if (exact == INVALID_POSITION) middle else exact
                     } else {
                         exact
@@ -737,7 +737,7 @@ class SortedList<T> @JvmOverloads constructor(
                 right = middle
             }
         }
-        return@runWithDefault if (reason == INSERTION) left else INVALID_POSITION
+        return if (reason == INSERTION) left else INVALID_POSITION
     }
 
     private fun linearEqualitySearch(item: T, middle: Int, left: Int, right: Int): Int {
@@ -798,7 +798,7 @@ class SortedList<T> @JvmOverloads constructor(
     /**
      * Removes all items from the SortedList.
      */
-    fun clear() {
+    suspend fun clear() {
         throwIfInMutationOperation()
         if (mSize == 0) {
             return
@@ -819,7 +819,10 @@ class SortedList<T> @JvmOverloads constructor(
      * SortedList calls the callback methods on this class to notify changes about the underlying
      * data.
      */
-    abstract class Callback<T2> : Comparator<T2>, ListUpdateCallback {
+    
+
+    abstract class Callback<T2> : ListUpdateCallback, Comparator<T2> {
+
         /**
          * Similar to [java.util.Comparator.compare], should compare two and
          * return how they should be ordered.
@@ -831,18 +834,14 @@ class SortedList<T> @JvmOverloads constructor(
          * first argument is less than, equal to, or greater than the
          * second.
          */
+        
         abstract override fun compare(item1: T2, item2: T2): Int
 
-        /**
-         * Called by the SortedList when the item at the given position is updated.
-         *
-         * @param position The position of the item which has been updated.
-         * @param count    The number of items which has changed.
-         */
-        abstract fun onChanged(position: Int, count: Int)
-        override fun onChanged(position: Int, count: Int, payload: Any?) {
+        override suspend fun onChanged(position: Int, count: Int, payloads: Any?) {
             onChanged(position, count)
         }
+
+        abstract suspend fun onChanged(position: Int, count: Int)
 
         /**
          * Called by the SortedList when it wants to check whether two items have the same data
@@ -941,23 +940,23 @@ class SortedList<T> @JvmOverloads constructor(
             return mWrappedCallback.compare(item1, item2)
         }
 
-        override fun onInserted(position: Int, count: Int) {
+        override suspend fun onInserted(position: Int, count: Int) {
             mBatchingListUpdateCallback.onInserted(position, count)
         }
 
-        override fun onRemoved(position: Int, count: Int) {
+        override suspend fun onRemoved(position: Int, count: Int) {
             mBatchingListUpdateCallback.onRemoved(position, count)
         }
 
-        override fun onMoved(fromPosition: Int, toPosition: Int) {
+        override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
             mBatchingListUpdateCallback.onMoved(fromPosition, toPosition)
         }
 
-        override fun onChanged(position: Int, count: Int) {
+        override suspend fun onChanged(position: Int, count: Int) {
             mBatchingListUpdateCallback.onChanged(position, count, null)
         }
 
-        override fun onChanged(position: Int, count: Int, payload: Any?) {
+        override suspend fun onChanged(position: Int, count: Int, payload: Any?) {
             mBatchingListUpdateCallback.onChanged(position, count, payload)
         }
 
@@ -992,6 +991,133 @@ class SortedList<T> @JvmOverloads constructor(
         private val INSERTION = 1
         private val DELETION = 1 shl 1
         private val LOOKUP = 1 shl 2
+    }
+}
+
+interface ListUpdateCallback {
+    /**
+     * Called when `count` number of items are inserted at the given position.
+     *
+     * @param position The position of the new item.
+     * @param count    The number of items that have been added.
+     */
+    suspend fun onInserted(position: Int, count: Int)
+
+    /**
+     * Called when `count` number of items are removed from the given position.
+     *
+     * @param position The position of the item which has been removed.
+     * @param count    The number of items which have been removed.
+     */
+    suspend fun onRemoved(position: Int, count: Int)
+
+    /**
+     * Called when an item changes its position in the list.
+     *
+     * @param fromPosition The previous position of the item before the move.
+     * @param toPosition   The new position of the item.
+     */
+    suspend fun onMoved(fromPosition: Int, toPosition: Int)
+
+
+
+    /**
+     * Called by the SortedList when the item at the given position is updated.
+     *
+     * @param position The position of the item which has been updated.
+     * @param count    The number of items which has changed.
+     */
+    suspend fun onChanged(position: Int, count: Int, payloads: Any?)
+
+}
+
+class BatchingListUpdateCallback(val mWrapped: ListUpdateCallback) :
+    ListUpdateCallback {
+    var mLastEventType: Int = TYPE_NONE
+    var mLastEventPosition = -1
+    var mLastEventCount = -1
+    var mLastEventPayload: Any? = null
+
+    /**
+     * BatchingListUpdateCallback holds onto the last event to see if it can be merged with the
+     * next one. When stream of events finish, you should call this method to dispatch the last
+     * event.
+     */
+    suspend fun dispatchLastEvent() {
+        if (mLastEventType == TYPE_NONE) {
+            return
+        }
+        when (mLastEventType) {
+            TYPE_ADD -> mWrapped.onInserted(
+                mLastEventPosition,
+                mLastEventCount
+            )
+            TYPE_REMOVE -> mWrapped.onRemoved(
+                mLastEventPosition,
+                mLastEventCount
+            )
+            TYPE_CHANGE -> mWrapped.onChanged(
+                mLastEventPosition,
+                mLastEventCount,
+                mLastEventPayload
+            )
+        }
+        mLastEventPayload = null
+        mLastEventType = TYPE_NONE
+    }
+
+    override suspend fun onInserted(position: Int, count: Int) {
+        if (mLastEventType == TYPE_ADD && position >= mLastEventPosition && position <= mLastEventPosition + mLastEventCount) {
+            mLastEventCount += count
+            mLastEventPosition = Math.min(position, mLastEventPosition)
+            return
+        }
+        dispatchLastEvent()
+        mLastEventPosition = position
+        mLastEventCount = count
+        mLastEventType = TYPE_ADD
+    }
+
+    override suspend fun onRemoved(position: Int, count: Int) {
+        if (mLastEventType == TYPE_REMOVE && mLastEventPosition >= position && mLastEventPosition <= position + count) {
+            mLastEventCount += count
+            mLastEventPosition = position
+            return
+        }
+        dispatchLastEvent()
+        mLastEventPosition = position
+        mLastEventCount = count
+        mLastEventType = TYPE_REMOVE
+    }
+
+    override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
+        dispatchLastEvent() // moves are not merged
+        mWrapped.onMoved(fromPosition, toPosition)
+    }
+
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
+    override suspend fun onChanged(position: Int, count: Int, payload: Any?) {
+        if (mLastEventType == TYPE_CHANGE &&
+            !(position > mLastEventPosition + mLastEventCount || position + count < mLastEventPosition || mLastEventPayload !== payload)
+        ) {
+            // take potential overlap into account
+            val previousEnd = mLastEventPosition + mLastEventCount
+            mLastEventPosition = Math.min(position, mLastEventPosition)
+            mLastEventCount = Math.max(previousEnd, position + count) - mLastEventPosition
+            return
+        }
+        dispatchLastEvent()
+        mLastEventPosition = position
+        mLastEventCount = count
+        mLastEventPayload = payload
+        mLastEventType = TYPE_CHANGE
+    }
+
+    companion object {
+        private const val TYPE_NONE = 0
+        private const val TYPE_ADD = 1
+        private const val TYPE_REMOVE = 2
+        private const val TYPE_CHANGE = 3
     }
 }
 

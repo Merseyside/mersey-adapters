@@ -13,7 +13,7 @@ abstract class ComposingViewGroup<Style : ComposingViewGroupStyle>(
 ) : StyleableComposingView<Style>(id) {
 
     val viewList: List<SCV>
-        get() = viewGroupComposeContext.views
+        get() = viewGroupComposeContext.getViews()
 
     override fun getStringBuilder(): StringBuilder {
         return super.getStringBuilder().apply {

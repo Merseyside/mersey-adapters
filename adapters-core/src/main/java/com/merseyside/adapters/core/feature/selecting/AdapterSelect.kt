@@ -18,7 +18,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 class AdapterSelect<Parent, Model>(
-    private val modelList: ModelList<Parent, Model>,
+    internal val modelList: ModelList<Parent, Model>,
     selectableMode: SelectableMode,
     isSelectEnabled: Boolean,
     private var isAllowToCancelSelection: Boolean,
@@ -80,7 +80,7 @@ class AdapterSelect<Parent, Model>(
         modelList.addModelListCallback(this)
     }
 
-    override fun onInserted(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
         initNewModels(models)
         addSelectedItems(models.filterIsInstance<SelectableItem>())
     }
@@ -95,17 +95,17 @@ class AdapterSelect<Parent, Model>(
         }
     }
 
-    override fun onRemoved(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
         removeSelected(models)
     }
 
-    override fun onChanged(
+    override suspend fun onChanged(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
     ) {}
 
-    override fun onMoved(fromPosition: Int, toPosition: Int) {}
+    override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
 
     override fun addOnItemSelectedListener(listener: OnItemSelectedListener<Parent>) {
         super.addOnItemSelectedListener(listener)
@@ -119,9 +119,9 @@ class AdapterSelect<Parent, Model>(
         }
     }
 
-    fun selectItem(item: Parent) {
+    fun selectItem(item: Parent): Boolean {
         val selectable = modelList.getModelByItem(item).requireSelectable()
-        changeItemSelectedState(selectable)
+        return changeItemSelectedState(selectable)
     }
 
     fun getSelectedItem(): Parent? {

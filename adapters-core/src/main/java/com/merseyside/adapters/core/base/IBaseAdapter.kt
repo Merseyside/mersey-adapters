@@ -5,6 +5,7 @@ package com.merseyside.adapters.core.base
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
+import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
@@ -34,14 +35,13 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     val listManager: IModelListManager<Parent, Model>
         get() = adapterConfig.listManager
 
-    @InternalAdaptersApi
     val adapter: RecyclerView.Adapter<TypedBindingHolder<Model>>
 
     @InternalAdaptersApi
     val callbackClick: (Parent) -> Unit
 
     @CallSuper
-    override fun onInserted(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onInserted(models: List<Model>, position: Int, count: Int) = runForUI {
         if (count == 1) {
             adapter.notifyItemInserted(position)
         } else {
@@ -52,7 +52,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     @CallSuper
-    override fun onRemoved(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) = runForUI {
         if (count == 1) {
             adapter.notifyItemRemoved(position)
         } else {
@@ -62,16 +62,15 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         notifyPositionsChanged(position)
     }
 
-    override fun onChanged(
+    override suspend fun onChanged(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
-    ) {
-
+    ) = runForUI {
         adapter.notifyItemChanged(position, payloads)
     }
 
-    override fun onMoved(fromPosition: Int, toPosition: Int) {
+    override suspend fun onMoved(fromPosition: Int, toPosition: Int) = runForUI {
         adapter.notifyItemMoved(fromPosition, toPosition)
         notifyPositionsChanged(toPosition, fromPosition)
     }
@@ -120,7 +119,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
 
-
     suspend fun remove(items: List<Parent>): List<Model> {
         return listManager.remove(items)
     }
@@ -135,7 +133,8 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     fun onPayloadable(
         holder: TypedBindingHolder<Model>,
         payloads: List<AdapterParentViewModel.Payloadable>
-    ) {}
+    ) {
+    }
 
     fun getItemCount(): Int
 
@@ -169,7 +168,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
             model.areItemsTheSameInternal(item)
         }
     }
-
 
 
     suspend fun clear() {
@@ -217,11 +215,9 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     /* Position */
 
 
-
     suspend fun add(position: Int, item: Parent) {
         listManager.add(position, item)
     }
-
 
 
     suspend fun add(position: Int, items: List<Parent>) {

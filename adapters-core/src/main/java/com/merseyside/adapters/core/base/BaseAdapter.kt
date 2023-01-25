@@ -111,13 +111,5 @@ abstract class BaseAdapter<Parent, Model>(
         return adapterConfig.hasFeature(key)
     }
 
-    fun <Result> doAsync(
-        onComplete: (Result) -> Unit = {},
-        onError: ((e: Exception) -> Unit)? = null,
-        work: suspend () -> Result,
-    ): Job? {
-        return workManager.doAsync(onComplete, onError, work)
-    }
-
     override val tag: String = "BaseAdapter"
 }

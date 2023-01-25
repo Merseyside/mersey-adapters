@@ -26,7 +26,9 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
                 } else {
                     val oldPosition = getPositionOfItem(item, models)
                     updateActions.move(oldModel, oldPosition, newPosition)
-                    isUpdated = updateActions.updateModel(oldModel, item) || isUpdated
+                    if (!oldModel.areContentsTheSame(item)) {
+                        isUpdated = updateActions.updateModel(oldModel, item) || isUpdated
+                    }
                 }
             }
 
