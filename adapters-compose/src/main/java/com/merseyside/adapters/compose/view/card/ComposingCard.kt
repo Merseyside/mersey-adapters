@@ -33,7 +33,7 @@ open class ComposingCard(
             buildViews: ComposeContext.() -> Unit
         ): ComposingCard {
             val cardContext = card(id, buildViews)
-            val views = cardContext.views
+            val views = cardContext.getViews()
 
             return ComposingCard(id, configure, ComposingCardStyle(context, style), views)
                 .addView()

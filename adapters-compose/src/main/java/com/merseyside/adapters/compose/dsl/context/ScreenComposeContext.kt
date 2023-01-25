@@ -7,6 +7,7 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.viewProvider.MutableComposeState
 import com.merseyside.adapters.compose.viewProvider.ViewComposeContext
 import com.merseyside.adapters.core.async.addOrUpdateAsync
+import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 
@@ -30,9 +31,7 @@ open class ScreenComposeContext<View : SCV>(
 ) : ViewComposeContext<View>(context, viewLifecycleOwner), Identifiable<String> {
 
     internal lateinit var relativeAdapter: ViewCompositeAdapter<SCV, VM<SCV>>
-
     private val childContextList = HashMap<String, ComposeContext>()
-
     private val composeStates: MutableList<MutableComposeState<*>> = ArrayList()
 
     @Suppress("UNCHECKED_CAST")
@@ -49,6 +48,7 @@ open class ScreenComposeContext<View : SCV>(
     override fun build() {
         buildViews()
     }
+
 
     override fun onUpdated(views: List<View>) {
         relativeAdapter.addOrUpdateAsync(views)

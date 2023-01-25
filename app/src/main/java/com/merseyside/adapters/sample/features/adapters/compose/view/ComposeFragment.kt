@@ -38,7 +38,7 @@ class ComposeFragment : BaseSampleFragment<FragmentComposeBinding, ComposeViewMo
         super.onViewCreated(view, savedInstanceState)
 
         movieAdapter = initAdapter(::SimpleViewCompositeAdapter) {
-            coroutineScope = lifecycleScope
+            coroutineScope = viewLifecycleOwner.lifecycleScope
         }.also { adapter -> requireBinding().composite.adapter = adapter }
 
         screenBuilder = MovieScreenAdapterComposer(this, movieAdapter)

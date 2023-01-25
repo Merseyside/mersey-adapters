@@ -24,7 +24,7 @@ class ExpandState(
     private var listener: OnExpandStateListener? = null
 
     var expanded: Boolean = expanded
-        internal set(value) {
+        set(value) {
             if (field != value) {
                 field = value
 
@@ -35,7 +35,7 @@ class ExpandState(
 
     var expandable: Boolean
         get() = expandableField.value!!
-        internal set(value) { itemExpandable.value = value }
+        set(value) { itemExpandable.value = value }
 
     init {
         expandableField.observe { value ->

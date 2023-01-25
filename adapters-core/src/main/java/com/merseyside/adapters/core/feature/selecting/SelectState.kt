@@ -25,7 +25,7 @@ class SelectState(
     private var listener: OnSelectStateListener? = null
 
     var selected: Boolean = selected
-        internal set(value) {
+        set(value) {
             if (field != value) {
                 field = value
 
@@ -36,7 +36,7 @@ class SelectState(
 
     var selectable: Boolean
         get() = selectableObservable.value!!
-        internal set(value) { itemSelectable.value = value }
+        set(value) { itemSelectable.value = value }
 
     init {
         selectableObservable.observe { value ->

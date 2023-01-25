@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -8,19 +9,13 @@
             type="com.merseyside.adapters.sample.features.adapters.colors.model.ColorItemViewModel" />
     </data>
 
-    <FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        app:backgroundColor="@{viewModel.color}"
-        android:onClick="@{_ -> viewModel.onClick()}">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.colorHex}"
-            android:textColor="@color/white"
-            android:textSize="14sp"/>
-
-    </FrameLayout>
+        android:onClick="@{_ -> viewModel.onClick()}"
+        android:text="@{viewModel.colorHex}"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:backgroundColor="@{viewModel.color}" />
 
 </layout>

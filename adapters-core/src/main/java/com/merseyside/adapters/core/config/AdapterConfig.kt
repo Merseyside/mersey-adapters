@@ -2,6 +2,7 @@ package com.merseyside.adapters.core.config
 
 import com.merseyside.adapters.core.AdaptersContext
 import com.merseyside.adapters.core.base.IBaseAdapter
+import com.merseyside.adapters.core.config.contract.FilterProvider
 import com.merseyside.adapters.core.config.contract.ModelListProvider
 import com.merseyside.adapters.core.config.contract.UpdateLogicProvider
 import com.merseyside.adapters.core.config.ext.getFeatureByKey
@@ -113,7 +114,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
         if (!this::_modelListManager.isInitialized) {
             _modelListManager = if (hasFeature(FilterFeature.key)) {
                 val filterFeature =
-                    getFeatureByKey(FilterFeature.key) as FilterFeature<Parent, Model>
+                    getFeatureByKey(FilterFeature.key) as FilterProvider<Parent, Model>
                 FilterModelListManager(
                     modelList = initModelList(adapter),
                     adapterActions = adapter,

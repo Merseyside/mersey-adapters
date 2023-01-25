@@ -13,10 +13,6 @@ fun <Item, Model : VM<Item>> AdapterSelect<Item, Model>.selectFirstIfAsync(
     onComplete: (Item?) -> Unit = {}
 ) {
     workManager.doAsync(onComplete) {
-        modelList.forEach {
-            if (predicate(it) && selectItem(it.item)) return@doAsync it.item
-        }
-
-        null
+       selectFirstIf(predicate)
     }
 }

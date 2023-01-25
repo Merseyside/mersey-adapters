@@ -10,24 +10,15 @@ abstract class ViewComposeContext<View: SCV>(
     val viewLifecycleOwner: LifecycleOwner,
 ) : ILogger {
 
-    private lateinit var mutViews: MutableList<View>
-    val views: List<View>
-        get() {
-            if (!::mutViews.isInitialized) {
-                mutViews = ArrayList()
-                build()
-            }
-
-            return mutViews
-        }
+    private val mutViews: MutableList<View> = ArrayList()
 
     protected abstract fun build()
 
     protected abstract fun onUpdated(views: List<View>)
 
     protected fun update() {
-        internalUpdate()
-        onUpdated(views)
+        mutViews.clear()
+        onUpdated(getViews())
     }
 
     internal open fun add(view: View) {
@@ -38,9 +29,12 @@ abstract class ViewComposeContext<View: SCV>(
         mutViews.addAll(views)
     }
 
-    private fun internalUpdate() {
-        mutViews.clear()
-        build()
+    fun getViews(): List<View> {
+        if (mutViews.isEmpty()) {
+            build()
+        }
+
+        return mutViews
     }
 }
 
