@@ -65,10 +65,32 @@ open class ComposingEditTextLayoutStyle(context: Context) : ComposingStyle(conte
     var isFocusable: Boolean? = null
     var isEnabled: Boolean? = null
 
-    @StringRes
-    var hintText: Int? = null
+    var hintText: String? = null
+
+    fun setHintText(@StringRes textRes: Int) {
+        hintText = context.getString(textRes)
+    }
 
     var inputType: Int? = null
+
+    var lines: Int? = null
+    var gravityText: Int? = null
+
+    var isVerticalScrollbar: Boolean? = null
+        set(value) {
+            if (isHorizontalScrollbar == true) {
+                throw IllegalStateException("You can not use both scrollbars")
+            }
+            field = value
+        }
+
+    var isHorizontalScrollbar: Boolean? = null
+        set(value) {
+            if (isVerticalScrollbar == true) {
+                throw IllegalStateException("You can not use both scrollbars")
+            }
+            field = value
+        }
 
     companion object {
         operator fun invoke(
