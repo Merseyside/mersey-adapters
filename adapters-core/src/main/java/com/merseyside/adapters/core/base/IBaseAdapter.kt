@@ -5,7 +5,6 @@ package com.merseyside.adapters.core.base
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
@@ -19,6 +18,7 @@ import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.merseyLib.kotlin.extensions.isZero
+import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -41,7 +41,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     val callbackClick: (Parent) -> Unit
 
     @CallSuper
-    override suspend fun onInserted(models: List<Model>, position: Int, count: Int) = runForUI {
+    override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
         if (count == 1) {
             adapter.notifyItemInserted(position)
         } else {
@@ -52,7 +52,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     @CallSuper
-    override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) = runForUI {
+    override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
         if (count == 1) {
             adapter.notifyItemRemoved(position)
         } else {
@@ -66,13 +66,17 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
-    ) = runForUI {
+    ) {
         adapter.notifyItemChanged(position, payloads)
     }
 
-    override suspend fun onMoved(fromPosition: Int, toPosition: Int) = runForUI {
+    override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
         adapter.notifyItemMoved(fromPosition, toPosition)
         notifyPositionsChanged(toPosition, fromPosition)
+    }
+
+    override suspend fun onCleared() {
+        adapter.notifyDataSetChanged()
     }
 
     suspend fun add(item: Parent): Model? {

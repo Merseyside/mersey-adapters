@@ -27,11 +27,11 @@ interface HasCompositeAdapter {
             adapter.delegatesManager.addDelegateList(delegates)
         }
 
-        val screenContext = runForUI {
+        val screenContext =
             compose(context, viewLifecycleOwner, composeScreen()).apply {
                 relativeAdapter = adapter
             }
-        }
+
 
         showViews(runForUI { screenContext.getViews() })
     }

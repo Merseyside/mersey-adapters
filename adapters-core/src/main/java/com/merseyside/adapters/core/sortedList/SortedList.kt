@@ -3,8 +3,8 @@ package com.merseyside.adapters.core.sortedList
 import android.annotation.SuppressLint
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.async.runWithDefault
 import com.merseyside.adapters.core.sortedList.SortedList.Callback
+import com.merseyside.merseyLib.kotlin.logger.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -52,7 +52,19 @@ class SortedList<T> @JvmOverloads constructor(
      * The callback instance that controls the behavior of the SortedList and get notified when
      * changes happen.
      */
-    private lateinit var mCallback: Callback<T>
+
+    val dummyCallback: Callback<T> = object : Callback<T>() {
+        override fun compare(item1: T, item2: T): Int { return 0 }
+        override suspend fun onChanged(position: Int, count: Int) {}
+        override suspend fun onInserted(position: Int, count: Int) {}
+        override suspend fun onRemoved(position: Int, count: Int) {}
+        override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
+        override fun areItemsTheSame(item1: T, item2: T): Boolean { return false }
+        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean { return false }
+
+    }
+
+    private var mCallback: Callback<T> = dummyCallback
     private var mBatchedCallback: BatchedCallback<T>? = null
     private var mSize: Int
     /**
@@ -71,6 +83,10 @@ class SortedList<T> @JvmOverloads constructor(
     init {
         mData = java.lang.reflect.Array.newInstance(mTClass, initialCapacity) as Array<T>
         mSize = 0
+    }
+
+    fun removeCallback() {
+        mCallback = dummyCallback
     }
 
     fun setCallback(callback: Callback<T>) {
@@ -317,9 +333,9 @@ class SortedList<T> @JvmOverloads constructor(
      *
      * @return Number of deduplicated items at the beginning of the array.
      */
-    private suspend fun sortAndDedup(items: Array<T>): Int = runWithDefault {
+    private fun sortAndDedup(items: Array<T>): Int {
         if (items.isEmpty()) {
-            return@runWithDefault 0
+            return 0
         }
 
         // Arrays.sort is stable.
@@ -354,7 +370,7 @@ class SortedList<T> @JvmOverloads constructor(
             }
         }
 
-        rangeEnd
+        return rangeEnd
     }
 
     private fun findSameItem(item: T, items: Array<T>, from: Int, to: Int): Int {
@@ -765,7 +781,7 @@ class SortedList<T> @JvmOverloads constructor(
         return INVALID_POSITION
     }
 
-    private suspend fun addToData(index: Int, item: T) = runWithDefault {
+    private fun addToData(index: Int, item: T) {
         if (index > mSize) {
             throw IndexOutOfBoundsException(
                 "cannot add item to $index because size is $mSize"

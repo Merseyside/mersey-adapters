@@ -12,31 +12,32 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
     override suspend fun update(
         updateRequest: UpdateRequest<Parent>,
         models: List<Model>
-    ): Boolean {
-        var isUpdated: Boolean
+    ): Boolean = updateActions.transaction {
+            var isUpdated: Boolean
 
-        with(updateRequest) {
-            val modelsToRemove = findOutdatedModels(list, models)
-            isUpdated = updateActions.removeModels(modelsToRemove)
+            with(updateRequest) {
+                val modelsToRemove = findOutdatedModels(list, models)
+                isUpdated = updateActions.removeModels(modelsToRemove)
 
-            list.forEachIndexed { newPosition, item ->
-                val oldModel = models.find { it.areItemsTheSameInternal(item) }
-                if (oldModel == null) {
-                    updateActions.add(newPosition, listOf(item))
-                } else {
-                    val oldPosition = getPositionOfItem(item, models)
-                    updateActions.move(oldModel, oldPosition, newPosition)
-                    if (!oldModel.areContentsTheSame(item)) {
-                        isUpdated = updateActions.updateModel(oldModel, item) || isUpdated
+                list.forEachIndexed { newPosition, item ->
+                    val oldModel = models.find { it.areItemsTheSameInternal(item) }
+                    if (oldModel == null) {
+                        updateActions.add(newPosition, listOf(item))
+                    } else {
+                        val oldPosition = getPositionOfItem(item, models)
+                        updateActions.move(oldModel, oldPosition, newPosition)
+                        if (!oldModel.areContentsTheSame(item)) {
+                            isUpdated = updateActions.updateModel(oldModel, item) || isUpdated
+                        }
                     }
                 }
+
+                isUpdated
             }
 
-            return isUpdated
-        }
     }
 
-    override suspend fun update(dest: List<Model>, source: List<Model>) {
+    override suspend fun update(dest: List<Model>, source: List<Model>) = updateActions.transaction {
         val modelsToRemove = findOutdatedModels(dest.map { it.item }, source)
         updateActions.removeModels(modelsToRemove)
 

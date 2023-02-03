@@ -4,7 +4,6 @@ import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.feature.filtering.listManager.Filters
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
-import com.merseyside.adapters.core.async.runWithDefault
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -87,11 +86,11 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
         return provideFullList()
     }
 
-    private suspend fun filterModels(): List<Model> = runWithDefault {
+    private suspend fun filterModels(): List<Model> {
         val canFilterCurrentItems = filters.isNotEmpty() &&
                 !notAppliedFilters.keys.any { filters.containsKey(it) }
 
-        if (canFilterCurrentItems) {
+        return if (canFilterCurrentItems) {
             filter(provideFilteredList(), notAppliedFilters)
         } else {
             makeAllFiltersNotApplied()

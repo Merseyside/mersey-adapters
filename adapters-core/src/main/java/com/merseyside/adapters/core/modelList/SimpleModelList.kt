@@ -80,8 +80,9 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
         onMoved(fromIndex, toIndex)
     }
 
-    override fun clear() {
+    override suspend fun clear() {
         mutModels.clear()
+        onCleared()
     }
 
     override fun listIterator(): ListIterator<Model> {

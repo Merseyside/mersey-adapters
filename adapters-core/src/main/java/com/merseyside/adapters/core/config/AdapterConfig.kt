@@ -20,6 +20,7 @@ import com.merseyside.adapters.core.modelList.ModelListCallback
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
+import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -40,7 +41,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
 
     var errorHandler: ((Exception) -> Unit)? = null
 
-    var coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    var coroutineScope: CoroutineScope = CoroutineScope(uiDispatcher)
     var coroutineContext: CoroutineContext = AdaptersContext.coroutineContext
 
     internal val workManager: AdapterWorkManager

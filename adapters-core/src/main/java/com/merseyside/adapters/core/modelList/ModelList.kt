@@ -1,10 +1,35 @@
 package com.merseyside.adapters.core.modelList
 
+import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import kotlinx.coroutines.withContext
 
 abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
+
+    private val batchedUpdates: MutableList<suspend () -> Unit> = ArrayList()
+
+    var isBatched = false
+
+    suspend fun <R> batchedUpdate(block: suspend () -> R): R {
+        isBatched = true
+        val result = block()
+        isBatched = false
+
+        runForUI {
+            batchedUpdates.forEach { update -> update() }
+            batchedUpdates.clear()
+        }
+
+        return result
+    }
+
+    private suspend fun doUpdate(block: suspend () -> Unit) {
+        if (isBatched) batchedUpdates.add(block)
+        else withContext(uiDispatcher) { block() }
+    }
 
     private val callbacks: MutableList<ModelListCallback<Model>> = ArrayList()
 
@@ -13,20 +38,34 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
     }
 
     suspend fun onInserted(models: List<Model>, position: Int) {
-        val count = models.size
-        callbacks.forEach { it.onInserted(models, position, count) }
+        doUpdate {
+            val count = models.size
+            callbacks.forEach { it.onInserted(models, position, count) }
+        }
     }
 
     suspend fun onRemoved(models: List<Model>, position: Int, count: Int = models.size) {
-        callbacks.forEach { it.onRemoved(models, position, count) }
+        doUpdate {
+            callbacks.forEach { it.onRemoved(models, position, count) }
+        }
     }
 
     suspend fun onChanged(model: Model, position: Int, payloads: List<AdapterParentViewModel.Payloadable>) {
-        callbacks.forEach { it.onChanged(model, position, payloads) }
+        doUpdate {
+            callbacks.forEach { it.onChanged(model, position, payloads) }
+        }
     }
 
     suspend fun onMoved(fromPosition: Int, toPosition: Int) {
-        callbacks.forEach { it.onMoved(fromPosition, toPosition) }
+        doUpdate {
+            callbacks.forEach { it.onMoved(fromPosition, toPosition) }
+        }
+    }
+
+    suspend fun onCleared() {
+        doUpdate {
+            callbacks.forEach { it.onCleared() }
+        }
     }
 
     abstract fun getModels(): List<Model>
@@ -53,7 +92,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
 
     abstract suspend fun onModelUpdated(model: Model, payloads: List<AdapterParentViewModel.Payloadable>)
 
-    abstract fun clear()
+    abstract suspend fun clear()
 
     abstract override operator fun get(index: Int): Model
 
