@@ -6,6 +6,7 @@ import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
 import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
 import com.merseyside.merseyLib.kotlin.logger.Logger
+import com.merseyside.merseyLib.kotlin.logger.log
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -17,6 +18,9 @@ class AdapterWorkManager(
 
     private val subManagers = ArraySet<AdapterWorkManager>()
     private val subCompositeJob: CompositeJob = CompositeJob()
+
+    private val hasQueueWork: Boolean
+        get() = coroutineQueue.hasQueueWork
 
     fun <Result, T: HasAdapterWorkManager> subTaskWith(
         adapter: T,
@@ -50,8 +54,10 @@ class AdapterWorkManager(
                 val result = work()
                 if (subManagers.isNotEmpty()) {
                     subManagers.forEach { manager ->
-                        val job = manager.executeAsync()
-                        if (job != null) subCompositeJob.add(job)
+                        if (manager.hasQueueWork) {
+                            val job = manager.executeAsync()
+                            if (job != null) subCompositeJob.add(job)
+                        }
                     }
 
                     subCompositeJob.joinAll()

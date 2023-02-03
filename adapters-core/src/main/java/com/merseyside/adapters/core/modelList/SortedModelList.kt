@@ -1,7 +1,6 @@
 package com.merseyside.adapters.core.modelList
 
 import com.merseyside.adapters.core.model.VM
-import kotlinx.coroutines.runBlocking
 import com.merseyside.adapters.core.feature.sorting.Comparator
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.sortedList.SortedList
@@ -14,37 +13,37 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     private val comparator: Comparator<Parent, Model>
 ) : ModelList<Parent, Model>() {
 
-    init {
-        val callback = object : SortedList.Callback<Model>() {
-            override suspend fun onInserted(position: Int, count: Int) {
-                val models = getModels().subList(position, position + count)
-                onInserted(models, position)
-            }
-
-            override suspend fun onRemoved(position: Int, count: Int) {
-                onRemoved(emptyList(), position, count)
-            }
-
-            override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
-                this@SortedModelList.onMoved(fromPosition, toPosition)
-            }
-
-            override suspend fun onChanged(position: Int, count: Int) {}
-
-            override fun compare(item1: Model, item2: Model): Int {
-                return comparator.compare(item1, item2)
-            }
-
-            override fun areContentsTheSame(oldItem: Model, newItem: Model): Boolean {
-                return oldItem.areContentsTheSame(newItem.item)
-            }
-
-            override fun areItemsTheSame(item1: Model, item2: Model): Boolean {
-                return item1.areItemsTheSameInternal(item2.item)
-            }
+    private val sortedListCallback = object : SortedList.Callback<Model>() {
+        override suspend fun onInserted(position: Int, count: Int) {
+            val models = getModels().subList(position, position + count)
+            onInserted(models, position)
         }
 
-        sortedList.setCallback(callback)
+        override suspend fun onRemoved(position: Int, count: Int) {
+            onRemoved(emptyList(), position, count)
+        }
+
+        override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
+            this@SortedModelList.onMoved(fromPosition, toPosition)
+        }
+
+        override suspend fun onChanged(position: Int, count: Int) {}
+
+        override fun compare(item1: Model, item2: Model): Int {
+            return comparator.compare(item1, item2)
+        }
+
+        override fun areContentsTheSame(oldItem: Model, newItem: Model): Boolean {
+            return oldItem.areContentsTheSame(newItem.item)
+        }
+
+        override fun areItemsTheSame(item1: Model, item2: Model): Boolean {
+            return item1.areItemsTheSameInternal(item2.item)
+        }
+    }
+
+    init {
+        sortedList.setCallback(sortedListCallback)
     }
 
     override fun getModels(): List<Model> {
@@ -106,8 +105,11 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         }
     }
 
-    override fun clear() {
-        //sortedList.clear()
+    override suspend fun clear() {
+        doWithoutCallback {
+            sortedList.clear()
+        }
+        onCleared()
     }
 
     override fun listIterator(): ListIterator<Model> {
@@ -120,6 +122,12 @@ class SortedModelList<Parent, Model : VM<Parent>>(
 
     override fun subList(fromIndex: Int, toIndex: Int): List<Model> {
         return sortedList.subList(fromIndex, toIndex)
+    }
+
+    private suspend fun doWithoutCallback(block: suspend () -> Unit) {
+        sortedList.removeCallback()
+        block()
+        sortedList.setCallback(sortedListCallback)
     }
 }
 

@@ -12,4 +12,6 @@ interface ModelListCallback<Model> {
     suspend fun onChanged(model: Model, position: Int, payloads: List<AdapterParentViewModel.Payloadable>)
 
     suspend fun onMoved(fromPosition: Int, toPosition: Int)
+
+    suspend fun onCleared()
 }

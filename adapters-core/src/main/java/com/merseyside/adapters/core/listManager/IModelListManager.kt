@@ -10,7 +10,6 @@ import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
-import com.merseyside.adapters.core.async.runWithDefault
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 
 interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAdapterWorkManager
@@ -47,8 +46,8 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
         return getModelByItem(item, modelList)
     }
 
-    suspend fun getModelByItem(item: Parent, models: List<Model>): Model? = runWithDefault {
-        if (item is Identifiable<*>) {
+    suspend fun getModelByItem(item: Parent, models: List<Model>): Model? {
+        return if (item is Identifiable<*>) {
             getModelByIdentifiable(item)
         } else {
             models.find { model ->
@@ -81,6 +80,10 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
         val model = createModel(item)
         addModel(model)
         return model
+    }
+
+    override suspend fun <R> transaction(block: suspend UpdateActions<Parent, Model>.() -> R): R {
+        return modelList.batchedUpdate { block() }
     }
 
     override suspend fun add(items: List<Parent>): List<Model> {

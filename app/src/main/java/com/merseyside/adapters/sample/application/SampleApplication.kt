@@ -1,9 +1,11 @@
 package com.merseyside.adapters.sample.application
 
+import com.merseyside.adapters.core.AdaptersContext
 import com.merseyside.adapters.sample.application.di.AppComponent
 import com.merseyside.adapters.sample.application.di.AppModule
 import com.merseyside.adapters.sample.application.di.DaggerAppComponent
 import com.merseyside.archy.BaseApplication
+import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
 
 class SampleApplication : BaseApplication() {
 
@@ -15,7 +17,7 @@ class SampleApplication : BaseApplication() {
         instance = this
         appComponent = buildComponent()
 
-        //AdaptersContext.coroutineContext = uiDispatcher
+        //AdaptersContext.coroutineContext = defaultDispatcher
     }
 
     private fun buildComponent() =
