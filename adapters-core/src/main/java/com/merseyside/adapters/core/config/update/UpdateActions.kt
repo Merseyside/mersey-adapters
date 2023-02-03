@@ -4,6 +4,8 @@ import com.merseyside.adapters.core.model.VM
 
 
 interface UpdateActions<Parent, Model : VM<Parent>> {
+    suspend fun <R> transaction(block: suspend UpdateActions<Parent, Model>.() -> R): R
+
     suspend fun add(items: List<Parent>): List<Model>
 
     suspend fun add(position: Int, items: List<Parent>): List<Model>

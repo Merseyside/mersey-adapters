@@ -107,6 +107,10 @@ class AdapterSelect<Parent, Model>(
 
     override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
 
+    override suspend fun onCleared() {
+        selectedList.clear()
+    }
+
     override fun addOnItemSelectedListener(listener: OnItemSelectedListener<Parent>) {
         super.addOnItemSelectedListener(listener)
 

@@ -81,6 +81,10 @@ class AdapterExpand<Parent, Model>(
 
     override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
 
+    override suspend fun onCleared() {
+        expandedList.clear()
+    }
+
     fun changeItemExpandedState(item: ExpandableItem, isExpandedByUser: Boolean = true) {
         with(item) {
             if (canItemBeExpanded(item)) {

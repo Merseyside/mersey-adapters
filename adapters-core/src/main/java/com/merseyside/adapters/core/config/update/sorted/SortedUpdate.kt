@@ -4,9 +4,7 @@ import com.merseyside.adapters.core.config.update.UpdateActions
 import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
-import com.merseyside.adapters.core.async.runWithDefault
 import com.merseyside.merseyLib.kotlin.extensions.subtractBy
-import com.merseyside.merseyLib.kotlin.logger.log
 
 class SortedUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>
@@ -20,7 +18,7 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
     private suspend fun getUpdateTransaction(
         updateRequest: UpdateRequest<Parent>,
         models: List<Model>
-    ): UpdateTransaction<Parent, Model> = runWithDefault {
+    ): UpdateTransaction<Parent, Model>  {
         val updateTransaction = UpdateTransaction<Parent, Model>()
         with(updateTransaction) {
             if (updateRequest.isDeleteOld) {
@@ -45,12 +43,12 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             itemsToAdd = addList
         }
 
-        updateTransaction
+        return updateTransaction
     }
 
     private suspend fun applyUpdateTransaction(
         updateTransaction: UpdateTransaction<Parent, Model>
-    ): Boolean {
+    ): Boolean = updateActions.transaction {
         with(updateTransaction) {
             if (modelsToRemove.isNotEmpty()) {
                 updateActions.removeModels(modelsToRemove)
@@ -65,7 +63,7 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             }
         }
 
-        return !updateTransaction.isEmpty()
+        !updateTransaction.isEmpty()
     }
 
     override suspend fun update(dest: List<Model>, source: List<Model>) {

@@ -7,7 +7,6 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.viewProvider.MutableComposeState
 import com.merseyside.adapters.compose.viewProvider.ViewComposeContext
 import com.merseyside.adapters.core.async.addOrUpdateAsync
-import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 
