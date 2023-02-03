@@ -48,11 +48,23 @@ open class ComposingEditTextLayoutDelegate<View : ComposingEditTextLayout<Style>
                 startIconDrawable = ContextCompat.getDrawable(context, drawable)
             }
             safeLet(style.isEnabled) { enabled ->
-                editTextLayout.isEnabled = enabled
+                isEnabled = enabled
                 editText?.isEnabled = enabled
             }
-            safeLet(style.hintText) { textRes ->
-                editTextLayout.setHint(textRes)
+            safeLet(style.hintText) { text ->
+                hint = text
+            }
+            safeLet(style.lines) { count ->
+                editText?.setLines(count)
+            }
+            safeLet(style.gravityText) { gravity ->
+                editText?.gravity = gravity
+            }
+            safeLet(style.isVerticalScrollbar) { isVertical ->
+                editText?.isVerticalScrollBarEnabled = isVertical
+            }
+            safeLet(style.isHorizontalScrollbar) { isHorizontal ->
+                editText?.isHorizontalScrollBarEnabled = isHorizontal
             }
         }
     }
