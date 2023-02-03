@@ -8,7 +8,7 @@ import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.merseyLib.kotlin.utils.safeLet
-import com.merseyside.utils.view.ext.setTextSizePx
+import com.merseyside.utils.ext.setTextSizePx
 
 open class ComposingTextDelegate<View : ComposingText<Style>, Style : ComposingTextStyle, VM : ComposingTextViewModel<View>> :
     ViewDelegateAdapter<View, Style, VM>() {

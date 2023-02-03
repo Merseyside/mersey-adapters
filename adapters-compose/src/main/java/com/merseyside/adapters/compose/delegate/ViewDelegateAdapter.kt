@@ -12,6 +12,7 @@ import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.merseyLib.kotlin.utils.safeLet
+import com.merseyside.utils.ext.setMarginsRes
 import com.merseyside.utils.view.ext.padding
 import com.merseyside.utils.view.ext.setMarginsRes
 

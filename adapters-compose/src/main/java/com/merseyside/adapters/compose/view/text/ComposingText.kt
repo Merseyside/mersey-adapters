@@ -11,7 +11,6 @@ import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.viewProvider.ViewProviderContext
 import com.merseyside.adapters.compose.viewProvider.addView
-import com.merseyside.utils.view.ext.setTextSizePx
 
 open class ComposingText<Style : ComposingTextStyle>(
     id: String,
