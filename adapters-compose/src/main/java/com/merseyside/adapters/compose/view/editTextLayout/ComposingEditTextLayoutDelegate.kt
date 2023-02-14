@@ -53,6 +53,7 @@ open class ComposingEditTextLayoutDelegate<View : ComposingEditTextLayout<Style>
             }
             safeLet(style.hintText) { text ->
                 hint = text
+                editText?.hint = text
             }
             safeLet(style.lines) { count ->
                 editText?.setLines(count)
