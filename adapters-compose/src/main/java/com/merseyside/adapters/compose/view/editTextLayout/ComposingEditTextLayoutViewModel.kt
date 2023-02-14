@@ -4,7 +4,7 @@ import androidx.databinding.Bindable
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.view.base.model.ViewVM
 
-class ComposingEditTextLayoutViewModel<Item : ComposingEditTextLayout<*>>(
+open class ComposingEditTextLayoutViewModel<Item : ComposingEditTextLayout<*>>(
     item: Item
 ) : ViewVM<Item>(item) {
 
