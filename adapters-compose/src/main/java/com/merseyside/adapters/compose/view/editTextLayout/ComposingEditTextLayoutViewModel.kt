@@ -11,14 +11,10 @@ open class ComposingEditTextLayoutViewModel<Item : ComposingEditTextLayout<*>>(
     override fun notifyUpdate() {
         notifyPropertyChanged(BR.text)
         notifyPropertyChanged(BR.clearFocus)
-        notifyPropertyChanged(BR.hintText)
     }
 
     @Bindable
     fun getText() = item.text
-
-    @Bindable
-    fun getHintText() = item.hintText
 
     @Bindable
     fun isClearFocus() = item.isClearFocus
