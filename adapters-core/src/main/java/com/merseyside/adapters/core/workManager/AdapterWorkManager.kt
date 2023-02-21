@@ -6,7 +6,6 @@ import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
 import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
 import com.merseyside.merseyLib.kotlin.logger.Logger
-import com.merseyside.merseyLib.kotlin.logger.log
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -68,5 +67,9 @@ class AdapterWorkManager(
                 onError?.invoke(e) ?: errorHandler(e)
             }
         }
+    }
+
+    fun cancel(): Boolean {
+        return coroutineQueue.cancelAndClear()
     }
 }

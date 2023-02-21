@@ -22,6 +22,7 @@ class AdapterSelect<Parent, Model>(
     selectableMode: SelectableMode,
     isSelectEnabled: Boolean,
     private var isAllowToCancelSelection: Boolean,
+    private val forceSelect: Boolean,
     override val workManager: AdapterWorkManager
 ) : HasOnItemSelectedListener<Parent>, ModelListCallback<Model>, HasAdapterWorkManager, ILogger
         where Model : VM<Parent> {
@@ -69,7 +70,7 @@ class AdapterSelect<Parent, Model>(
                 if (selectedList.isEmpty() && selectableMode == SelectableMode.SINGLE &&
                     !isAllowToCancelSelection
                 ) {
-                    selectFirstItemIfNeed()
+                    if (forceSelect) selectFirstItemIfNeed()
                 }
 
                 onSelectEnabledListener?.onEnabled(value)
@@ -168,7 +169,7 @@ class AdapterSelect<Parent, Model>(
         if (selectableMode == SelectableMode.SINGLE) {
             if (selected.isEmpty()) {
                 if (isAllowToCancelSelection) return
-                else selectFirstItemIfNeed()
+                else if (forceSelect) selectFirstItemIfNeed()
             } else {
                 val lastSelectedItem = selected.last()
                 selectedList.addOrSet(0, lastSelectedItem)
@@ -248,6 +249,14 @@ class AdapterSelect<Parent, Model>(
         }
     }
 
+    fun clear() {
+        val itemsToRemove = ArrayList(selectedList)
+
+        itemsToRemove.forEach { item ->
+            updateItemWithState(item, false)
+        }
+    }
+
     @ExperimentalContracts
     @Contract
     internal fun Model?.isSelectable(): Boolean {
@@ -300,14 +309,6 @@ class AdapterSelect<Parent, Model>(
 
     private fun notifyItemSelected(item: SelectableItem, isSelectedByUser: Boolean) {
         notifyOnSelected((item.asModel()).item, item.isSelected(), isSelectedByUser)
-    }
-
-    internal fun clear() {
-        val itemsToRemove = ArrayList(selectedList)
-
-        itemsToRemove.forEach { item ->
-            updateItemWithState(item, false)
-        }
     }
 
     override val tag: String = "AdapterSelect"

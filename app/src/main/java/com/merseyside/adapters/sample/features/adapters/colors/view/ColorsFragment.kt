@@ -26,7 +26,7 @@ import com.merseyside.adapters.sample.features.adapters.colors.model.ColorsViewM
 import com.merseyside.archy.presentation.view.valueSwitcher.ValueSwitcher
 import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.utils.view.ext.addTextChangeListener
+import com.merseyside.utils.ext.addTextChangeListener
 
 class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel>() {
 

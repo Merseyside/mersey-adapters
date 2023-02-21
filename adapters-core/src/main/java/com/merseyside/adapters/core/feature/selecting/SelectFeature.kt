@@ -32,6 +32,7 @@ class SelectFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Config<P
                 selectableMode,
                 isSelectEnabled,
                 isAllowToCancelSelection,
+                forceSelect,
                 adapterConfig.workManager
             )
 
@@ -48,6 +49,7 @@ class Config<Parent, Model>(
     configure: Config<Parent, Model>.() -> Unit = {}
 ) where Model : VM<Parent> {
     var selectableMode: SelectableMode = SelectableMode.SINGLE
+    var forceSelect: Boolean = true
     var isSelectEnabled: Boolean = true
     private var _isAllowToCancelSelection: Boolean? = null
         get() = field ?: (selectableMode == SelectableMode.MULTIPLE)

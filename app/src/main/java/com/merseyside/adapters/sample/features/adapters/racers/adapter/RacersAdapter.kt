@@ -13,7 +13,7 @@ import com.merseyside.adapters.sample.features.adapters.racers.entity.Checkpoint
 import com.merseyside.adapters.sample.features.adapters.racers.model.CheckpointItemViewModel
 import com.merseyside.merseyLib.time.units.Millis
 import com.merseyside.merseyLib.time.units.compareTo
-import com.merseyside.utils.view.ext.setTextColorAttr
+import com.merseyside.utils.ext.setTextColorAttr
 
 class RacersAdapter(config: AdapterConfig<Checkpoint, CheckpointItemViewModel>) :
     SimpleAdapter<Checkpoint, CheckpointItemViewModel>(config) {

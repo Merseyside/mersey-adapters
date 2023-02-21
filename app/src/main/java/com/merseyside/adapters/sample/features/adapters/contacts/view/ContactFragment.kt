@@ -15,7 +15,6 @@ import com.merseyside.adapters.core.feature.selecting.group.SelectingGroup
 import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
-import com.merseyside.utils.view.ext.addTextChangeListener
 import com.merseyside.utils.view.ext.onClick
 import com.merseyside.adapters.sample.application.base.BaseSampleFragment
 import com.merseyside.adapters.sample.databinding.FragmentContactsBinding
@@ -26,6 +25,7 @@ import com.merseyside.adapters.sample.features.adapters.contacts.di.ContactsModu
 import com.merseyside.adapters.sample.features.adapters.contacts.di.DaggerContactsComponent
 import com.merseyside.adapters.sample.features.adapters.contacts.model.ContactViewModel
 import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
+import com.merseyside.utils.ext.addTextChangeListener
 
 class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewModel>() {
 
