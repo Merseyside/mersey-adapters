@@ -8,8 +8,8 @@ import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.SimpleModelList
-import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
+import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 
 interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAdapterWorkManager
@@ -42,11 +42,11 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
         throw IllegalArgumentException("No data found")
     }
 
-    suspend fun getModelByItem(item: Parent): Model? {
+    fun getModelByItem(item: Parent): Model? {
         return getModelByItem(item, modelList)
     }
 
-    suspend fun getModelByItem(item: Parent, models: List<Model>): Model? {
+    fun getModelByItem(item: Parent, models: List<Model>): Model? {
         return if (item is Identifiable<*>) {
             getModelByIdentifiable(item)
         } else {

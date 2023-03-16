@@ -18,7 +18,6 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -152,11 +151,11 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         return listManager.getModelByPosition(position)
     }
 
-    suspend fun getModelByItem(item: Parent): Model? {
+    fun getModelByItem(item: Parent): Model? {
         return listManager.getModelByItem(item)
     }
 
-    suspend fun getPositionOfItem(item: Parent): Int {
+    fun getPositionOfItem(item: Parent): Int {
         val model = getModelByItem(item)
         return if (model != null) {
             getPositionOfModel(model)
@@ -212,7 +211,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         adapter.notifyDataSetChanged()
     }
 
-    suspend fun getPositionOfModel(model: Model): Int {
+    fun getPositionOfModel(model: Model): Int {
         return listManager.getPositionOfModel(model)
     }
 
