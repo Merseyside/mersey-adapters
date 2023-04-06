@@ -21,7 +21,6 @@ class ComposeFragment : BaseSampleFragment<FragmentComposeBinding, ComposeViewMo
     private lateinit var screenBuilder: MovieScreenAdapterComposer
 
     override fun getTitle(context: Context) = "ComposeScreen"
-    override fun hasTitleBackButton() = true
     override fun getBindingVariable() = BR.viewModel
     override fun getLayoutId() = R.layout.fragment_compose
 

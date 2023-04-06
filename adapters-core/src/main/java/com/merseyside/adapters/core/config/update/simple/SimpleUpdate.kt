@@ -13,11 +13,9 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         updateRequest: UpdateRequest<Parent>,
         models: List<Model>
     ): Boolean = updateActions.transaction {
-            var isUpdated: Boolean
+            var isUpdated: Boolean = false
 
             with(updateRequest) {
-                val modelsToRemove = findOutdatedModels(list, models)
-                isUpdated = updateActions.removeModels(modelsToRemove)
 
                 list.forEachIndexed { newPosition, item ->
                     val oldModel = models.find { it.areItemsTheSameInternal(item) }
@@ -32,9 +30,9 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
                     }
                 }
 
-                isUpdated
+                val modelsToRemove = findOutdatedModels(list, models)
+                isUpdated || updateActions.removeModels(modelsToRemove)
             }
-
     }
 
     override suspend fun update(dest: List<Model>, source: List<Model>) = updateActions.transaction {

@@ -70,7 +70,6 @@ class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewM
         true
     }
 
-    override fun hasTitleBackButton() = true
     override fun getLayoutId() = R.layout.fragment_contacts
     override fun getTitle(context: Context) = "Contacts"
     override fun getBindingVariable() = BR.viewModel

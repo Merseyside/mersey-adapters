@@ -32,7 +32,6 @@ class RacingFragment : BaseSampleFragment<FragmentRacingBinding, RacingViewModel
         Positioning()
     }
 
-    override fun hasTitleBackButton() = true
     override fun getBindingVariable() = BR.viewModel
     override fun getLayoutId() = R.layout.fragment_racing
     override fun getTitle(context: Context) = "Racing"

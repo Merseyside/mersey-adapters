@@ -48,7 +48,6 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
     override fun getBindingVariable() = BR.viewModel
     override fun getLayoutId() = R.layout.fragment_colors
     override fun getTitle(context: Context) = "Colors"
-    override fun hasTitleBackButton() = true
 
     override fun performInjection(bundle: Bundle?, vararg params: Any) {
         DaggerColorsComponent.builder()

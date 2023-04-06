@@ -32,7 +32,6 @@ class DelegateFragment : BaseSampleFragment<FragmentDelegateBinding, DelegateVie
         }
     }.apply { onClick { showMsg("Clicked!") } }
 
-    override fun hasTitleBackButton() = true
     override fun getLayoutId() = R.layout.fragment_delegate
     override fun getTitle(context: Context) = "Delegate"
     override fun getBindingVariable() = BR.viewModel
