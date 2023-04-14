@@ -1,12 +1,12 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     with(catalogPlugins.plugins) {
         plugin(android.library)
         plugin(kotlin.android)
         id(mersey.android.extension.id())
         id(mersey.kotlin.extension.id())
+        id("org.jetbrains.dokka")
     }
-    `android-maven-publish-config`
+    `maven-publish-plugin`
 }
 
 android {
@@ -24,7 +24,10 @@ android {
     buildTypes {
         getByName("debug") {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
 
         getByName("release") {
@@ -47,4 +50,11 @@ kotlinExtension {
 
 dependencies {
     api(projects.adaptersCore)
+}
+
+afterEvaluate {
+    tasks.named("javaDocReleaseGeneration")
+        .configure { // See: https://youtrack.jetbrains.com/issue/KTIJ-19005/JDK-17-PermittedSubclasses-requires-ASM9-exception-multiple-times-per-second-during-analysis
+            enabled = false
+        }
 }

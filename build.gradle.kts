@@ -1,20 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-    }
-}
-
-@Suppress("DSL_SCOPE_VIOLATION")
-plugins {
-    alias(common.plugins.versionChecker)
-    `nexus-config`
-}
-
 allprojects {
-    group = "io.github.merseyside"
-    version = "1.0.0"
+    plugins.withId("org.gradle.maven-publish") {
+        group = "io.github.merseyside"
+        version = androidLibs.versions.mersey.adapters.get()
+    }
 }
 
 tasks.register("clean", Delete::class).configure {

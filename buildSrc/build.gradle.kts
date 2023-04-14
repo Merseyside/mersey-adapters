@@ -2,13 +2,6 @@ plugins {
     `kotlin-dsl`
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    google()
-    gradlePluginPortal()
-}
-
 dependencies {
     with(catalogGradle) {
         implementation(kotlin.gradle)
@@ -16,5 +9,7 @@ dependencies {
         implementation(kotlin.serialization)
         implementation(nexusPublish)
         implementation(mersey.gradlePlugins)
+        implementation(maven.publish.plugin)
+        implementation(kotlin.dokka)
     }
 }

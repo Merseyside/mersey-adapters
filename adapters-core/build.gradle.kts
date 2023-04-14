@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     with(catalogPlugins.plugins) {
         plugin(android.library)
@@ -7,8 +6,9 @@ plugins {
         id(mersey.android.extension.id())
         id(mersey.kotlin.extension.id())
         plugin(kotlin.kapt)
+        id("org.jetbrains.dokka")
     }
-    `android-maven-publish-config`
+    `maven-publish-plugin`
 }
 
 android {
