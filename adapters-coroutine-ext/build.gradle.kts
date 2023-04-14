@@ -4,7 +4,6 @@ plugins {
         plugin(kotlin.android)
         id(mersey.android.extension.id())
         id(mersey.kotlin.extension.id())
-        id("org.jetbrains.dokka")
     }
     `maven-publish-plugin`
 }
@@ -50,11 +49,4 @@ kotlinExtension {
 
 dependencies {
     api(projects.adaptersCore)
-}
-
-afterEvaluate {
-    tasks.named("javaDocReleaseGeneration")
-        .configure { // See: https://youtrack.jetbrains.com/issue/KTIJ-19005/JDK-17-PermittedSubclasses-requires-ASM9-exception-multiple-times-per-second-during-analysis
-            enabled = false
-        }
 }

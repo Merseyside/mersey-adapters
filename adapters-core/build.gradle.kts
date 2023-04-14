@@ -6,7 +6,6 @@ plugins {
         id(mersey.android.extension.id())
         id(mersey.kotlin.extension.id())
         plugin(kotlin.kapt)
-        id("org.jetbrains.dokka")
     }
     `maven-publish-plugin`
 }
