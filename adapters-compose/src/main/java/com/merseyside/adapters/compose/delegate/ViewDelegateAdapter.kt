@@ -32,6 +32,10 @@ abstract class ViewDelegateAdapter<View : StyleableComposingView<Style>, Style :
                 }
             }
 
+            safeLet(style.elevation) {
+                view.elevation = it
+            }
+
             safeLet(backgroundColor) { color ->
                 view.setBackgroundColor(color)
             }

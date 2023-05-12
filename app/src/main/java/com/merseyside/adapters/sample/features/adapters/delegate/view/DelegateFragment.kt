@@ -50,7 +50,7 @@ class DelegateFragment : BaseSampleFragment<FragmentDelegateBinding, DelegateVie
         adapter.addAsync(Cat("Squirty", 5, "abc"))
 
         requireBinding().populate.onClick {
-            adapter.updateAsync(UpdateRequest.Builder(getData()).build())
+            adapter.updateAsync(getData())
         }
     }
 

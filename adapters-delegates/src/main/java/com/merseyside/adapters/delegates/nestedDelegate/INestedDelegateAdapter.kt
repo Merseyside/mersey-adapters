@@ -2,7 +2,7 @@ package com.merseyside.adapters.delegates.nestedDelegate
 
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.async.addOrUpdateAsync
+import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.holder.TypedBindingHolder
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
@@ -56,8 +56,12 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapte
 
     private fun setInnerData(adapter: InnerAdapter, model: Model) {
         model.getNestedData()?.let { data ->
-            adapter.addOrUpdateAsync(data)
+            handleInnerData(adapter, data)
         }
+    }
+
+    fun handleInnerData(adapter: InnerAdapter, data: List<Data>) {
+        adapter.updateAsync(data)
     }
 
     @InternalAdaptersApi

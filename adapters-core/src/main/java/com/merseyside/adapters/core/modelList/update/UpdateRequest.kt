@@ -33,7 +33,6 @@ class UpdateRequest<Item>(val list: List<Item>) {
 
     companion object {
         fun <Item> fromBehaviour(items: List<Item>, updateBehaviour: UpdateBehaviour): UpdateRequest<Item> {
-            updateBehaviour as UpdateBehaviour.UPDATE
             return Builder(items)
                 .isAddNew(updateBehaviour.addNew)
                 .isDeleteOld(updateBehaviour.removeOld)

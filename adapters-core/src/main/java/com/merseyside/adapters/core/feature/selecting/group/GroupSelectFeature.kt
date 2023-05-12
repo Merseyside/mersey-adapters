@@ -8,7 +8,7 @@ import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.nested.INestedAdapter
 import com.merseyside.adapters.core.nested.OnInitNestedAdapterListener
-import com.merseyside.adapters.core.config.ext.getAdapterSelect
+import com.merseyside.adapters.core.feature.selecting.config.getAdapterSelect
 
 
 class GroupSelectFeature<Parent, Model, InnerData, InnerAdapter> :

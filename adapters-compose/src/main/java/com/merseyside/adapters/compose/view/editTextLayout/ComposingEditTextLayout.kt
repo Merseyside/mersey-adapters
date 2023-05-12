@@ -9,7 +9,7 @@ import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.compose.viewProvider.addView
+import com.merseyside.adapters.compose.dsl.context.addView
 
 open class ComposingEditTextLayout<Style : ComposingEditTextLayoutStyle>(
     id: String,

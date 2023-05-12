@@ -4,7 +4,6 @@ import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.feature.Feature
 import com.merseyside.adapters.core.model.VM
 
-
 class PositionFeature<Parent, Model : VM<Parent>> :
     Feature<Parent, Model>() {
     override val featureKey: String = key

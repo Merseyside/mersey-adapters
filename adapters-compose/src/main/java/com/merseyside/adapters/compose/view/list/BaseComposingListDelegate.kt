@@ -54,6 +54,9 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
         return super.initNestedAdapter(model).also { adapter ->
             with(adapter) {
                 onClick { view -> model.item.listConfig.notifyOnClick(view) }
+                model.item.listConfig.attachToRecyclerViewListeners.forEach {
+                    adapter.addOnAttachToRecyclerViewListener(it)
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ package com.merseyside.adapters.core.feature.expanding
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
 import com.merseyside.merseyLib.kotlin.observable.ObservableField
 import com.merseyside.merseyLib.kotlin.observable.SingleObservableEvent
-import com.merseyside.merseyLib.kotlin.observable.combineFields
+import com.merseyside.merseyLib.kotlin.observable.ext.combineFields
 
 class ExpandState(
     expanded: Boolean = false,

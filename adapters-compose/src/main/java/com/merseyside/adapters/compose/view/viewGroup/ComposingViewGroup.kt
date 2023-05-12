@@ -1,10 +1,11 @@
 package com.merseyside.adapters.compose.view.viewGroup
 
 import android.content.Context
-import com.merseyside.adapters.compose.dsl.context.ViewGroupComposeContext
+import com.merseyside.adapters.compose.view.viewGroup.dsl.context.ViewGroupComposeContext
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
+import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 
 abstract class ComposingViewGroup<Style : ComposingViewGroupStyle>(
     id: String,
@@ -15,12 +16,16 @@ abstract class ComposingViewGroup<Style : ComposingViewGroupStyle>(
     val viewList: List<SCV>
         get() = viewGroupComposeContext.getViews()
 
+
+
     override fun getStringBuilder(): StringBuilder {
         return super.getStringBuilder().apply {
             appendLine()
             append("viewList: ").appendLine("$viewList")
         }
     }
+
+
 
     @Suppress("UNCHECKED_CAST")
     fun <View : SCV> findViewById(id: String): View? {

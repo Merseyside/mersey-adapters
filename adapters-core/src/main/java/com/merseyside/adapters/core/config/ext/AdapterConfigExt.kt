@@ -23,23 +23,3 @@ fun <Parent, F : Feature<Parent, *>>
         AdapterConfig<Parent, *>.getFeatureByInstance(clazz: Class<F>): F? {
     return featureList.filterIsInstance(clazz).firstOrNull()
 }
-
-fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterFilter(): AdapterFilter<Parent, Model>? {
-    return featureList.filterIsInstance<FilterProvider<Parent, Model>>()
-        .firstOrNull()?.adapterFilter
-}
-
-fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterQueryFilter(): AdapterQueryFilter<Parent, Model>? {
-    return featureList.filterIsInstance<FilterProvider<Parent, Model>>()
-        .firstOrNull()?.adapterFilter as? AdapterQueryFilter<Parent, Model>
-}
-
-fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterComparator(): Comparator<Parent, Model>? {
-    return featureList.filterIsInstance<ComparatorProvider<Parent, Model>>()
-        .firstOrNull()?.comparator
-}
-
-fun <Parent, Model : VM<Parent>> AdapterConfig<Parent, Model>.getAdapterSelect(): AdapterSelect<Parent, Model>? {
-    return featureList.filterIsInstance<SelectProvider<Parent, Model>>()
-        .firstOrNull()?.adapterSelect
-}

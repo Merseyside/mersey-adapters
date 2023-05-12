@@ -17,8 +17,9 @@ import com.merseyside.adapters.sample.features.adapters.compose.model.ComposeVie
 
 class ComposeFragment : BaseSampleFragment<FragmentComposeBinding, ComposeViewModel>() {
 
-    private lateinit var movieAdapter: SimpleViewCompositeAdapter
-    private lateinit var screenBuilder: MovieScreenAdapterComposer
+    private val screenBuilder: MovieScreenAdapterComposer by lazy {
+        MovieScreenAdapterComposer(this, initAdapter(::SimpleViewCompositeAdapter))
+    }
 
     override fun getTitle(context: Context) = "ComposeScreen"
     override fun getBindingVariable() = BR.viewModel
@@ -36,10 +37,6 @@ class ComposeFragment : BaseSampleFragment<FragmentComposeBinding, ComposeViewMo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        movieAdapter = initAdapter(::SimpleViewCompositeAdapter) {
-            coroutineScope = viewLifecycleOwner.lifecycleScope
-        }.also { adapter -> requireBinding().composite.adapter = adapter }
-
-        screenBuilder = MovieScreenAdapterComposer(this, movieAdapter)
+        requireBinding().composite.adapter = screenBuilder.adapter
     }
 }

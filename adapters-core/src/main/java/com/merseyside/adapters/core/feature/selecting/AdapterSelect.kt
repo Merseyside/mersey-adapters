@@ -13,7 +13,6 @@ import com.merseyside.adapters.core.modelList.ModelListCallback
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.addOrSet
 import com.merseyside.merseyLib.kotlin.logger.ILogger
-import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -245,7 +244,9 @@ class AdapterSelect<Parent, Model>(
 
     fun selectFirstSelectableItem() {
         modelList.forEach { item ->
-            if (changeItemSelectedState(item.asSelectable())) return
+            if (item.isSelectable()) {
+                if (changeItemSelectedState(item.asSelectable())) return
+            }
         }
     }
 
@@ -257,8 +258,7 @@ class AdapterSelect<Parent, Model>(
         }
     }
 
-    @ExperimentalContracts
-    @Contract
+    @OptIn(ExperimentalContracts::class)
     internal fun Model?.isSelectable(): Boolean {
         contract {
             returns(true) implies (this@isSelectable != null && this@isSelectable is SelectableItem)
@@ -270,7 +270,7 @@ class AdapterSelect<Parent, Model>(
     internal fun Model?.asSelectable(): SelectableItem {
         return if (this != null) {
             this as SelectableItem
-        } else throw NullPointerException()
+        } else throw NullPointerException("Tried to cast to Selectable, but model is null!")
     }
 
     internal fun Model?.requireSelectable(): SelectableItem {

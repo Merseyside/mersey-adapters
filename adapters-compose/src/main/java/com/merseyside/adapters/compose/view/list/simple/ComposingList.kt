@@ -5,14 +5,15 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.dsl.context.ListComposeContext
-import com.merseyside.adapters.compose.dsl.context.listContext
+import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
+import com.merseyside.adapters.compose.view.list.dsl.context.listContext
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroup
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
-import com.merseyside.adapters.compose.viewProvider.addView
+import com.merseyside.adapters.compose.dsl.context.addView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.model.VM
@@ -36,9 +37,9 @@ open class ComposingList(
             id: String,
             configure: ListConfig.() -> Unit = {},
             style: ComposingListStyle.() -> Unit = {},
-            buildViews: ComposeContext.() -> Unit
+            initContext: ComposeContext.() -> Unit = {}
         ): ComposingList {
-            val listContext = listContext(id, buildViews)
+            val listContext = listContext(id, initContext)
 
             return ComposingList(id, configure, ComposingListStyle(context, style), listContext)
                 .addView()
@@ -48,7 +49,12 @@ open class ComposingList(
 
 open class ListConfig : HasOnItemClickListener<SCV> {
 
+    internal var attachToRecyclerViewListeners: MutableList<OnAttachToRecyclerViewListener> = mutableListOf()
     override val clickListeners: MutableList<OnItemClickListener<SCV>> = ArrayList()
+
+    fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener) {
+        attachToRecyclerViewListeners.add(listener)
+    }
 
     var adapterConfig: AdapterConfig<SCV, VM<SCV>>.() -> Unit = {}
 
@@ -60,7 +66,6 @@ open class ListConfig : HasOnItemClickListener<SCV> {
 }
 
 open class ComposingListStyle(context: Context) : ComposingViewGroupStyle(context) {
-
 
     companion object {
         operator fun invoke(

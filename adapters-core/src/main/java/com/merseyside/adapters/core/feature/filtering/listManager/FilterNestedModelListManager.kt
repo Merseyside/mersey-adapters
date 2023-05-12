@@ -1,9 +1,9 @@
 package com.merseyside.adapters.core.feature.filtering.listManager
 
 import com.merseyside.adapters.core.base.BaseAdapter
-import com.merseyside.adapters.core.config.ext.getAdapterFilter
 import com.merseyside.adapters.core.feature.filtering.AdapterFilter
 import com.merseyside.adapters.core.feature.filtering.NestedAdapterFilter
+import com.merseyside.adapters.core.feature.filtering.config.getAdapterFilter
 import com.merseyside.adapters.core.listManager.INestedModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel

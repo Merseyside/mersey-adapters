@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
-import com.merseyside.adapters.core.async.addOrUpdateAsync
+import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.feature.expanding.Expanding
 import com.merseyside.adapters.core.feature.filtering.Filtering
 import com.merseyside.adapters.core.feature.filtering.ext.addAndApplyAsync
@@ -90,7 +90,7 @@ class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewM
 
         requireBinding().recycler.adapter = adapter
         viewModel.contactsFlow.asLiveData().observe(viewLifecycleOwner) { items ->
-            adapter.addOrUpdateAsync(items)
+            adapter.updateAsync(items)
         }
 
         requireBinding().populate.onClick {

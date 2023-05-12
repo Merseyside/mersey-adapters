@@ -1,17 +1,19 @@
-package com.merseyside.adapters.compose.dsl.context
+package com.merseyside.adapters.compose.view.list.dsl.context
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import com.merseyside.adapters.compose.dsl.context.ComposeContext
+import com.merseyside.adapters.compose.view.viewGroup.dsl.context.ViewGroupComposeContext
 import com.merseyside.adapters.compose.view.base.SCV
 
 object listContext {
     context(ComposeContext)
     operator fun invoke(
         contextId: String,
-        buildViews: ComposeContext.() -> Unit
+        initContext: ComposeContext.() -> Unit
     ): ListComposeContext {
         return getOrCreateChildContext(contextId) { id, context, viewLifecycleOwner ->
-            ListComposeContext(id, context, viewLifecycleOwner, buildViews)
+            ListComposeContext(id, context, viewLifecycleOwner, initContext)
         }
     }
 }
@@ -20,5 +22,5 @@ open class ListComposeContext(
     contextId: String,
     context: Context,
     viewLifecycleOwner: LifecycleOwner,
-    buildViews: ComposeContext.() -> Unit
-): ViewGroupComposeContext<SCV>(contextId, context, viewLifecycleOwner, buildViews)
+    initContext: ComposeContext.() -> Unit
+): ViewGroupComposeContext<SCV>(contextId, context, viewLifecycleOwner, initContext)

@@ -3,7 +3,7 @@ package com.merseyside.adapters.core.feature.selecting
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
 import com.merseyside.merseyLib.kotlin.observable.SingleObservableEvent
 import com.merseyside.merseyLib.kotlin.observable.ObservableField
-import com.merseyside.merseyLib.kotlin.observable.combineFields
+import com.merseyside.merseyLib.kotlin.observable.ext.combineFields
 
 class SelectState(
     selected: Boolean = false,

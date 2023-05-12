@@ -14,6 +14,7 @@ import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
@@ -90,20 +91,16 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         listManager.add(items)
     }
 
-    suspend fun addOrUpdate(items: List<Parent>) {
-        if (listManager.getItemCount().isZero()) {
-            add(items)
-        } else {
-            update(items)
-        }
-    }
-
+    @InternalAdaptersApi
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
         return listManager.update(updateRequest)
     }
 
-    suspend fun update(items: List<Parent>): Boolean {
-        return listManager.update(UpdateRequest(items))
+    suspend fun update(
+        items: List<Parent>,
+        updateBehaviour: UpdateBehaviour = UpdateBehaviour()
+    ): Boolean {
+        return update(UpdateRequest.fromBehaviour(items, updateBehaviour))
     }
 
     @InternalAdaptersApi

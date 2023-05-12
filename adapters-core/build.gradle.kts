@@ -64,7 +64,8 @@ val androidLibz = listOf(
     androidLibs.recyclerView,
     androidLibs.coroutines,
     androidLibs.lifecycleRuntime,
-    androidLibs.asyncLayoutInflater
+    androidLibs.asyncLayoutInflater,
+    androidLibs.lifecycleLiveDataKtx
 )
 
 val merseyLibs = listOf(

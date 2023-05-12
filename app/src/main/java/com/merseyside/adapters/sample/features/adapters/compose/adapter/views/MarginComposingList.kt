@@ -18,8 +18,8 @@ object MarginComposingList {
         id: String,
         style: ComposingListStyle.() -> Unit = {},
         configure: ListConfig.() -> Unit = {},
-        buildViews: ComposeContext.() -> Unit
+        initContext: ComposeContext.() -> Unit
     ): ComposingList {
-        return ComposingList(id, configure, initWithDefaults(style), buildViews)
+        return ComposingList(id, configure, initWithDefaults(style), initContext)
     }
 }

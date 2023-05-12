@@ -12,6 +12,7 @@ import com.merseyside.adapters.core.feature.filtering.ext.addFilterAsync
 import com.merseyside.adapters.core.feature.filtering.ext.applyFiltersAsync
 import com.merseyside.adapters.core.feature.filtering.ext.removeFilterAsync
 import com.merseyside.adapters.core.feature.sorting.Sorting
+import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
@@ -111,16 +112,17 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
             })
 
 
-        viewModel.getColorsFlow().asLiveData().observe(viewLifecycleOwner) {
+        viewModel.getColorsFlow().asLiveData().observe(viewLifecycleOwner) { colors ->
             if (requireBinding().add.isChecked) {
-                adapter.addAsync(it)
+                adapter.addAsync(colors)
             } else {
-                val updateRequest = UpdateRequest.Builder(it)
-                    .isAddNew(requireBinding().updateAdd.isChecked)
-                    .isDeleteOld(requireBinding().updateRemove.isChecked)
-                    .build()
-
-                adapter.updateAsync(updateRequest)
+                adapter.updateAsync(
+                    colors,
+                    UpdateBehaviour(
+                        removeOld = requireBinding().updateRemove.isChecked,
+                        addNew = requireBinding().updateAdd.isChecked
+                    )
+                )
             }
         }
     }

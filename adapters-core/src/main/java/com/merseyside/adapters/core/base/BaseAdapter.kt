@@ -5,6 +5,7 @@ package com.merseyside.adapters.core.base
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.ext.hasFeature
@@ -14,8 +15,8 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.merseyLib.kotlin.utils.safeLet
 import com.merseyside.utils.reflection.ReflectionUtils
-import kotlinx.coroutines.Job
 
 abstract class BaseAdapter<Parent, Model>(
     override val adapterConfig: AdapterConfig<Parent, Model>,
@@ -34,6 +35,9 @@ abstract class BaseAdapter<Parent, Model>(
 
     protected var isRecyclable: Boolean = true
 
+    private var onAttachToRecyclerViewListeners: MutableList<OnAttachToRecyclerViewListener> =
+        mutableListOf()
+
     @InternalAdaptersApi
     override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
 
@@ -45,6 +49,11 @@ abstract class BaseAdapter<Parent, Model>(
         createModel(item).also { model ->
             onModelCreated(model)
         }
+    }
+
+    fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener) {
+        onAttachToRecyclerViewListeners.add(listener)
+        safeLet(recyclerView) { listener.onAttached(it, this) }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -66,6 +75,7 @@ abstract class BaseAdapter<Parent, Model>(
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         this.recyclerView = recyclerView
         super.onAttachedToRecyclerView(recyclerView)
+        onAttachToRecyclerViewListeners.forEach { it.onAttached(recyclerView, this) }
     }
 
     override fun getItemCount(): Int {
@@ -101,7 +111,8 @@ abstract class BaseAdapter<Parent, Model>(
         holder: TypedBindingHolder<Model>,
         model: Model,
         position: Int
-    ) {}
+    ) {
+    }
 
     open fun removeListeners() {
         removeAllClickListeners()
@@ -109,6 +120,12 @@ abstract class BaseAdapter<Parent, Model>(
 
     override fun hasFeature(key: String): Boolean {
         return adapterConfig.hasFeature(key)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        onAttachToRecyclerViewListeners.forEach { it.onDetached(recyclerView, this) }
+        this.recyclerView = null
     }
 
     override val tag: String = "BaseAdapter"

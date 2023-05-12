@@ -12,12 +12,13 @@ import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.manager.ViewDelegatesManager
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
+import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupDelegate
 import com.merseyside.adapters.core.feature.selecting.Selecting
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import com.merseyside.utils.ext.getDimension
 import com.merseyside.utils.ext.getDimensionPixelSize
 
-class ComposingCardDelegate : NestedViewDelegateAdapter<ComposingCard, ComposingCardStyle,
+class ComposingCardDelegate : ComposingViewGroupDelegate<ComposingCard, ComposingCardStyle,
         ComposingCardViewModel<ComposingCard>,
         SCV, ViewAdapterViewModel, ViewCompositeAdapter<SCV, ViewAdapterViewModel>>() {
 

@@ -1,14 +1,13 @@
 package com.merseyside.adapters.compose.view.button
 
 import android.content.Context
-import androidx.core.view.updateLayoutParams
 import androidx.databinding.ViewDataBinding
+import com.google.android.material.button.MaterialButton
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.text.ComposingTextDelegate
 import com.merseyside.merseyLib.kotlin.utils.safeLet
-import android.widget.Button as ButtonView
 
 open class ComposingButtonDelegate<View : ComposingButton<Style>,
         Style : ComposingButtonStyle, VM : ComposingButtonViewModel<View>> :
@@ -20,12 +19,10 @@ open class ComposingButtonDelegate<View : ComposingButton<Style>,
         style: Style
     ) {
         super.applyStyle(context, viewDataBinding, style)
-        val button = viewDataBinding.root as ButtonView
+        val button = viewDataBinding.root as MaterialButton
 
         with(button) {
-            safeLet(style.backgroundTint) { color ->
-                backgroundTintList = color
-            }
+
             safeLet(style.isEnabled) { enabled ->
                 isEnabled = enabled
             }
@@ -34,6 +31,26 @@ open class ComposingButtonDelegate<View : ComposingButton<Style>,
             }
             safeLet(style.textAllCaps) { allCaps ->
                 isAllCaps = allCaps
+            }
+            safeLet(style.textGravity) { textGravity ->
+                gravity = textGravity
+            }
+
+            safeLet(style.backgroundTint) { color ->
+                backgroundTintList = color
+            }
+
+            safeLet(style.cornerRadius) { radius ->
+                cornerRadius = radius
+            }
+
+            safeLet(style.icon) { i ->
+                with(icon) {
+                    icon = i.icon
+                    iconGravity = i.iconGravity
+                    iconPadding = i.iconPadding
+                    safeLet(i.iconTint) { iconTint = it }
+                }
             }
         }
     }

@@ -26,6 +26,15 @@ open class ComposingTextDelegate<View : ComposingText<Style>, Style : ComposingT
             }
             safeLet(style.gravity) { gravity -> setGravity(gravity) }
             safeLet(style.maxLines) { maxLines -> setMaxLines(maxLines) }
+
+            safeLet(style.compoundDrawables) { drawables ->
+                with(drawables) {
+                    setCompoundDrawablesRelativeWithIntrinsicBounds(get(0), get(1), get(2), get(3))
+                }
+            }
+
+            text.setTypeface(text.typeface, style.typeface)
+
         }
     }
 
