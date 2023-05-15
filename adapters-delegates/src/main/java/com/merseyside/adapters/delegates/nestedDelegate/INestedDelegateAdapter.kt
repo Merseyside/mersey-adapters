@@ -11,6 +11,7 @@ import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.IDelegateAdapter
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.merseyLib.kotlin.extensions.remove
+import com.merseyside.merseyLib.kotlin.logger.log
 
 interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapter>
     : IDelegateAdapter<Item, Parent, Model>
@@ -21,9 +22,9 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapte
 
     val adapterList: MutableList<Pair<Model, InnerAdapter>>
 
-    fun initNestedAdapter(model: Model): InnerAdapter
+    fun createNestedAdapter(model: Model): InnerAdapter
 
-    fun getNestedView(binding: ViewDataBinding, model: Model): RecyclerView?
+    fun getNestedRecyclerView(binding: ViewDataBinding, model: Model): RecyclerView?
 
     fun removeNestedAdapterByModel(model: Model): Boolean {
         return adapterList.remove { (adaptersModel, _) ->
@@ -39,10 +40,8 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapte
 
     @InternalAdaptersApi
     private fun getNestedAdapterByModel(model: Model): InnerAdapter {
-        return getAdapterIfExists(model) ?: initNestedAdapter(model)
-            .also { adapter ->
-                putAdapter(model, adapter)
-            }
+        return getAdapterIfExists(model) ?: createNestedAdapter(model)
+            .also { adapter -> putAdapter(model, adapter) }
     }
 
     @InternalAdaptersApi
@@ -65,8 +64,9 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapte
     }
 
     @InternalAdaptersApi
-    fun bindNestedAdapter(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
-        getNestedView(holder.binding, model)?.apply {
+    fun onBindNestedAdapter(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
+        "bind nested adapter".log("kek")
+        getNestedRecyclerView(holder.binding, model)?.apply {
             val adapter = getNestedAdapterByModel(model)
             setInnerData(adapter, model)
             if (this.adapter != adapter) {

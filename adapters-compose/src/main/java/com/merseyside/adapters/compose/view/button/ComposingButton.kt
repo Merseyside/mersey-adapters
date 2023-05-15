@@ -63,8 +63,11 @@ open class ComposingButtonStyle(context: Context) : ComposingTextStyle(context) 
      * Builder for button's icon
      * @see Icon
      */
-    fun Icon(@DrawableRes drawable: Int, init: Icon.() -> Unit) {
-        icon = Icon(context, drawable, init)
+    fun Icon(@DrawableRes drawable: Int, init: Icon.() -> Unit): Icon {
+        return Icon(context, drawable, init).also {
+            icon = it
+        }
+
     }
 
     fun setBackgroundTintRes(@ColorRes colorRes: Int?) {

@@ -34,5 +34,5 @@ abstract class FragmentAdapterComposer(
         get() = fragment.requireActivity()
 
     override val viewLifecycleOwner: LifecycleOwner
-        get() = fragment.viewLifecycleOwner
+        get() = fragment
 }

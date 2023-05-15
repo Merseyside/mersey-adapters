@@ -79,7 +79,7 @@ class ComposingCardDelegate : ComposingViewGroupDelegate<ComposingCard, Composin
         }
     }
 
-    override fun getNestedView(
+    override fun getNestedRecyclerView(
         binding: ViewDataBinding,
         model: ComposingCardViewModel<ComposingCard>
     ): RecyclerView? {

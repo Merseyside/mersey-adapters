@@ -3,6 +3,8 @@ package com.merseyside.adapters.compose.view.list.paging.dsl.context
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withStarted
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.base.SCV
@@ -48,18 +50,20 @@ class PaginationComposeContext<Data>(
     override fun onInitAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
         super.onInitAdapter(adapter)
         checkValid()
+        "init adapter".log("kek")
 
-        onNextPage.map(viewProvider).asLiveData().observe(viewLifecycleOwner) { views ->
-            updateViews { current ->
-                current + views
+        onNextPage.map(viewProvider).asLiveData()
+            .observe(viewLifecycleOwner) { views ->
+                "on next page".log("kek")
+                updateViews { current ->
+                    current + views
+                }
             }
-        }
 
         if (this::onPrevPage.isInitialized) {
-            onPrevPage.map(viewProvider).asLiveData()
-                .observe(viewLifecycleOwner) { views ->
-                    updateViews { current -> views + current }
-                }
+            onPrevPage.map(viewProvider).asLiveData().observe(viewLifecycleOwner) { views ->
+                updateViews { current -> views + current }
+            }
         }
     }
 

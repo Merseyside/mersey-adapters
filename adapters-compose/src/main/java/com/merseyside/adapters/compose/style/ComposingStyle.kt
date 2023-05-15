@@ -40,12 +40,39 @@ abstract class ComposingStyle(override val context: Context) : StyleContract, IL
         elevation = context.getDimension(dimen)
     }
 
+    fun Margins(block: Margins.() -> Unit): Margins {
+        return Margins().apply(block).also {
+            margins = it
+        }
+    }
+
     class Margins(
-        @DimenRes val top: Int? = null,
-        @DimenRes val bottom: Int? = null,
-        @DimenRes val start: Int? = null,
-        @DimenRes val end: Int? = null
+        @DimenRes var top: Int? = null,
+        @DimenRes var bottom: Int? = null,
+        @DimenRes var start: Int? = null,
+        @DimenRes var end: Int? = null
     ) {
+
+        @DimenRes
+        var horizontal: Int? = null
+            get() = throw IllegalAccessException("Using just like a setter.")
+            set(value) {
+                start = value
+                end = value
+
+                field = value
+            }
+
+        @DimenRes
+        var vertical: Int? = null
+            get() = throw IllegalAccessException("Using just like a setter.")
+            set(value) {
+                top = value
+                bottom = value
+
+                field = value
+            }
+
         constructor(@DimenRes margin: Int): this(
             margin, margin, margin, margin
         )

@@ -11,6 +11,7 @@ import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.async.updateAsync
+import com.merseyside.merseyLib.kotlin.logger.log
 
 
 interface HasCompositeAdapter {
@@ -30,10 +31,7 @@ interface HasCompositeAdapter {
             adapter.delegatesManager.addDelegateList(delegates)
         }
 
-        rootContext = compose(context, viewLifecycleOwner, adapter, composeScreen())
-
-
-        //showViews(runForUI { screenContext.fillAdapter() })
+        rootContext = compose(context, viewLifecycleOwner.log("kek", "owner ="), adapter, composeScreen())
     }
 
     fun showViews(views: List<SCV>) {

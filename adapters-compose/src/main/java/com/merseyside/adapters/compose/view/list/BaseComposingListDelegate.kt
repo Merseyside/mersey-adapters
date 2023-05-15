@@ -26,7 +26,7 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
 
     override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_list
 
-    override fun getNestedView(binding: ViewDataBinding, model: Model): RecyclerView? {
+    override fun getNestedRecyclerView(binding: ViewDataBinding, model: Model): RecyclerView? {
         return (binding.root as RecyclerView).also { recyclerView ->
             with(model.item.listConfig) {
                 recyclerView.layoutManager = layoutManager(binding.root.context)
@@ -48,10 +48,10 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
     override fun getBindingVariable() = BR.model
 
     @InternalAdaptersApi
-    override fun initNestedAdapter(
+    override fun createNestedAdapter(
         model: Model
     ): InnerAdapter {
-        return super.initNestedAdapter(model).also { adapter ->
+        return super.createNestedAdapter(model).also { adapter ->
             with(adapter) {
                 onClick { view -> model.item.listConfig.notifyOnClick(view) }
                 model.item.listConfig.attachToRecyclerViewListeners.forEach {

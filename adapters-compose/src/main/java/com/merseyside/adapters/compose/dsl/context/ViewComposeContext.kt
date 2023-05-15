@@ -51,6 +51,7 @@ abstract class ViewComposeContext<View : SCV>(
 
     @CallSuper
     open fun setRelativeAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
+        "set relative adapter".log("kek")
         relativeAdapter = adapter
         onInitAdapter(adapter)
     }

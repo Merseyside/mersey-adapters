@@ -5,7 +5,6 @@ import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.merseyLib.kotlin.utils.safeLet
 
 abstract class ComposingViewGroupDelegate<View, Style, Model, InnerParent, InnerModel, InnerAdapter>
     : NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerModel, InnerAdapter>()
@@ -17,8 +16,8 @@ abstract class ComposingViewGroupDelegate<View, Style, Model, InnerParent, Inner
               InnerAdapter : ViewCompositeAdapter<InnerParent, out InnerModel> {
 
     @Suppress("UNCHECKED_CAST")
-    override fun initNestedAdapter(model: Model): InnerAdapter {
-        return super.initNestedAdapter(model).also { adapter ->
+    override fun createNestedAdapter(model: Model): InnerAdapter {
+        return super.createNestedAdapter(model).also { adapter ->
             model.item
                 .viewGroupComposeContext
                 .setRelativeAdapter(adapter as ViewCompositeAdapter<SCV, VM<SCV>>)
