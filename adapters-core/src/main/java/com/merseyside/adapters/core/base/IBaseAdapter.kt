@@ -9,7 +9,7 @@ import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.feature.positioning.PositionFeature
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
@@ -35,7 +35,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     val listManager: IModelListManager<Parent, Model>
         get() = adapterConfig.listManager
 
-    val adapter: RecyclerView.Adapter<TypedBindingHolder<Model>>
+    val adapter: RecyclerView.Adapter<ViewHolder<Parent, Model>>
 
     @InternalAdaptersApi
     val callbackClick: (Parent) -> Unit
@@ -132,7 +132,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     fun onPayloadable(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<Parent, Model>,
         payloads: List<AdapterParentViewModel.Payloadable>
     ) {
     }

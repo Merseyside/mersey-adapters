@@ -3,7 +3,7 @@ package com.merseyside.adapters.delegates.manager
 import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.core.util.isEmpty
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
@@ -56,12 +56,12 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun createViewHolder(parent: ViewGroup, viewType: Int): TypedBindingHolder<ParentModel> {
+    fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, ParentModel> {
         return getDelegateByViewType(viewType).createViewHolder(parent, viewType)
     }
 
     internal fun onBindViewHolder(
-        holder: TypedBindingHolder<ParentModel>,
+        holder: ViewHolder<Parent, ParentModel>,
         model: ParentModel,
         position: Int
     ) {
@@ -69,7 +69,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     internal fun onBindViewHolder(
-        holder: TypedBindingHolder<ParentModel>,
+        holder: ViewHolder<Parent, ParentModel>,
         position: Int,
         payloads: List<Any>
     ) {

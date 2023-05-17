@@ -1,23 +1,28 @@
 package com.merseyside.adapters
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
-import com.merseyside.adapters.core.holder.BaseBindingHolder
-import com.merseyside.adapters.core.model.AdapterViewModel
+import com.merseyside.adapters.core.holder.ViewHolder
+import com.merseyside.adapters.core.holder.builder.BindingViewHolderBuilder
+import com.merseyside.adapters.core.holder.builder.ViewHolderBuilder
+import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.logger.Logger
 
-abstract class PagedAdapter<M: Any, T : AdapterViewModel<M>>(diffUtil: DiffUtil.ItemCallback<M>)
-    : PagedListAdapter<M, BaseBindingHolder>(diffUtil),
-    HasOnItemClickListener<M> {
+abstract class PagedAdapter<Parent : Any, Model : VM<Parent>>(diffUtil: DiffUtil.ItemCallback<Parent>)
+    : PagedListAdapter<Parent, ViewHolder<Parent, Model>>(diffUtil),
+    HasOnItemClickListener<Parent> {
 
-    override var clickListeners: MutableList<OnItemClickListener<M>> = ArrayList()
+    override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
+
+    private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> = BindingViewHolderBuilder(::getBindingVariable)
+
+    protected fun setViewHolderBuilder(builder: ViewHolderBuilder<Parent, Model>) {
+        viewHolderBuilder = builder
+    }
 
     enum class NetworkState { ERROR, NO_CONNECTION, CONNECTED, LOADING }
     private var networkState: INetworkState? = null
@@ -33,14 +38,11 @@ abstract class PagedAdapter<M: Any, T : AdapterViewModel<M>>(diffUtil: DiffUtil.
         fun getNetworkState(): NetworkState
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseBindingHolder {
-        val layoutInflater: LayoutInflater = LayoutInflater.from(parent.context)
-        val binding: ViewDataBinding = DataBindingUtil.inflate(layoutInflater, viewType, parent, false)
-
-        return getViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, Model> {
+        return viewHolderBuilder.build(parent, viewType)
     }
 
-    protected abstract fun createItemViewModel(obj: M): T
+    protected abstract fun createItemViewModel(obj: Parent): Model
 
     protected abstract fun getLayoutIdForPosition(position: Int): Int
 
@@ -59,27 +61,22 @@ abstract class PagedAdapter<M: Any, T : AdapterViewModel<M>>(diffUtil: DiffUtil.
         }
     }
 
-    override fun onBindViewHolder(holder: BaseBindingHolder, position: Int) {
-
-        if (hasExtraRow() && position == itemCount - 1) {
-            holder.bind(getBindingVariable(), networkState!!)
-        } else {
-            val obj = getItem(position)
-
-            if (obj != null) {
-                holder.bind(getBindingVariable(), createItemViewModel(obj))
-
-                holder.itemView.setOnClickListener {
-                    clickListeners.forEach { listener -> listener.onItemClicked(obj) }
-                }
-            }
-        }
-
-    }
-
-    open fun getViewHolder(binding: ViewDataBinding): BaseBindingHolder {
-        return BaseBindingHolder(binding)
-    }
+//    override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {
+//        if (hasExtraRow() && position == itemCount - 1) {
+//            holder.bind(networkState!!)
+//        } else {
+//            val obj = getItem(position)
+//
+//            if (obj != null) {
+//                holder.bind(getBindingVariable(), createItemViewModel(obj))
+//
+//                holder.itemView.setOnClickListener {
+//                    clickListeners.forEach { listener -> listener.onItemClicked(obj) }
+//                }
+//            }
+//        }
+//
+//    }
 
     private fun hasExtraRow() = networkState != null && networkState!!.getNetworkState() != NetworkState.CONNECTED
 

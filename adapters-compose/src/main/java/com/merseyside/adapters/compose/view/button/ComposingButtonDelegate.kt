@@ -1,25 +1,25 @@
 package com.merseyside.adapters.compose.view.button
 
 import android.content.Context
-import androidx.databinding.ViewDataBinding
 import com.google.android.material.button.MaterialButton
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.text.ComposingTextDelegate
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 
 open class ComposingButtonDelegate<View : ComposingButton<Style>,
-        Style : ComposingButtonStyle, VM : ComposingButtonViewModel<View>> :
-    ComposingTextDelegate<View, Style, VM>() {
+        Style : ComposingButtonStyle, Model : ComposingButtonViewModel<View>> :
+    ComposingTextDelegate<View, Style, Model>() {
 
     override fun applyStyle(
         context: Context,
-        viewDataBinding: ViewDataBinding,
+        holder: ViewHolder<SCV, Model>,
         style: Style
     ) {
-        super.applyStyle(context, viewDataBinding, style)
-        val button = viewDataBinding.root as MaterialButton
+        super.applyStyle(context, holder, style)
+        val button = holder.root as MaterialButton
 
         with(button) {
 
@@ -58,7 +58,7 @@ open class ComposingButtonDelegate<View : ComposingButton<Style>,
     override fun getBindingVariable() = BR.model
 
     @Suppress("UNCHECKED_CAST")
-    override fun createItemViewModel(item: View) = ComposingButtonViewModel(item) as VM
+    override fun createItemViewModel(item: View) = ComposingButtonViewModel(item) as Model
     override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_button
 
     override fun isResponsibleForItemClass(clazz: Class<out SCV>): Boolean {

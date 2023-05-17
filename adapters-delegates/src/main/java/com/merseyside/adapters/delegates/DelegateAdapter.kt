@@ -1,30 +1,42 @@
 package com.merseyside.adapters.delegates
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
+import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
+import com.merseyside.adapters.core.holder.builder.BindingViewHolderBuilder
+import com.merseyside.adapters.core.holder.builder.ViewHolderBuilder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.utils.reflection.ReflectionUtils
 
-abstract class DelegateAdapter<Item : Parent, Parent, Model> :
-    IDelegateAdapter<Item, Parent, Model>
+abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickListener<Item>
         where Model : AdapterParentViewModel<Item, Parent> {
 
+    private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> = BindingViewHolderBuilder(::getBindingVariable)
     override var clickListeners: MutableList<OnItemClickListener<Item>> = ArrayList()
 
     @InternalAdaptersApi
-    override val onClick: (Item) -> Unit = { item ->
+    val onClick: (Item) -> Unit = { item ->
         clickListeners.forEach { listener -> listener.onItemClicked(item) }
     }
 
+    protected fun setViewHolderBuilder(builder: ViewHolderBuilder<Parent, Model>) {
+        viewHolderBuilder = builder
+    }
+
     @LayoutRes
-    abstract fun getLayoutIdForItem(viewType: Int): Int
+    protected open fun getLayoutIdForItem(viewType: Int): Int {
+        throw NotImplementedError("This method calls if view holder builder requires view type." +
+                " Please override this method.")
+    }
+
+    protected open fun getBindingVariable(): Int {
+        throw NotImplementedError("This method calls if view holder builder requires view type." +
+                " Please override this method.")
+    }
 
     @CallSuper
     open fun isResponsibleFor(parent: Parent): Boolean {
@@ -46,16 +58,17 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> :
         return createItemViewModel(item).also { model -> onModelCreated(model) }
     }
 
-    fun createViewHolder(parent: ViewGroup, viewType: Int): TypedBindingHolder<Model> {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val binding: ViewDataBinding = DataBindingUtil.inflate(
-            layoutInflater,
-            getLayoutIdForItem(viewType),
-            parent,
-            false
-        )
-
-        return getBindingHolder(binding)
+    fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, Model> {
+        return viewHolderBuilder.build(parent, getLayoutIdForItem(viewType))
+//        val layoutInflater = LayoutInflater.from(parent.context)
+//        val binding: ViewDataBinding = DataBindingUtil.inflate(
+//            layoutInflater,
+//            getLayoutIdForItem(viewType),
+//            parent,
+//            false
+//        )
+//
+//        return getBindingHolder(binding)
     }
 
     @OptIn(InternalAdaptersApi::class)
@@ -64,18 +77,16 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> :
     }
 
     @CallSuper
-    open fun onBindViewHolder(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
-        holder.bind(getBindingVariable(), model)
+    open fun onBindViewHolder(holder: ViewHolder<Parent, Model>, model: Model, position: Int) {
+        holder.bind(model)
     }
 
     open fun onBindViewHolder(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<Parent, Model>,
         model: Model,
         position: Int,
         payloads: List<Any>
     ) {}
-
-    open fun getBindingHolder(binding: ViewDataBinding) = TypedBindingHolder<Model>(binding)
 
     @Suppress("UNCHECKED_CAST")
     private val persistentClass: Class<Item> by lazy {

@@ -3,7 +3,8 @@ package com.merseyside.adapters.sample.features.adapters.racers.adapter
 import com.merseyside.adapters.SimpleAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.config
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
+import com.merseyside.adapters.core.holder.viewBinding.asBindingHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.animators.template.SetTextFadeOutInAnimator
 import com.merseyside.adapters.sample.BR
@@ -22,14 +23,14 @@ class RacersAdapter(config: AdapterConfig<Checkpoint, CheckpointItemViewModel>) 
     override fun createItemViewModel(item: Checkpoint) = CheckpointItemViewModel(item)
 
     override fun onPayloadable(
-        holder: TypedBindingHolder<CheckpointItemViewModel>,
+        holder: ViewHolder<Checkpoint, CheckpointItemViewModel>,
         payloads: List<AdapterParentViewModel.Payloadable>
     ) {
         payloads.forEach {
             when (it) {
                 is CheckpointItemViewModel.CheckpointPayloads.ChangeGap -> {
                     SetTextFadeOutInAnimator(
-                        view = (holder.binding as ItemCheckpointBinding).gapChange,
+                        view = (holder.asBindingHolder().binding as ItemCheckpointBinding).gapChange,
                         text = getGapChangeFormatted(it.gapChange),
                         duration = Millis(500),
                         onInvisibleState = { view -> view.setTextColorAttr(getGapChangeColor(it.gapChange)) }

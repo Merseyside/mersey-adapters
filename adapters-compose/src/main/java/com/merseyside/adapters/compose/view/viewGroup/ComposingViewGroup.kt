@@ -16,16 +16,12 @@ abstract class ComposingViewGroup<Style : ComposingViewGroupStyle>(
     val viewList: List<SCV>
         get() = viewGroupComposeContext.getViews()
 
-
-
     override fun getStringBuilder(): StringBuilder {
         return super.getStringBuilder().apply {
             appendLine()
             append("viewList: ").appendLine("$viewList")
         }
     }
-
-
 
     @Suppress("UNCHECKED_CAST")
     fun <View : SCV> findViewById(id: String): View? {

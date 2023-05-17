@@ -3,22 +3,22 @@ package com.merseyside.adapters.compose.view.editTextLayout
 import android.content.Context
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.databinding.ViewDataBinding
 import com.google.android.material.textfield.TextInputLayout
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.view.base.SCV
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 
 open class ComposingEditTextLayoutDelegate<View : ComposingEditTextLayout<Style>,
         Style : ComposingEditTextLayoutStyle,
-        VM : ComposingEditTextLayoutViewModel<View>> :
-    ViewDelegateAdapter<View, Style, VM>() {
+        Model : ComposingEditTextLayoutViewModel<View>> :
+    ViewDelegateAdapter<View, Style, Model>() {
 
-    override fun applyStyle(context: Context, viewDataBinding: ViewDataBinding, style: Style) {
-        super.applyStyle(context, viewDataBinding, style)
-        val editTextLayout = viewDataBinding.root as TextInputLayout
+    override fun applyStyle(context: Context, holder: ViewHolder<SCV, Model>, style: Style) {
+        super.applyStyle(context, holder, style)
+        val editTextLayout = holder.root as TextInputLayout
         with(editTextLayout) {
             id = android.view.View.generateViewId()
             safeLet(style.strokeColor) { color ->
@@ -73,7 +73,7 @@ open class ComposingEditTextLayoutDelegate<View : ComposingEditTextLayout<Style>
     override fun getBindingVariable() = BR.model
 
     @Suppress("UNCHECKED_CAST")
-    override fun createItemViewModel(item: View) = ComposingEditTextLayoutViewModel(item) as VM
+    override fun createItemViewModel(item: View) = ComposingEditTextLayoutViewModel(item) as Model
 
     override fun isResponsibleForItemClass(clazz: Class<out SCV>): Boolean {
         return clazz == ComposingEditTextLayout::class.java

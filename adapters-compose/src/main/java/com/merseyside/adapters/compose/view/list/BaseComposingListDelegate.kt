@@ -1,7 +1,6 @@
 package com.merseyside.adapters.compose.view.list
 
 import android.content.Context
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.R
@@ -10,8 +9,8 @@ import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.simple.ComposingList
 import com.merseyside.adapters.compose.view.list.simple.ComposingListStyle
-import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupDelegate
 import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
@@ -27,10 +26,10 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
 
     override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_list
 
-    override fun getNestedRecyclerView(binding: ViewDataBinding, model: Model): RecyclerView? {
-        return (binding.root as RecyclerView).also { recyclerView ->
+    override fun getNestedRecyclerView(holder: ViewHolder<SCV, Model>, model: Model): RecyclerView? {
+        return (holder.root as RecyclerView).also { recyclerView ->
             with(model.item.listConfig) {
-                recyclerView.layoutManager = layoutManager(binding.root.context)
+                recyclerView.layoutManager = layoutManager(holder.context)
                 safeLet(decorator) { recyclerView.addItemDecoration(it) }
             }
         }
@@ -38,11 +37,11 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
 
     override fun applyStyle(
         context: Context,
-        viewDataBinding: ViewDataBinding,
+        holder: ViewHolder<SCV, Model>,
         style: ComposingListStyle
     ) {
-        super.applyStyle(context, viewDataBinding, style)
-        val recyclerView = viewDataBinding.root as RecyclerView
+        super.applyStyle(context, holder, style)
+        val recyclerView = holder.root as RecyclerView
 
     }
 

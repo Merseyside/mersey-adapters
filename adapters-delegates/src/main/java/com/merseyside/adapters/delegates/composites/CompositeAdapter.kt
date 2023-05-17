@@ -3,7 +3,7 @@ package com.merseyside.adapters.delegates.composites
 import android.view.ViewGroup
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.DA
@@ -32,13 +32,13 @@ open class CompositeAdapter<Parent, ParentModel>(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): TypedBindingHolder<ParentModel> {
+    ): ViewHolder<Parent, ParentModel> {
         return delegatesManager.createViewHolder(parent, viewType)
     }
 
     @InternalAdaptersApi
     override fun bindModel(
-        holder: TypedBindingHolder<ParentModel>,
+        holder: ViewHolder<Parent, ParentModel>,
         model: ParentModel,
         position: Int
     ) {
@@ -47,7 +47,7 @@ open class CompositeAdapter<Parent, ParentModel>(
     }
 
     override fun onBindViewHolder(
-        holder: TypedBindingHolder<ParentModel>,
+        holder: ViewHolder<Parent, ParentModel>,
         position: Int,
         payloads: List<Any>
     ) {

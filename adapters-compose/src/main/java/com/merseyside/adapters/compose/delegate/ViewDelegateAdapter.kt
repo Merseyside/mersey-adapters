@@ -3,11 +3,10 @@ package com.merseyside.adapters.compose.delegate
 import android.content.Context
 import androidx.annotation.CallSuper
 import androidx.core.view.updateLayoutParams
-import androidx.databinding.ViewDataBinding
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.DelegateAdapter
@@ -20,9 +19,9 @@ abstract class ViewDelegateAdapter<View : StyleableComposingView<Style>, Style :
         where Model : AdapterParentViewModel<View, SCV> {
 
     @CallSuper
-    open fun applyStyle(context: Context, viewDataBinding: ViewDataBinding, style: Style) {
+    open fun applyStyle(context: Context, holder: ViewHolder<SCV, Model>, style: Style) {
         with(style) {
-            val view = viewDataBinding.root
+            val view = holder.root
             view.updateLayoutParams {
                 safeLet(style.width) { width = it }
                 safeLet(style.height) { height = it }
@@ -54,18 +53,18 @@ abstract class ViewDelegateAdapter<View : StyleableComposingView<Style>, Style :
         model.clickEvent.observe { item -> model.item.notifyOnClick(item) }
     }
 
-    override fun onBindViewHolder(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder<SCV, Model>, model: Model, position: Int) {
         super.onBindViewHolder(holder, model, position)
-        applyStyle(holder.context, holder.binding, model.item.composingStyle)
+        applyStyle(holder.context, holder, model.item.composingStyle)
     }
 
     override fun onBindViewHolder(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<SCV, Model>,
         model: Model,
         position: Int,
         payloads: List<Any>
     ) {
         super.onBindViewHolder(holder, model, position, payloads)
-        applyStyle(holder.context, holder.binding, model.item.composingStyle)
+        applyStyle(holder.context, holder, model.item.composingStyle)
     }
 }

@@ -9,7 +9,7 @@ import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.ext.hasFeature
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
@@ -20,7 +20,7 @@ import com.merseyside.utils.reflection.ReflectionUtils
 
 abstract class BaseAdapter<Parent, Model>(
     override val adapterConfig: AdapterConfig<Parent, Model>,
-) : RecyclerView.Adapter<TypedBindingHolder<Model>>(),
+) : RecyclerView.Adapter<ViewHolder<Parent, Model>>(),
     HasOnItemClickListener<Parent>, IBaseAdapter<Parent, Model>, ILogger
         where Model : VM<Parent> {
 
@@ -30,7 +30,7 @@ abstract class BaseAdapter<Parent, Model>(
     override lateinit var workManager: AdapterWorkManager
 
     @InternalAdaptersApi
-    override val adapter: RecyclerView.Adapter<TypedBindingHolder<Model>>
+    override val adapter: RecyclerView.Adapter<ViewHolder<Parent, Model>>
         get() = this
 
     protected var isRecyclable: Boolean = true
@@ -82,7 +82,7 @@ abstract class BaseAdapter<Parent, Model>(
         return listManager.getItemCount()
     }
 
-    override fun onBindViewHolder(holder: TypedBindingHolder<Model>, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {
         val model = getModelByPosition(position)
         bindModel(holder, model, position)
 
@@ -91,7 +91,7 @@ abstract class BaseAdapter<Parent, Model>(
 
     @Suppress("UNCHECKED_CAST")
     override fun onBindViewHolder(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<Parent, Model>,
         position: Int,
         payloads: List<Any>
     ) {
@@ -108,7 +108,7 @@ abstract class BaseAdapter<Parent, Model>(
     @InternalAdaptersApi
     @CallSuper
     open fun bindModel(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<Parent, Model>,
         model: Model,
         position: Int
     ) {

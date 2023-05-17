@@ -5,7 +5,7 @@ import com.merseyside.adapters.compose.manager.ViewDelegatesManager
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
@@ -38,14 +38,14 @@ abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerM
     }
 
     @InternalAdaptersApi
-    override fun onBindViewHolder(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder<SCV, Model>, model: Model, position: Int) {
         super.onBindViewHolder(holder, model, position)
         onBindNestedAdapter(holder, model, position)
     }
 
     @InternalAdaptersApi
     override fun onBindViewHolder(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<SCV, Model>,
         model: Model,
         position: Int,
         payloads: List<Any>
