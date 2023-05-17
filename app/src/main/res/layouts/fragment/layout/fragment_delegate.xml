@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.merseyside.adapters.sample.features.adapters.delegate.model.DelegateViewModel" />
+            type="com.merseyside.adapters.sample.features.adapters.delegate.animals.model.DelegateViewModel" />
     </data>
 
 

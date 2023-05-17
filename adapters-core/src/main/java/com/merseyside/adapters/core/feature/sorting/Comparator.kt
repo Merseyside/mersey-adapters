@@ -33,3 +33,5 @@ abstract class Comparator<Parent, Model : VM<Parent>>(
         )
     }
 }
+
+typealias SimpleComparator = Comparator<Any, VM<Any>>

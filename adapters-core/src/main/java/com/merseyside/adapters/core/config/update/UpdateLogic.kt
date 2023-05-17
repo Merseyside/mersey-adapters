@@ -17,7 +17,7 @@ interface UpdateLogic<Parent, Model : VM<Parent>> {
         models: List<Model>,
     ): List<Model>  {
         return models.subtractBy(newItems) { oldModel, newItem ->
-            oldModel.isDeletable && oldModel.areItemsTheSameInternal(newItem)
+            !oldModel.isDeletable || oldModel.areItemsTheSameInternal(newItem)
         }.toList()
     }
 

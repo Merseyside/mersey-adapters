@@ -156,3 +156,5 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
 
     override val tag = "AdapterFilter"
 }
+
+typealias SimpleAdapterFilter = AdapterFilter<Any, VM<Any>>

@@ -12,6 +12,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
     private val batchedUpdates: MutableList<suspend () -> Unit> = ArrayList()
 
     var isBatched = false
+        private set
 
     suspend fun <R> batchedUpdate(block: suspend () -> R): R {
         isBatched = true
@@ -26,9 +27,9 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         return result
     }
 
-    private suspend fun doUpdate(block: suspend () -> Unit) {
-        if (isBatched) batchedUpdates.add(block)
-        else withContext(uiDispatcher) { block() }
+    private suspend fun doUpdate(update: suspend () -> Unit) {
+        if (isBatched) batchedUpdates.add(update)
+        else withContext(uiDispatcher) { update() }
     }
 
     private val callbacks: MutableList<ModelListCallback<Model>> = ArrayList()
@@ -37,35 +38,47 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         callbacks.add(callback)
     }
 
-    suspend fun onInserted(models: List<Model>, position: Int) {
-        doUpdate {
-            val count = models.size
-            callbacks.forEach { it.onInserted(models, position, count) }
-        }
+    fun removeModelListCallback(callback: ModelListCallback<Model>) {
+        callbacks.remove(callback)
     }
 
-    suspend fun onRemoved(models: List<Model>, position: Int, count: Int = models.size) {
-        doUpdate {
-            callbacks.forEach { it.onRemoved(models, position, count) }
-        }
+    protected suspend fun onInsert(models: List<Model>) {
+        callbacks.forEach { it.onInsert(models)}
     }
 
-    suspend fun onChanged(model: Model, position: Int, payloads: List<AdapterParentViewModel.Payloadable>) {
-        doUpdate {
-            callbacks.forEach { it.onChanged(model, position, payloads) }
-        }
+    protected suspend fun onInserted(models: List<Model>, position: Int) = doUpdate {
+        callbacks.forEach { it.onInserted(models, position) }
     }
 
-    suspend fun onMoved(fromPosition: Int, toPosition: Int) {
-        doUpdate {
-            callbacks.forEach { it.onMoved(fromPosition, toPosition) }
-        }
+    protected suspend fun onRemove(
+        models: List<Model>,
+        count: Int = models.size
+    )  {
+        callbacks.forEach { it.onRemove(models, count) }
     }
 
-    suspend fun onCleared() {
-        doUpdate {
-            callbacks.forEach { it.onCleared() }
-        }
+    protected suspend fun onRemoved(
+        models: List<Model>,
+        position: Int,
+        count: Int = models.size
+    ) = doUpdate {
+        callbacks.forEach { it.onRemoved(models, position, count) }
+    }
+
+    protected suspend fun onChanged(
+        model: Model,
+        position: Int,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    ) = doUpdate {
+        callbacks.forEach { it.onChanged(model, position, payloads) }
+    }
+
+    protected suspend fun onMoved(fromPosition: Int, toPosition: Int) = doUpdate {
+        callbacks.forEach { it.onMoved(fromPosition, toPosition) }
+    }
+
+    protected suspend fun onCleared() = doUpdate {
+        callbacks.forEach { it.onCleared() }
     }
 
     abstract fun getModels(): List<Model>
@@ -90,7 +103,10 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
 
     abstract suspend fun removeAll(models: List<Model>)
 
-    abstract suspend fun onModelUpdated(model: Model, payloads: List<AdapterParentViewModel.Payloadable>)
+    abstract suspend fun onModelUpdated(
+        model: Model,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    )
 
     abstract suspend fun clear()
 

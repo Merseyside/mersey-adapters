@@ -71,10 +71,12 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun remove(model: Model): Boolean {
+        onRemove(listOf(model))
         return sortedList.remove(model)
     }
 
     override suspend fun removeAll(models: List<Model>) {
+        onRemove(models)
         sortedList.removeAll(models)
     }
 
@@ -87,10 +89,12 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun addAll(models: List<Model>) {
+        onInsert(models)
         sortedList.addAll(models)
     }
 
     override suspend fun add(model: Model) {
+        onInsert(listOf(model))
         sortedList.add(model)
     }
 

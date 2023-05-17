@@ -51,6 +51,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         notifyPositionsChanged(position)
     }
 
+
     @CallSuper
     override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
         if (count == 1) {
@@ -214,11 +215,9 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     /* Position */
 
-
     suspend fun add(position: Int, item: Parent) {
         listManager.add(position, item)
     }
-
 
     suspend fun add(position: Int, items: List<Parent>) {
         listManager.add(position, items)

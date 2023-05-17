@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.sortedList.SortedList.Callback
+import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.logger.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -575,6 +576,7 @@ class SortedList<T> @JvmOverloads constructor(
     private suspend fun remove(item: T, notify: Boolean): Boolean {
         val index = findIndexOf(item, mData, 0, mSize, DELETION)
         if (index == INVALID_POSITION) {
+            Logger.logErr(tag = "SortedList", "OnRemove invalid position")
             return false
         }
         removeItemAtIndex(index, notify)

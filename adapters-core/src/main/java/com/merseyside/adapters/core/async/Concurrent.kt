@@ -5,6 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
+/**
+ * Use run blocking to prevent suspend
+ */
 fun <T> runForUI(block: suspend CoroutineScope.() -> T) =
     runBlocking(Dispatchers.Main.immediate, block)
 

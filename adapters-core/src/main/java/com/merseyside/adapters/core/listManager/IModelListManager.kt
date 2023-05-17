@@ -12,8 +12,8 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 
-interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAdapterWorkManager
-    where Model : VM<Parent> {
+interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAdapterWorkManager
+        where Model : VM<Parent> {
 
     val adapterActions: AdapterActions<Parent, Model>
     var updateLogic: UpdateLogic<Parent, Model>
@@ -87,11 +87,9 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
     }
 
     override suspend fun add(items: List<Parent>): List<Model> {
-        return checkNotEmpty(items) {
-            val models = createModels(items)
-            addModels(models)
-            models
-        } ?: emptyList()
+        val models = createModels(items)
+        addModels(models)
+        return models
     }
 
     suspend fun add(position: Int, item: Parent): Model {
@@ -102,12 +100,10 @@ interface IModelListManager<Parent, Model>: UpdateActions<Parent, Model>, HasAda
     }
 
     override suspend fun add(position: Int, items: List<Parent>): List<Model> {
-        return checkNotEmpty(items) {
-            requireValidPosition(position)
-            val models = createModels(items)
-            addModels(position, models)
-            models
-        } ?: emptyList()
+        requireValidPosition(position)
+        val models = createModels(items)
+        addModels(position, models)
+        return models
     }
 
     suspend fun remove(item: Parent): Model? {
