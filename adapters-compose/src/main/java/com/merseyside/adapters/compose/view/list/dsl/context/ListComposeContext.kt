@@ -3,8 +3,10 @@ package com.merseyside.adapters.compose.view.list.dsl.context
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
+import com.merseyside.adapters.compose.dsl.context.ViewComposeContext
 import com.merseyside.adapters.compose.view.viewGroup.dsl.context.ViewGroupComposeContext
 import com.merseyside.adapters.compose.view.base.SCV
+import com.merseyside.adapters.core.async.updateAsync
 
 object listContext {
     context(ComposeContext)
@@ -23,4 +25,13 @@ open class ListComposeContext(
     context: Context,
     viewLifecycleOwner: LifecycleOwner,
     initContext: ComposeContext.() -> Unit
-): ViewGroupComposeContext<SCV>(contextId, context, viewLifecycleOwner, initContext)
+): ViewComposeContext<SCV>(contextId, context, viewLifecycleOwner, initContext) {
+    override fun onContextStateChanged() {
+        clearViews()
+        initContext()
+    }
+
+    override fun onNewData(data: List<SCV>) {
+        relativeAdapter.updateAsync(data)
+    }
+}

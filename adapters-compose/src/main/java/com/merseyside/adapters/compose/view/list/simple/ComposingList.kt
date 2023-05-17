@@ -22,9 +22,9 @@ import com.merseyside.utils.layout.LinearLayoutManager
 open class ComposingList(
     id: String,
     val configure: ListConfig.() -> Unit,
-    composingStyle: ComposingListStyle,
-    listComposeContext: ListComposeContext
-) : ComposingViewGroup<ComposingListStyle>(id, composingStyle, listComposeContext) {
+    override val composingStyle: ComposingListStyle,
+    internal val listComposeContext: ListComposeContext
+) : StyleableComposingView<ComposingListStyle>(id) {
 
     open val listConfig: ListConfig by lazy { ListConfig().apply(configure) }
 

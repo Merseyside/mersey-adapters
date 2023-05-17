@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
+import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.simple.ComposingList
 import com.merseyside.adapters.compose.view.list.simple.ComposingListStyle
@@ -17,7 +18,7 @@ import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 
 abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, InnerAdapter>
-    : ComposingViewGroupDelegate<View, ComposingListStyle, Model, InnerParent, InnerModel, InnerAdapter>()
+    : NestedViewDelegateAdapter<View, ComposingListStyle, Model, InnerParent, InnerModel, InnerAdapter>()
         where View : ComposingList,
               Model : NestedAdapterParentViewModel<View, SCV, out InnerParent>,
               InnerParent: SCV,
@@ -47,12 +48,17 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
 
     override fun getBindingVariable() = BR.model
 
+    @Suppress("UNCHECKED_CAST")
     @InternalAdaptersApi
     override fun createNestedAdapter(
         model: Model
     ): InnerAdapter {
         return super.createNestedAdapter(model).also { adapter ->
             with(adapter) {
+                model.item
+                    .listComposeContext
+                    .setRelativeAdapter(adapter as ViewCompositeAdapter<SCV, VM<SCV>>)
+
                 onClick { view -> model.item.listConfig.notifyOnClick(view) }
                 model.item.listConfig.attachToRecyclerViewListeners.forEach {
                     adapter.addOnAttachToRecyclerViewListener(it)
