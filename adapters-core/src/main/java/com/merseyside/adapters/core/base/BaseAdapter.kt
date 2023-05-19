@@ -41,8 +41,6 @@ abstract class BaseAdapter<Parent, Model>(
     @InternalAdaptersApi
     override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
 
-    @InternalAdaptersApi
-    val bindItemList: MutableList<Model> = ArrayList()
     protected var recyclerView: RecyclerView? = null
 
     override val provideModelByItem: suspend (Parent) -> Model = { item ->
@@ -85,8 +83,6 @@ abstract class BaseAdapter<Parent, Model>(
     override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {
         val model = getModelByPosition(position)
         bindModel(holder, model, position)
-
-        bindItemList.add(model)
     }
 
     @Suppress("UNCHECKED_CAST")

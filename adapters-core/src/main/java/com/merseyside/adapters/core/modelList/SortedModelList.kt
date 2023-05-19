@@ -3,10 +3,10 @@ package com.merseyside.adapters.core.modelList
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.feature.sorting.Comparator
 import com.merseyside.adapters.core.model.AdapterParentViewModel
-import com.merseyside.adapters.core.sortedList.SortedList
-import com.merseyside.adapters.core.sortedList.find
-import com.merseyside.adapters.core.sortedList.removeAll
-import com.merseyside.adapters.core.sortedList.subList
+import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
+import com.merseyside.adapters.core.feature.sorting.sortedList.find
+import com.merseyside.adapters.core.feature.sorting.sortedList.removeAll
+import com.merseyside.adapters.core.feature.sorting.sortedList.subList
 
 class SortedModelList<Parent, Model : VM<Parent>>(
     internal val sortedList: SortedList<Model>,

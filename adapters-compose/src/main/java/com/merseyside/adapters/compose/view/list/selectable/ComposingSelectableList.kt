@@ -6,7 +6,7 @@ import com.merseyside.adapters.compose.dsl.context.*
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
-import com.merseyside.adapters.compose.view.list.dsl.context.listContext
+import com.merseyside.adapters.compose.view.list.dsl.context.ListContext
 import com.merseyside.adapters.compose.view.list.simple.ComposingList
 import com.merseyside.adapters.compose.view.list.simple.ComposingListStyle
 import com.merseyside.adapters.compose.view.list.simple.ListConfig
@@ -37,7 +37,7 @@ class ComposingSelectableList(
             configure: SelectableListConfig.() -> Unit = {},
             initContext: ComposeContext.() -> Unit
         ): ComposingSelectableList {
-            val listContext = listContext(id, initContext)
+            val listContext = ListContext(id, initContext)
 
             return ComposingSelectableList(
                 id,

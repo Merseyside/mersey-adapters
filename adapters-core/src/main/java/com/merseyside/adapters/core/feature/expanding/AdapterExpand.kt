@@ -9,6 +9,7 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.ModelListCallback
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -49,7 +50,7 @@ class AdapterExpand<Parent, Model>(
                 field = value
 
                 modelList.mapNotNull { it.asExpandable() }
-                    .forEach { it.expandState.globalExpandable.value = value }
+                    .forEach { it.expandState.globalExpandable.compareAndSet(value) }
             }
         }
 

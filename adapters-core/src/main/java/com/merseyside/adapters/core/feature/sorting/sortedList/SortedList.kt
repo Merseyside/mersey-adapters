@@ -1,9 +1,9 @@
-package com.merseyside.adapters.core.sortedList
+package com.merseyside.adapters.core.feature.sorting.sortedList
 
 import android.annotation.SuppressLint
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.sortedList.SortedList.Callback
+import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList.Callback
 import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.logger.log
 import kotlinx.coroutines.Dispatchers
@@ -55,13 +55,21 @@ class SortedList<T> @JvmOverloads constructor(
      */
 
     val dummyCallback: Callback<T> = object : Callback<T>() {
-        override fun compare(item1: T, item2: T): Int { return 0 }
+        override fun compare(item1: T, item2: T): Int {
+            return 0
+        }
+
         override suspend fun onChanged(position: Int, count: Int) {}
         override suspend fun onInserted(position: Int, count: Int) {}
         override suspend fun onRemoved(position: Int, count: Int) {}
         override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
-        override fun areItemsTheSame(item1: T, item2: T): Boolean { return false }
-        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean { return false }
+        override fun areItemsTheSame(item1: T, item2: T): Boolean {
+            return false
+        }
+
+        override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
+            return false
+        }
 
     }
 
@@ -576,7 +584,10 @@ class SortedList<T> @JvmOverloads constructor(
     private suspend fun remove(item: T, notify: Boolean): Boolean {
         val index = findIndexOf(item, mData, 0, mSize, DELETION)
         if (index == INVALID_POSITION) {
-            Logger.logErr(tag = "SortedList", "OnRemove invalid position")
+            Logger.logErr(
+                tag = "SortedList",
+                "OnRemove invalid position. Check your comparator implementation."
+            )
             return false
         }
         removeItemAtIndex(index, notify)
@@ -837,7 +848,7 @@ class SortedList<T> @JvmOverloads constructor(
      * SortedList calls the callback methods on this class to notify changes about the underlying
      * data.
      */
-    
+
 
     abstract class Callback<T2> : ListUpdateCallback, Comparator<T2> {
 
@@ -852,7 +863,7 @@ class SortedList<T> @JvmOverloads constructor(
          * first argument is less than, equal to, or greater than the
          * second.
          */
-        
+
         abstract override fun compare(item1: T2, item2: T2): Int
 
         override suspend fun onChanged(position: Int, count: Int, payloads: Any?) {
@@ -1038,7 +1049,6 @@ interface ListUpdateCallback {
     suspend fun onMoved(fromPosition: Int, toPosition: Int)
 
 
-
     /**
      * Called by the SortedList when the item at the given position is updated.
      *
@@ -1070,10 +1080,12 @@ class BatchingListUpdateCallback(val mWrapped: ListUpdateCallback) :
                 mLastEventPosition,
                 mLastEventCount
             )
+
             TYPE_REMOVE -> mWrapped.onRemoved(
                 mLastEventPosition,
                 mLastEventCount
             )
+
             TYPE_CHANGE -> mWrapped.onChanged(
                 mLastEventPosition,
                 mLastEventCount,

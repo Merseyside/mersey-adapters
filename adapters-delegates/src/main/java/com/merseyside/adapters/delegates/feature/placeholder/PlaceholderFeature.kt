@@ -6,11 +6,12 @@ import com.merseyside.adapters.core.config.feature.ConfigurableFeature
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
-import com.merseyside.adapters.delegates.feature.resolver.PlaceholderDataResolver
+import com.merseyside.adapters.delegates.feature.placeholder.resolver.PlaceholderDataResolver
 
-class PlaceholderFeature<Parent, Model : VM<Parent>> : ConfigurableFeature<Parent, Model, Config<Parent, Model>>() {
+class PlaceholderFeature<Parent, Model : VM<Parent>> :
+    ConfigurableFeature<Parent, Model, Config<Parent, Model>>() {
 
-    private lateinit var placeholderManager: PlaceholderManager<Parent, Model>
+    private lateinit var placeholderDataResolver: PlaceholderDataResolver<Parent, Model>
 
     override fun prepare(configure: Config<Parent, Model>.() -> Unit) {
         config.apply(configure)
@@ -24,15 +25,15 @@ class PlaceholderFeature<Parent, Model : VM<Parent>> : ConfigurableFeature<Paren
     ) {
         super.install(adapterConfig, adapter)
         requireCompositeAdapter(adapter) {
-            placeholderManager = PlaceholderManager(
-                adapterConfig.modelList,
+            placeholderDataResolver = config.placeholderDataResolver
+                ?: throw NullPointerException("Placeholder data resolver not set!")
+
+            placeholderDataResolver.setProvider(
                 config.placeholderProvider
-                    ?: throw NullPointerException("Placeholder provider not set!"),
-                config.placeholderDataResolver
-                    ?: throw NullPointerException("Placeholder data resolver not set!")
+                    ?: throw NullPointerException("Placeholder provider not set!")
             )
 
-            placeholderManager.initAdapter(this)
+            placeholderDataResolver.initAdapter(this)
         }
     }
 
@@ -54,7 +55,7 @@ class PlaceholderFeature<Parent, Model : VM<Parent>> : ConfigurableFeature<Paren
 
 open class Config<Parent, Model : VM<Parent>> {
     var placeholderProvider: PlaceholderProvider<Parent, Model>? = null
-    var placeholderDataResolver: PlaceholderDataResolver? = null
+    var placeholderDataResolver: PlaceholderDataResolver<Parent, Model>? = null
 }
 
 object Placeholder {

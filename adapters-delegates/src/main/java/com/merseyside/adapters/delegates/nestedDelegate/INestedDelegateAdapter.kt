@@ -10,15 +10,16 @@ import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.merseyLib.kotlin.extensions.remove
 
-interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapter>
+interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, NestedAdapter>
         where Model : NestedAdapterParentViewModel<Item, Parent, out Data>,
-              InnerAdapter : BaseAdapter<Data, out VM<Data>> {
+              NestedAdapter : BaseAdapter<Data, out VM<Data>> {
 
     var delegatesManagerProvider: () -> DelegatesManager<*, *, *>
+    val adapterList: MutableList<Pair<Model, NestedAdapter>>
 
-    val adapterList: MutableList<Pair<Model, InnerAdapter>>
+    fun createNestedAdapter(model: Model): NestedAdapter
 
-    fun createNestedAdapter(model: Model): InnerAdapter
+    fun onNestedAdapterCreated(adapter: NestedAdapter, model: Model) {}
 
     fun getNestedRecyclerView(holder: ViewHolder<Parent, Model>, model: Model): RecyclerView?
 
@@ -35,27 +36,30 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapte
     }
 
     @InternalAdaptersApi
-    private fun getNestedAdapterByModel(model: Model): InnerAdapter {
+    private fun getNestedAdapterByModel(model: Model): NestedAdapter {
         return getAdapterIfExists(model) ?: createNestedAdapter(model)
-            .also { adapter -> putAdapter(model, adapter) }
+            .also { adapter ->
+                putAdapter(model, adapter)
+                onNestedAdapterCreated(adapter, model)
+            }
     }
 
     @InternalAdaptersApi
-    private fun getAdapterIfExists(model: Model): InnerAdapter? {
+    private fun getAdapterIfExists(model: Model): NestedAdapter? {
         return adapterList.find { it.first.areItemsTheSameInternal(model.item) }?.second
     }
 
-    private fun putAdapter(model: Model, adapter: InnerAdapter) {
+    private fun putAdapter(model: Model, adapter: NestedAdapter) {
         adapterList.add(model to adapter)
     }
 
-    private fun setInnerData(adapter: InnerAdapter, model: Model) {
+    private fun setInnerData(adapter: NestedAdapter, model: Model) {
         model.getNestedData()?.let { data ->
             handleInnerData(adapter, data)
         }
     }
 
-    fun handleInnerData(adapter: InnerAdapter, data: List<Data>) {
+    fun handleInnerData(adapter: NestedAdapter, data: List<Data>) {
         adapter.updateAsync(data)
     }
 

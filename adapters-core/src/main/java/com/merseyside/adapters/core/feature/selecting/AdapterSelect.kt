@@ -13,6 +13,7 @@ import com.merseyside.adapters.core.modelList.ModelListCallback
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.addOrSet
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -63,7 +64,7 @@ class AdapterSelect<Parent, Model>(
                 field = value
 
                 modelList.forEach { model ->
-                    model.asSelectable().selectState.globalSelectable.value = value
+                    model.asSelectable().selectState.globalSelectable.compareAndSet(value)
                 }
 
                 if (selectedList.isEmpty() && selectableMode == SelectableMode.SINGLE &&
@@ -90,7 +91,7 @@ class AdapterSelect<Parent, Model>(
         selectableItems.forEach { item ->
             with(item.selectState) {
                 selectEvent.observe { changeItemSelectedState(item, true) }
-                globalSelectable.value = isSelectEnabled
+                globalSelectable.compareAndSet(isSelectEnabled)
             }
         }
     }

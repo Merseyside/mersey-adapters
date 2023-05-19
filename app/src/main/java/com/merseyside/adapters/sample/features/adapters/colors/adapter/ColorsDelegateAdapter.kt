@@ -1,5 +1,6 @@
 package com.merseyside.adapters.sample.features.adapters.colors.adapter
 
+import com.merseyside.adapters.core.base.callback.onClick
 import com.merseyside.adapters.delegates.simple.SimpleDelegateAdapter
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R

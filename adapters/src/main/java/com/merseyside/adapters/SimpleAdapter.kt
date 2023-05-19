@@ -1,9 +1,7 @@
 package com.merseyside.adapters
 
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.holder.ViewHolder
@@ -17,6 +15,8 @@ abstract class SimpleAdapter<Item, Model>(
 ): BaseAdapter<Item, Model>(adapterConfig)
     where Model : AdapterViewModel<Item> {
 
+    private var viewHolderBuilder: ViewHolderBuilder<Item, Model> = BindingViewHolderBuilder(::getBindingVariable)
+
     @LayoutRes
     protected open fun getLayoutIdForPosition(position: Int): Int {
         throw NotImplementedError("This method calls if view holder builder requires view type." +
@@ -29,8 +29,6 @@ abstract class SimpleAdapter<Item, Model>(
     }
 
     protected abstract fun createItemViewModel(item: Item): Model
-
-    private var viewHolderBuilder: ViewHolderBuilder<Item, Model> = BindingViewHolderBuilder(::getBindingVariable)
     
     protected fun setViewHolderBuilder(builder: ViewHolderBuilder<Item, Model>) {
         viewHolderBuilder = builder
@@ -41,6 +39,9 @@ abstract class SimpleAdapter<Item, Model>(
     }
 
     @InternalAdaptersApi
+    override fun createModel(item: Item): Model = createItemViewModel(item)
+
+    @InternalAdaptersApi
     override fun bindModel(holder: ViewHolder<Item, Model>, model: Model, position: Int) {
         super.bindModel(holder, model, position)
         holder.bind(model)
@@ -49,22 +50,4 @@ abstract class SimpleAdapter<Item, Model>(
     override fun getItemViewType(position: Int): Int {
         return getLayoutIdForPosition(position)
     }
-
-    @InternalAdaptersApi
-    override fun createModel(item: Item): Model = createItemViewModel(item)
-
-    @CallSuper
-    @InternalAdaptersApi
-    override fun onViewRecycled(holder: ViewHolder<Item, Model>) {
-        super.onViewRecycled(holder)
-        if (holder.absoluteAdapterPosition != RecyclerView.NO_POSITION &&
-            holder.absoluteAdapterPosition < itemCount) {
-
-            getModelByPosition(holder.absoluteAdapterPosition).apply {
-                bindItemList.remove(this)
-                onRecycled()
-            }
-        }
-    }
-
 }

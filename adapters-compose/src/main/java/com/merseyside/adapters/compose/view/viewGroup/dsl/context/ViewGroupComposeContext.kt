@@ -2,9 +2,11 @@ package com.merseyside.adapters.compose.view.viewGroup.dsl.context
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.dsl.context.ViewComposeContext
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.async.updateAsync
+import com.merseyside.adapters.core.model.VM
 
 abstract class ViewGroupComposeContext<View : SCV>(
     contextId: String,
@@ -18,7 +20,7 @@ abstract class ViewGroupComposeContext<View : SCV>(
         initContext()
     }
 
-    override fun onNewData(data: List<View>) {
-        relativeAdapter.updateAsync(data)
+    override fun onViewsChanged(adapter: ViewCompositeAdapter<SCV, VM<SCV>>, data: List<View>) {
+        adapter.updateAsync(data)
     }
 }

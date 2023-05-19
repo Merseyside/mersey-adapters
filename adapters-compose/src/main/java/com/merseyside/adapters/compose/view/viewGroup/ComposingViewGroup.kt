@@ -14,7 +14,7 @@ abstract class ComposingViewGroup<Style : ComposingViewGroupStyle>(
 ) : StyleableComposingView<Style>(id) {
 
     val viewList: List<SCV>
-        get() = viewGroupComposeContext.getViews()
+        get() = viewGroupComposeContext.getViews() ?: emptyList()
 
     override fun getStringBuilder(): StringBuilder {
         return super.getStringBuilder().apply {

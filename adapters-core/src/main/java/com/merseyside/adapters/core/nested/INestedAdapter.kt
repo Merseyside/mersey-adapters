@@ -66,9 +66,8 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
         }
     }
 
-    @InternalAdaptersApi
-    override suspend fun removeAll() {
-        super.removeAll()
+    override suspend fun clear() {
         adapterList.clear()
+        super.clear()
     }
 }

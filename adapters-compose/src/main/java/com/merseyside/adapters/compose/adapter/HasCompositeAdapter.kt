@@ -31,7 +31,7 @@ interface HasCompositeAdapter {
             adapter.delegatesManager.addDelegateList(delegates)
         }
 
-        rootContext = compose(context, viewLifecycleOwner.log("kek", "owner ="), adapter, composeScreen())
+        rootContext = compose(context, viewLifecycleOwner, adapter, composeScreen())
     }
 
     fun showViews(views: List<SCV>) {

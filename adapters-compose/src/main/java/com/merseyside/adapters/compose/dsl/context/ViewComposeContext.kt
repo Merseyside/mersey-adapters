@@ -7,16 +7,14 @@ import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.viewProvider.MutableComposeState
 import com.merseyside.adapters.core.async.clearAsync
-import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import com.merseyside.merseyLib.kotlin.observable.Disposable
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
-import com.merseyside.merseyLib.kotlin.observable.ext.updateNotNull
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndUpdate
 import com.merseyside.merseyLib.kotlin.observable.ext.valueNotNull
-import com.merseyside.merseyLib.kotlin.utils.safeLet
-
 
 abstract class ViewComposeContext<View : SCV>(
     private val contextId: String,
@@ -46,12 +44,11 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     fun updateViews(update: (current: List<View>) -> List<View>) {
-        mutViews.updateNotNull(update)
+        mutViews.compareAndUpdate(update)
     }
 
     @CallSuper
     open fun setRelativeAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
-        "set relative adapter".log("kek")
         relativeAdapter = adapter
         onInitAdapter(adapter)
     }
@@ -61,7 +58,7 @@ abstract class ViewComposeContext<View : SCV>(
         startObservingViews()
     }
 
-    abstract fun onNewData(data: List<View>)
+    abstract fun onViewsChanged(adapter: ViewCompositeAdapter<SCV, VM<SCV>>, data: List<View>)
 
     /**
      * Calls when state changes. Usually when declared compose state handle new value.
@@ -71,10 +68,8 @@ abstract class ViewComposeContext<View : SCV>(
 
     private fun startObservingViews() {
         viewsObserverDisposable = mutViews.observe(ignoreCurrent = false) { views ->
-            safeLet(views) { v ->
-                if (v.isEmpty()) relativeAdapter.clearAsync()
-                else onNewData(v)
-            }
+            if (views.isEmpty() && relativeAdapter.isNotEmpty()) relativeAdapter.clearAsync()
+            else onViewsChanged(relativeAdapter, views)
         }
     }
 
@@ -87,7 +82,7 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     protected fun clearViews() {
-        mutViews.value = emptyList()
+        mutViews.compareAndSet(emptyList())
     }
 
     protected fun mutableState(block: () -> Unit) {
@@ -111,7 +106,7 @@ abstract class ViewComposeContext<View : SCV>(
         }
     }
 
-    override val tag: String = "ScreenComposeContext"
+    override val tag: String = contextId
 }
 
 context(ComposeContext)

@@ -2,6 +2,7 @@ package com.merseyside.adapters.compose.viewProvider
 
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
 import com.merseyside.merseyLib.kotlin.observable.ObservableField
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSetNullable
 
 abstract class ComposeState<T>(val propertyName: String) {
 
@@ -21,8 +22,6 @@ class MutableComposeState<T>(propertyName: String, initValue: T): ComposeState<T
     override var value: T?
         get() = observableField.value
         set(value) {
-            if (observableField.value != value) {
-                observableField.value = value
-            }
+            observableField.compareAndSetNullable(value)
         }
 }

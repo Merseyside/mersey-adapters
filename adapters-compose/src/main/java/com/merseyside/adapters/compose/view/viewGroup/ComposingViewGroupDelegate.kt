@@ -16,12 +16,10 @@ abstract class ComposingViewGroupDelegate<View, Style, Model, InnerParent, Inner
               InnerAdapter : ViewCompositeAdapter<InnerParent, out InnerModel> {
 
     @Suppress("UNCHECKED_CAST")
-    override fun createNestedAdapter(model: Model): InnerAdapter {
-        return super.createNestedAdapter(model).also { adapter ->
-            model.item
-                .viewGroupComposeContext
-                .setRelativeAdapter(adapter as ViewCompositeAdapter<SCV, VM<SCV>>)
-        }
+    override fun onNestedAdapterCreated(adapter: InnerAdapter, model: Model) {
+        model.item
+            .viewGroupComposeContext
+            .setRelativeAdapter(adapter as ViewCompositeAdapter<SCV, VM<SCV>>)
     }
 
 }

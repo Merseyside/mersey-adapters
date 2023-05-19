@@ -1,4 +1,4 @@
-package com.merseyside.adapters.core.sortedList
+package com.merseyside.adapters.core.feature.sorting.sortedList
 
 import com.merseyside.adapters.core.model.VM
 
@@ -42,13 +42,11 @@ internal inline fun <Model> SortedList<Model>.forEachIndexed(onValue: (Int, mode
 
 internal inline fun <Model> SortedList<Model>.find(predicate: (model: Model) -> Boolean): Model? {
     forEach { if (predicate(it)) return it }
-
     return null
 }
 
 internal inline fun <Model> SortedList<Model>.indexOf(predicate: (Model) -> Boolean): Int {
     forEachIndexed { index, obj -> if (predicate(obj)) return index }
-
     return SortedList.INVALID_POSITION
 }
 
@@ -63,9 +61,7 @@ internal suspend fun <Model> SortedList<Model>.removeAll(list: List<Model>) {
 suspend inline fun <Item> SortedList<Item>.batchedUpdate(crossinline block: suspend SortedList<Item>.() -> Unit) {
     try {
         beginBatchedUpdates()
-        //runWithDefault {
         block()
-        //}
     } finally {
         endBatchedUpdates()
     }
@@ -80,7 +76,7 @@ suspend fun <Model> SortedList<Model>.recalculatePositions() {
 suspend fun <Model> SortedList<Model>.recalculatePositionsWithAnimation() {
     val models = getAll()
     models.forEach { model ->
-        val pos = indexOf { it == model  }
+        val pos = indexOf { it == model }
         if (pos != SortedList.INVALID_POSITION) {
             recalculatePositionOfItemAt(pos)
         }

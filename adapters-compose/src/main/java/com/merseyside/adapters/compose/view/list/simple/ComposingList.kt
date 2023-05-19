@@ -6,10 +6,9 @@ import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
-import com.merseyside.adapters.compose.view.list.dsl.context.listContext
+import com.merseyside.adapters.compose.view.list.dsl.context.ListContext
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroup
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
 import com.merseyside.adapters.compose.dsl.context.addView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
@@ -39,7 +38,7 @@ open class ComposingList(
             style: ComposingListStyle.() -> Unit = {},
             initContext: ComposeContext.() -> Unit = {}
         ): ComposingList {
-            val listContext = listContext(id, initContext)
+            val listContext = ListContext(id, initContext)
 
             return ComposingList(id, configure, ComposingListStyle(context, style), listContext)
                 .addView()

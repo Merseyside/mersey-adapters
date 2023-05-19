@@ -23,6 +23,7 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     override var position: Int = NO_ITEM_POSITION
 
     private val mutClickEvent = SingleObservableField<Item>()
+
     @InternalAdaptersApi
     val clickEvent: ObservableField<Item> = mutClickEvent
 
@@ -73,8 +74,6 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
         onClick()
         return null as Void?
     }
-
-    open fun onRecycled() {}
 
     override fun onPositionChanged(fromPosition: Int, toPosition: Int) {}
 

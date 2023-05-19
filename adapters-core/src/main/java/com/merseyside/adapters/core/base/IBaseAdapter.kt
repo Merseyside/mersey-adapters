@@ -19,6 +19,7 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
+import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -94,7 +95,14 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     @InternalAdaptersApi
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
-        return listManager.update(updateRequest)
+        return if (isEmpty()) {
+            if (updateRequest.isAddNew) {
+                add(updateRequest.list)
+            } else add(emptyList())
+            true
+        } else {
+            listManager.update(updateRequest)
+        }
     }
 
     suspend fun update(
@@ -202,11 +210,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     fun getAll(): List<Parent> {
         return models.map { model -> model.item }
-    }
-
-    suspend fun removeAll() {
-        listManager.clear()
-        adapter.notifyDataSetChanged()
     }
 
     fun getPositionOfModel(model: Model): Int {

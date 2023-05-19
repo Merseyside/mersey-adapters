@@ -47,21 +47,17 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
 
     override fun getBindingVariable() = BR.model
 
+    @OptIn(InternalAdaptersApi::class)
     @Suppress("UNCHECKED_CAST")
-    @InternalAdaptersApi
-    override fun createNestedAdapter(
-        model: Model
-    ): InnerAdapter {
-        return super.createNestedAdapter(model).also { adapter ->
-            with(adapter) {
-                model.item
-                    .listComposeContext
-                    .setRelativeAdapter(adapter as ViewCompositeAdapter<SCV, VM<SCV>>)
+    override fun onNestedAdapterCreated(adapter: InnerAdapter, model: Model) {
+        with(adapter) {
+            model.item
+                .listComposeContext
+                .setRelativeAdapter(adapter as ViewCompositeAdapter<SCV, VM<SCV>>)
 
-                onClick { view -> model.item.listConfig.notifyOnClick(view) }
-                model.item.listConfig.attachToRecyclerViewListeners.forEach {
-                    adapter.addOnAttachToRecyclerViewListener(it)
-                }
+            onClick { view -> model.item.listConfig.notifyOnClick(view) }
+            model.item.listConfig.attachToRecyclerViewListeners.forEach {
+                adapter.addOnAttachToRecyclerViewListener(it)
             }
         }
     }
