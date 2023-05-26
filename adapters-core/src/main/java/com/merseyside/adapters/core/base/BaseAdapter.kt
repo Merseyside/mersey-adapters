@@ -49,7 +49,7 @@ abstract class BaseAdapter<Parent, Model>(
         }
     }
 
-    fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener) {
+    override fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener) {
         onAttachToRecyclerViewListeners.add(listener)
         safeLet(recyclerView) { listener.onAttached(it, this) }
     }
@@ -72,8 +72,9 @@ abstract class BaseAdapter<Parent, Model>(
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         this.recyclerView = recyclerView
-        super.onAttachedToRecyclerView(recyclerView)
         onAttachToRecyclerViewListeners.forEach { it.onAttached(recyclerView, this) }
+        super.onAttachedToRecyclerView(recyclerView)
+
     }
 
     override fun getItemCount(): Int {

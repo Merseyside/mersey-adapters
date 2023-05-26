@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.feature.positioning.PositionFeature
@@ -19,7 +20,6 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -40,6 +40,8 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     @InternalAdaptersApi
     val callbackClick: (Parent) -> Unit
+
+    fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener)
 
     @CallSuper
     override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
@@ -199,6 +201,10 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         }
     }
 
+    fun firstOrNull(): Parent? {
+        return if (isNotEmpty()) first() else null
+    }
+
     @Throws(IndexOutOfBoundsException::class)
     fun last(): Parent {
         try {
@@ -206,6 +212,10 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         } catch (e: Exception) {
             throw IndexOutOfBoundsException("List is empty")
         }
+    }
+
+    fun lastOrNull(): Parent? {
+        return if (isNotEmpty()) last() else null
     }
 
     fun getAll(): List<Parent> {

@@ -27,6 +27,20 @@ fun <Parent> IBaseAdapter<Parent, *>.addAsync(
     doAsync(onComplete) { add(items) }
 }
 
+fun <Parent> IBaseAdapter<Parent, *>.addAsyncToStart(
+    item: Parent,
+    onComplete: (Unit) -> Unit = {}
+) {
+    addAsync(position = 0, item, onComplete)
+}
+
+fun <Parent> IBaseAdapter<Parent, *>.addAsyncToStart(
+    items: List<Parent>,
+    onComplete: (Unit) -> Unit = {}
+) {
+    addAsync(position = 0, items, onComplete)
+}
+
 fun <Parent> IBaseAdapter<Parent, *>.updateAsync(
     items: List<Parent>,
     updateBehaviour: UpdateBehaviour = UpdateBehaviour(),

@@ -1,18 +1,20 @@
 package com.merseyside.adapters.delegates.feature.placeholder.resolver.state
 
+import androidx.lifecycle.LifecycleOwner
+import com.merseyside.adapters.core.feature.dataProvider.DataObserver
+import com.merseyside.adapters.core.feature.dataProvider.dataProvider
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.resolver.PlaceholderDataResolver
+import kotlinx.coroutines.flow.Flow
 
-abstract class StateDataResolver<StateData, Parent, ParentModel : VM<Parent>>: PlaceholderDataResolver<Parent, ParentModel>() {
+abstract class StateDataResolver<StateData, Parent, ParentModel : VM<Parent>>(
+    private val viewLifecycleOwner: LifecycleOwner,
+    private val flow: Flow<StateData>
+) : PlaceholderDataResolver<Parent, ParentModel>(), DataObserver<StateData, Parent> {
 
-    fun addStateData(stateData: StateData) {
-        onStateData(stateData, adapter)
+    override fun initAdapter(adapter: CompositeAdapter<Parent, ParentModel>) {
+        super.initAdapter(adapter)
+        adapter.dataProvider(viewLifecycleOwner, flow, this)
     }
-
-    protected abstract fun onStateData(
-        stateData: StateData,
-        adapter: CompositeAdapter<Parent, out ParentModel>
-    )
-
 }

@@ -30,4 +30,9 @@ abstract class NestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAd
     ) {
         onModelUpdated(model)
     }
+
+    override suspend fun clear() {
+        super.clear()
+        clearAdapters()
+    }
 }

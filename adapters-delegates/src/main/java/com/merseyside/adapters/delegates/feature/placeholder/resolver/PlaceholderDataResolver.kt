@@ -2,7 +2,7 @@ package com.merseyside.adapters.delegates.feature.placeholder.resolver
 
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.async.doAsync
-import com.merseyside.adapters.core.base.BaseAdapter
+import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
@@ -23,11 +23,11 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
     var isPlaceholderAdded = false
         private set
 
-    fun setProvider(provider: PlaceholderProvider<Parent, ParentModel>) {
+    fun setPlaceholderProvider(provider: PlaceholderProvider<Parent, ParentModel>) {
         this.provider = provider
     }
 
-    fun initAdapter(adapter: CompositeAdapter<Parent, ParentModel>) {
+    open fun initAdapter(adapter: CompositeAdapter<Parent, ParentModel>) {
         this.adapter = adapter
         modelList = adapter.adapterConfig.modelList
         safeLet(provider.placeholderDelegate) {
@@ -87,12 +87,12 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
     private val onAttachListener = object : OnAttachToRecyclerViewListener {
         override fun onAttached(
             recyclerView: RecyclerView,
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") ignored: BaseAdapter<*, *>
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") ignored: IBaseAdapter<*, *>
         ) {
             onAdapterAttached(adapter)
         }
 
-        override fun onDetached(recyclerView: RecyclerView, adapter: BaseAdapter<*, *>) {
+        override fun onDetached(recyclerView: RecyclerView, adapter: IBaseAdapter<*, *>) {
             disableModelListCallback()
         }
 

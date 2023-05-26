@@ -53,4 +53,9 @@ abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerM
         super.onBindViewHolder(holder, model, position, payloads)
         onModelUpdated(model)
     }
+
+    override suspend fun clear() {
+        super.clear()
+        clearAdapters()
+    }
 }

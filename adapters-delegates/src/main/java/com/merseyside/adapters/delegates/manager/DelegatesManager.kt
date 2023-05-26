@@ -3,16 +3,20 @@ package com.merseyside.adapters.delegates.manager
 import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.core.util.isEmpty
+import androidx.core.util.size
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
 import com.merseyside.merseyLib.kotlin.logger.Logger
+import com.merseyside.merseyLib.kotlin.logger.log
+import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
 import com.merseyside.utils.ext.containsKey
 import com.merseyside.utils.ext.filterValues
 import com.merseyside.utils.ext.findKey
 import com.merseyside.utils.ext.findValue
+import com.merseyside.utils.ext.forEach
 
 open class DelegatesManager<Delegate, Parent, ParentModel>(
     delegates: List<DelegateAdapter<out Parent, Parent, out ParentModel>> = emptyList()
@@ -136,6 +140,12 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
 
     fun clear() {
         delegates.clear()
+    }
+
+    suspend fun resetDelegates() {
+        delegates.forEach {
+            it.second.clear()
+        }
     }
 
     fun isEmpty(): Boolean = delegates.isEmpty()

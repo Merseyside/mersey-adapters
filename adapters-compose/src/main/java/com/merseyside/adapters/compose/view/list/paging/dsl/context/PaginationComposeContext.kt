@@ -7,6 +7,7 @@ import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
+import com.merseyside.adapters.core.async.clearAsync
 import com.merseyside.adapters.core.model.VM
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -39,17 +40,21 @@ class PaginationComposeContext<Data>(
 
     lateinit var viewProvider: (Data) -> List<SCV>
 
+    private val nextLiveData by lazy { onNextPage.map(viewProvider).asLiveData() }
+    private val prevLiveData by lazy { onPrevPage.map(viewProvider).asLiveData() }
+
     override fun onInitAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
         super.onInitAdapter(adapter)
         checkValid()
 
-        onNextPage.map(viewProvider).asLiveData()
-            .observe(viewLifecycleOwner) { views ->
-                updateViews { current -> current + views }
+        nextLiveData.observe(viewLifecycleOwner) { views ->
+            updateViews { current ->
+                current + views
             }
+        }
 
         if (this::onPrevPage.isInitialized) {
-            onPrevPage.map(viewProvider).asLiveData().observe(viewLifecycleOwner) { views ->
+            prevLiveData.observe(viewLifecycleOwner) { views ->
                 updateViews { current -> views + current }
             }
         }
@@ -58,6 +63,14 @@ class PaginationComposeContext<Data>(
     fun resetPaging() = mutableState {
         clearViews()
     }
+
+    override fun clear() {
+        super.clear()
+
+        nextLiveData.removeObservers(viewLifecycleOwner)
+        if (this::onPrevPage.isInitialized) prevLiveData.removeObservers(viewLifecycleOwner)
+    }
+
 
     private fun checkValid() {
         if (!this::onNextPage.isInitialized) throw IllegalStateException("onNextPage not set!")

@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.dsl.context.RootComposeContext
 import com.merseyside.adapters.compose.dsl.context.compose
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
-import com.merseyside.adapters.core.async.runForUI
+import com.merseyside.adapters.core.async.doAsync
 import com.merseyside.adapters.core.async.updateAsync
-import com.merseyside.merseyLib.kotlin.logger.log
 
 
 interface HasCompositeAdapter {
@@ -39,7 +37,14 @@ interface HasCompositeAdapter {
     }
 
     fun invalidateAsync(onComplete: (Unit) -> Unit = {}) {
-        adapter.workManager.doAsync(onComplete) { invalidate() }
+        adapter.doAsync(onComplete) { invalidate() }
+    }
+
+    fun clear() {
+        adapter.doAsync {
+            rootContext.clear()
+            this@HasCompositeAdapter.adapter.delegatesManager.resetDelegates()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

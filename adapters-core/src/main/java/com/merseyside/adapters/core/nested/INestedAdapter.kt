@@ -66,8 +66,8 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
         }
     }
 
-    override suspend fun clear() {
-        adapterList.clear()
-        super.clear()
-    }
+//    override suspend fun clear() {
+//        adapterList.clear()
+//        super.clear()
+//    }
 }

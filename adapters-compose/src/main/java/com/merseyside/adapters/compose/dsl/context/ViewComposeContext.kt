@@ -85,6 +85,12 @@ abstract class ViewComposeContext<View : SCV>(
         mutViews.compareAndSet(emptyList())
     }
 
+    open fun clear() {
+        childContextList.forEach { (_, u) -> u.clear() }
+        childContextList.clear()
+        clearViews()
+    }
+
     protected fun mutableState(block: () -> Unit) {
         stopObservingViews()
         block()

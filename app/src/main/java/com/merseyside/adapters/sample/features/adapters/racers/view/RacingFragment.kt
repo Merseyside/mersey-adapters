@@ -4,12 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.config.init.initAdapter
+import com.merseyside.adapters.core.feature.dataProvider.UpdateDataObserver
 import com.merseyside.adapters.core.feature.dataProvider.dataProvider
 import com.merseyside.adapters.core.feature.positioning.Positioning
 import com.merseyside.adapters.core.feature.sorting.Sorting
-import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.decorator.SimpleItemOffsetDecorator
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
@@ -58,8 +57,10 @@ class RacingFragment : BaseSampleFragment<FragmentRacingBinding, RacingViewModel
             )
         }
 
-        adapter.dataProvider(viewLifecycleOwner, viewModel.getCheckpointFlow()) { data ->
-            updateAsync(data, UpdateBehaviour(removeOld = false))
-        }
+        adapter.dataProvider(
+            viewLifecycleOwner,
+            viewModel.getCheckpointFlow(),
+            UpdateDataObserver(removeOld = false)
+        )
     }
 }

@@ -60,16 +60,9 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
 
     fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, Model> {
         return viewHolderBuilder.build(parent, getLayoutIdForItem(viewType))
-//        val layoutInflater = LayoutInflater.from(parent.context)
-//        val binding: ViewDataBinding = DataBindingUtil.inflate(
-//            layoutInflater,
-//            getLayoutIdForItem(viewType),
-//            parent,
-//            false
-//        )
-//
-//        return getBindingHolder(binding)
     }
+
+    open suspend fun clear() {}
 
     @OptIn(InternalAdaptersApi::class)
     open fun onModelCreated(model: Model) {

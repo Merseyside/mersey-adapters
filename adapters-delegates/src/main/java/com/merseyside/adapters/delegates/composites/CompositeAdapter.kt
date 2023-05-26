@@ -59,4 +59,5 @@ open class CompositeAdapter<Parent, ParentModel>(
     override fun createModel(item: Parent): ParentModel {
         return delegatesManager.createModel(item)
     }
+
 }

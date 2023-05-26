@@ -28,7 +28,7 @@ class PlaceholderFeature<Parent, Model : VM<Parent>> :
             placeholderDataResolver = config.placeholderDataResolver
                 ?: throw NullPointerException("Placeholder data resolver not set!")
 
-            placeholderDataResolver.setProvider(
+            placeholderDataResolver.setPlaceholderProvider(
                 config.placeholderProvider
                     ?: throw NullPointerException("Placeholder provider not set!")
             )
@@ -60,7 +60,9 @@ open class Config<Parent, Model : VM<Parent>> {
 
 object Placeholder {
     context(AdapterConfig<Parent, Model>) @Suppress("UNCHECKED_CAST")
-    operator fun <Parent, Model : VM<Parent>, TConfig : Config<Parent, Model>> invoke(config: TConfig.() -> Unit): PlaceholderFeature<Parent, Model> {
+    operator fun <Parent, Model : VM<Parent>, TConfig : Config<Parent, Model>> invoke(
+        config: TConfig.() -> Unit
+    ): PlaceholderFeature<Parent, Model> {
         return PlaceholderFeature<Parent, Model>().also { feature ->
             feature as ConfigurableFeature<Parent, Model, TConfig>
             install(feature, config)
