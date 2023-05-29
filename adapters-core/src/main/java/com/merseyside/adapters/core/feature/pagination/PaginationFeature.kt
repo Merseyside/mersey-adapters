@@ -53,16 +53,16 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
 }
 
 open class Config<Parent, Model>(
-    configure: Config<Parent, Model>.() -> Unit = {}
+    configure: Config<Parent, Model>.() -> Unit
 ) where Model : VM<Parent> {
 
     lateinit var viewLifecycleOwner: LifecycleOwner
 
-    lateinit var onNextPage: Flow<List<Parent>>
-    var onPrevPage: Flow<List<Parent>>? = null
+    lateinit var onNextPage: Flow<List<*>>
+    var onPrevPage: Flow<List<*>>? = null
 
-    var nextPageDataObserver: DataObserver<out Parent, Parent> = AddDataObserver()
-    var prevPageDataObserver: DataObserver<out Parent, Parent> = AddDataObserver(addToStart = true)
+    var nextPageDataObserver: DataObserver<out Any, Parent> = AddDataObserver()
+    var prevPageDataObserver: DataObserver<out Any, Parent> = AddDataObserver(addToStart = true)
 
     var observeWhenAttached: Boolean = true
 
