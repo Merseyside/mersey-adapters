@@ -42,7 +42,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
 
             setFilterCallback(object : AdapterFilter.FilterCallback<Model> {
                 override suspend fun onFiltered(models: List<Model>) {
-                    filterUpdate { update(models) }
+                    filterUpdate { update(models, filteredList) }
                 }
             })
         }
@@ -111,16 +111,13 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
 
     override suspend fun addModel(position: Int, model: Model): Boolean {
         requireValidPosition(position, allModelList)
-        if (!isFiltering) {
-            mutAllModelList.add(position, model)
-        }
 
         if (isFiltered) {
             if (adapterFilter.filter(model)) {
-                val filteredPosition = calculatePositionInFilteredList(position)
-                super.addModel(filteredPosition, model)
+                super.addModel(position, model)
             }
         } else {
+            mutAllModelList.add(position, model)
             super.addModel(position, model)
         }
 

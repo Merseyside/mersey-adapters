@@ -1,11 +1,10 @@
 package com.merseyside.adapters.sample.application
 
-import com.merseyside.adapters.core.AdaptersContext
 import com.merseyside.adapters.sample.application.di.AppComponent
 import com.merseyside.adapters.sample.application.di.AppModule
 import com.merseyside.adapters.sample.application.di.DaggerAppComponent
 import com.merseyside.archy.BaseApplication
-import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
+import com.merseyside.utils.ThemeManager
 
 class SampleApplication : BaseApplication() {
 
@@ -16,6 +15,8 @@ class SampleApplication : BaseApplication() {
         super.onCreate()
         instance = this
         appComponent = buildComponent()
+
+        ThemeManager.apply(ThemeManager.Theme.DARK)
 
         //AdaptersContext.coroutineContext = defaultDispatcher
     }

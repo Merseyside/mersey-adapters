@@ -5,6 +5,7 @@ import com.merseyside.adapters.core.feature.filtering.listManager.Filters
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.merseyLib.kotlin.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -40,14 +41,14 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
     /**
      * If you pass an object as filter be sure isEquals() implemented properly.
      */
-    open suspend fun addFilter(key: String, filter: Any) {
+    internal open suspend fun addFilter(key: String, filter: Any) {
         val appliedFilter = filters[key]
         if (appliedFilter != filter) {
             notAppliedFilters[key] = filter
         }
     }
 
-    open suspend fun removeFilter(key: String) {
+    internal open suspend fun removeFilter(key: String) {
         val appliedFilter = filters[key]
         if (isFiltered) {
             if (appliedFilter != null) {
@@ -70,7 +71,7 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
             cancelFiltering()
             false
         } else if (notAppliedFilters.isEmpty()) {
-            log("No new filters added. Filtering skipped!")
+            Logger.logErr("AdapterFilter", "No new filters added. Filtering skipped!")
             return@withContext false
         } else {
             val filteredModels = filterModels()
