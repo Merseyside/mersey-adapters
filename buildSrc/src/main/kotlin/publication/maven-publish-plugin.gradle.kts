@@ -6,6 +6,7 @@ plugins {
 
 mavenPublishing {
     val projectGitUrl = "https://github.com/Merseyside/mersey-adapters.git"
+
     pom {
         name.set("Mersey adapters library")
         description.set("Adapters, delegates, compose styled adapters")
@@ -43,4 +44,7 @@ mavenPublishing {
             url.set(projectGitUrl)
         }
     }
+
+    publishToMavenCentral(SonatypeHost.S01)
 }
+

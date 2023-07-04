@@ -11,8 +11,7 @@ tasks.register("clean", Delete::class).configure {
 }
 
 val javadocDisabledModules = listOf(
-    "adapters-delegates",
-    "adapters-coroutine-ext"
+    "adapters-delegates"
 )
 
 subprojects {
