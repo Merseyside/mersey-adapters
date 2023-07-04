@@ -35,8 +35,11 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     override suspend fun remove(model: Model): Boolean {
         val position = getPositionOfModel(model)
         return try {
+            onRemove(listOf(model))
             val removedModel = mutModels.removeAt(position)
-            onRemoved(listOf(removedModel), position)
+            val list = listOf(removedModel)
+
+            onRemoved(list, position)
             true
         } catch (e: IndexOutOfBoundsException) {
             false
@@ -56,23 +59,29 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun addAll(models: List<Model>) {
+        onInsert(models)
         mutModels.addAll(models)
         onInserted(models, size - models.size)
     }
 
     override suspend fun add(model: Model) {
+        val list = listOf(model)
+        onInsert(list)
         mutModels.add(model)
-        onInserted(listOf(model), lastIndex)
+        onInserted(list, lastIndex)
     }
 
     override suspend fun addAll(position: Int, models: List<Model>) {
+        onInsert(models)
         mutModels.addAll(position, models)
         onInserted(models, position)
     }
 
     override suspend fun add(position: Int, model: Model) {
+        val list = listOf(model)
+        onInsert(list)
         mutModels.add(position, model)
-        onInserted(listOf(model), position)
+        onInserted(list, position)
     }
 
     suspend fun move(fromIndex: Int, toIndex: Int) {
@@ -80,8 +89,9 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
         onMoved(fromIndex, toIndex)
     }
 
-    override fun clear() {
+    override suspend fun clear() {
         mutModels.clear()
+        onCleared()
     }
 
     override fun listIterator(): ListIterator<Model> {
@@ -99,7 +109,7 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     internal class SimpleModelListIterator<Model>(
         startIndex: Int,
         private val list: List<Model>
-    ): ModelListIterator<Model>(startIndex) {
+    ) : ModelListIterator<Model>(startIndex) {
         override fun getItem(index: Int): Model {
             return list[index]
         }

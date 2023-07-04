@@ -6,6 +6,7 @@ import com.merseyside.adapters.compose.composer.FragmentAdapterComposer
 import com.merseyside.adapters.compose.adapter.SimpleViewCompositeAdapter
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
+import com.merseyside.adapters.compose.dsl.context.RootComposeContext
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
@@ -36,8 +37,8 @@ import kotlin.collections.List as ArrayList
 
 class MovieScreenAdapterComposer(
     fragment: Fragment,
-    override val adapter: SimpleViewCompositeAdapter,
-) : FragmentAdapterComposer(fragment), ILogger {
+    adapter: SimpleViewCompositeAdapter,
+) : FragmentAdapterComposer(fragment, adapter), ILogger {
 
     override val delegates: ArrayList<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>> =
         listOf(
@@ -196,10 +197,6 @@ class MovieScreenAdapterComposer(
             style = { setBackgroundColor(R.color.green) }) {
             text = "default text with background"
         }
-    }
-
-    init {
-        invalidateAsync()
     }
 
     override val tag = "MovieScreen"

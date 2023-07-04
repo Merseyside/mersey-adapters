@@ -3,6 +3,7 @@ package com.merseyside.adapters.compose.viewProvider
 import androidx.lifecycle.asLiveData
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.merseyLib.kotlin.utils.safeLet
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -57,6 +58,59 @@ fun <T> StateFlow<T>.asComposeState(context: ComposeContext): ComposeStateDelega
             return composeState
         }
     }
+
+@Suppress("UNCHECKED_CAST")
+fun <T> StateFlow<T?>.asComposeNullableState(context: ComposeContext): ComposeNullableStateDelegate<T?> =
+    // try too find an answer why thisRes is null when call from method
+    object : ComposeNullableStateDelegate<T?>(context) {
+
+        override fun createComposeState(propertyName: String): MutableComposeState<T?> {
+            val composeState = MutableComposeState(propertyName, value)
+            asLiveData().observe(context.viewLifecycleOwner) { newValue ->
+                composeState.value = newValue
+            }
+
+            return composeState
+        }
+    }
+
+@Suppress("UNCHECKED_CAST")
+abstract class ComposeNullableStateDelegate<T>(val context: ComposeContext) :
+    ReadWriteProperty<ComposeContext?, T?> {
+
+    val key: (KProperty<*>) -> String = KProperty<*>::name
+
+    override fun getValue(
+        thisRef: ComposeContext?,
+        property: KProperty<*>
+    ): T? {
+        return requireContext(context) {
+            val propName = key(property)
+            val composeState = getComposeState(propName) as? ComposeState<T>
+                ?: createComposeState(propName).also { addComposeState(it) }
+            composeState.value
+        }
+    }
+
+    override fun setValue(
+        thisRef: ComposeContext?,
+        property: KProperty<*>,
+        value: T?
+    ) {
+        requireContext(context) {
+            (getComposeState(key(property)) as? MutableComposeState<T>)?.value = value
+        }
+    }
+
+    protected abstract fun createComposeState(propertyName: String): MutableComposeState<T>
+
+    protected fun <R> requireContext(
+        provider: ComposeContext?,
+        block: ComposeContext.() -> R
+    ): R? {
+        return provider?.let(block)
+    }
+}
 
 @Suppress("UNCHECKED_CAST")
 abstract class ComposeStateDelegate<T>(val context: ComposeContext) :

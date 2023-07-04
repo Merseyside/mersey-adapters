@@ -1,6 +1,8 @@
 package com.merseyside.adapters.core.config
 
+import com.merseyside.adapters.core.AdaptersContext
 import com.merseyside.adapters.core.base.IBaseAdapter
+import com.merseyside.adapters.core.config.contract.FilterProvider
 import com.merseyside.adapters.core.config.contract.ModelListProvider
 import com.merseyside.adapters.core.config.contract.UpdateLogicProvider
 import com.merseyside.adapters.core.config.ext.getFeatureByKey
@@ -18,13 +20,13 @@ import com.merseyside.adapters.core.modelList.ModelListCallback
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
+import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 open class AdapterConfig<Parent, Model> internal constructor(
     config: AdapterConfig<Parent, Model>.() -> Unit = {}
-)
-        where Model : VM<Parent> {
+) where Model : VM<Parent> {
     protected lateinit var adapter: IBaseAdapter<Parent, Model>
 
     internal val featureList = ArrayList<Feature<Parent, Model>>()
@@ -37,14 +39,17 @@ open class AdapterConfig<Parent, Model> internal constructor(
 
     var errorHandler: ((Exception) -> Unit)? = null
 
-    var coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
-    val workManager: AdapterWorkManager
+    var coroutineScope: CoroutineScope = CoroutineScope(uiDispatcher)
+    var coroutineContext: CoroutineContext = AdaptersContext.coroutineContext
+
+    internal val workManager: AdapterWorkManager
 
     init {
         apply(config)
         if (errorHandler == null) errorHandler = { e -> throw e }
         workManager = AdapterWorkManager(
             CoroutineQueue<Any, Unit>(coroutineScope).apply { fallOnException = true },
+            coroutineContext,
             errorHandler!!
         )
     }
@@ -108,7 +113,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
         if (!this::_modelListManager.isInitialized) {
             _modelListManager = if (hasFeature(FilterFeature.key)) {
                 val filterFeature =
-                    getFeatureByKey(FilterFeature.key) as FilterFeature<Parent, Model>
+                    getFeatureByKey(FilterFeature.key) as FilterProvider<Parent, Model>
                 FilterModelListManager(
                     modelList = initModelList(adapter),
                     adapterActions = adapter,

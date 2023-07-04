@@ -10,14 +10,5 @@ class ComposingCheckBoxViewModel(
     override val selectState: SelectState = SelectState(item.checked)
 ) : ComposingTextViewModel<CheckBox>(item), SelectableItem, ILogger {
 
-    init {
-        selectState.setOnSelectStateListener(object: SelectState.OnSelectStateListener {
-            override fun onSelected(selected: Boolean) {}
-
-            override fun onSelectable(selectable: Boolean) {}
-
-        })
-    }
-
     override val tag: String = "ComposingCheckBox"
 }

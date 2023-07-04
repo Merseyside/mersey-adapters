@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.merseyside.adapters.sample.features.adapters.delegate.model.DelegateViewModel" />
+            type="com.merseyside.adapters.sample.features.adapters.delegate.animals.model.DelegateViewModel" />
     </data>
 
 
@@ -18,7 +18,7 @@
             android:id="@+id/recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="com.merseyside.utils.layout.LinearLayoutManager" />
+            app:layoutManager="com.merseyside.utils.layoutManager.LinearLayoutManager" />
 
         <Button
             android:id="@+id/populate"

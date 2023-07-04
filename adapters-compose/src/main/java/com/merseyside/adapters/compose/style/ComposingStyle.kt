@@ -7,14 +7,18 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.utils.ext.getDimension
+import com.merseyside.utils.ext.getDimensionPixelSize
 import com.merseyside.utils.getClassName
 
-abstract class ComposingStyle(val context: Context) : ILogger {
+abstract class ComposingStyle(override val context: Context) : StyleContract, ILogger {
     var width: Int? = null
     var height: Int? = null
 
     var margins: Margins? = null
     var paddings: Paddings? = null
+
+    var elevation: Float? = null
 
     @ColorInt var backgroundColor: Int? = null
 
@@ -24,17 +28,56 @@ abstract class ComposingStyle(val context: Context) : ILogger {
 
     var clickable: Boolean = true
 
+    fun setWidth(@DimenRes dimen: Int) {
+        width = context.getDimensionPixelSize(dimen)
+    }
+
+    fun setHeight(@DimenRes dimen: Int) {
+        height = context.getDimensionPixelSize(dimen)
+    }
+
+    fun setElevation(@DimenRes dimen: Int) {
+        elevation = context.getDimension(dimen)
+    }
+
+    fun Margins(block: Margins.() -> Unit): Margins {
+        return Margins().apply(block).also {
+            margins = it
+        }
+    }
+
     class Margins(
-        @DimenRes val top: Int? = null,
-        @DimenRes val bottom: Int? = null,
-        @DimenRes val start: Int? = null,
-        @DimenRes val end: Int? = null
+        @DimenRes var top: Int? = null,
+        @DimenRes var bottom: Int? = null,
+        @DimenRes var start: Int? = null,
+        @DimenRes var end: Int? = null
     ) {
+
+        @DimenRes
+        var horizontal: Int? = null
+            get() = throw IllegalAccessException("Using just like a setter.")
+            set(value) {
+                start = value
+                end = value
+
+                field = value
+            }
+
+        @DimenRes
+        var vertical: Int? = null
+            get() = throw IllegalAccessException("Using just like a setter.")
+            set(value) {
+                top = value
+                bottom = value
+
+                field = value
+            }
+
         constructor(@DimenRes margin: Int): this(
             margin, margin, margin, margin
         )
 
-        constructor(@DimenRes horizontal: Int, @DimenRes vertical: Int): this(
+        constructor(@DimenRes horizontal: Int? = null, @DimenRes vertical: Int? = null): this(
             vertical, vertical, horizontal, horizontal
         )
 

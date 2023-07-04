@@ -6,7 +6,7 @@
     <data>
         <variable
             name="model"
-            type="com.merseyside.adapters.sample.features.adapters.delegate.model.CatItemViewModel" />
+            type="com.merseyside.adapters.sample.features.adapters.delegate.animals.model.CatItemViewModel" />
     </data>
 
     <androidx.cardview.widget.CardView

@@ -4,7 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.asLiveData
-import com.merseyside.adapters.core.async.addOrUpdateAsync
+import androidx.lifecycle.lifecycleScope
+import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.feature.expanding.Expanding
 import com.merseyside.adapters.core.feature.filtering.Filtering
 import com.merseyside.adapters.core.feature.filtering.ext.addAndApplyAsync
@@ -14,7 +15,6 @@ import com.merseyside.adapters.core.feature.selecting.group.SelectingGroup
 import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
-import com.merseyside.utils.view.ext.addTextChangeListener
 import com.merseyside.utils.view.ext.onClick
 import com.merseyside.adapters.sample.application.base.BaseSampleFragment
 import com.merseyside.adapters.sample.databinding.FragmentContactsBinding
@@ -24,12 +24,17 @@ import com.merseyside.adapters.sample.features.adapters.contacts.adapter.Contact
 import com.merseyside.adapters.sample.features.adapters.contacts.di.ContactsModule
 import com.merseyside.adapters.sample.features.adapters.contacts.di.DaggerContactsComponent
 import com.merseyside.adapters.sample.features.adapters.contacts.model.ContactViewModel
+import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
+import com.merseyside.utils.ext.addTextChangeListener
 
 class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewModel>() {
 
     private val contactsFilter = ContactsNestedAdapterFilter()
 
     private val adapter = ContactNestedAdapter {
+        coroutineScope = lifecycleScope
+        coroutineContext = defaultDispatcher
+
         Sorting {
             comparator = ContactsComparator
         }
@@ -65,7 +70,6 @@ class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewM
         true
     }
 
-    override fun hasTitleBackButton() = true
     override fun getLayoutId() = R.layout.fragment_contacts
     override fun getTitle(context: Context) = "Contacts"
     override fun getBindingVariable() = BR.viewModel
@@ -86,7 +90,7 @@ class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewM
 
         requireBinding().recycler.adapter = adapter
         viewModel.contactsFlow.asLiveData().observe(viewLifecycleOwner) { items ->
-            adapter.addOrUpdateAsync(items)
+            adapter.updateAsync(items)
         }
 
         requireBinding().populate.onClick {

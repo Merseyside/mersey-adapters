@@ -3,21 +3,21 @@ package com.merseyside.adapters.compose.view.card
 import android.content.Context
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.BR
+import com.merseyside.adapters.compose.R
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
-import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.manager.ViewDelegatesManager
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
+import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupDelegate
 import com.merseyside.adapters.core.feature.selecting.Selecting
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import com.merseyside.utils.ext.getDimension
 import com.merseyside.utils.ext.getDimensionPixelSize
 
-class ComposingCardDelegate : NestedViewDelegateAdapter<ComposingCard, ComposingCardStyle,
+class ComposingCardDelegate : ComposingViewGroupDelegate<ComposingCard, ComposingCardStyle,
         ComposingCardViewModel<ComposingCard>,
         SCV, ViewAdapterViewModel, ViewCompositeAdapter<SCV, ViewAdapterViewModel>>() {
 
@@ -31,11 +31,11 @@ class ComposingCardDelegate : NestedViewDelegateAdapter<ComposingCard, Composing
 
     override fun applyStyle(
         context: Context,
-        viewDataBinding: ViewDataBinding,
+        holder: ViewHolder<SCV, ComposingCardViewModel<ComposingCard>>,
         style: ComposingCardStyle
     ) {
-        super.applyStyle(context, viewDataBinding, style)
-        val card = viewDataBinding.root as CardView
+        super.applyStyle(context, holder, style)
+        val card = holder.root as CardView
         safeLet(style.cardCornerRadius) { radius ->
             card.radius = context.getDimension(radius)
         }
@@ -78,14 +78,14 @@ class ComposingCardDelegate : NestedViewDelegateAdapter<ComposingCard, Composing
         }
     }
 
-    override fun getNestedView(
-        binding: ViewDataBinding,
+    override fun getNestedRecyclerView(
+        holder: ViewHolder<SCV, ComposingCardViewModel<ComposingCard>>,
         model: ComposingCardViewModel<ComposingCard>
     ): RecyclerView? {
-        return (binding.root as CardView).findViewById<RecyclerView?>(R.id.list)
+        return (holder.root as CardView).findViewById<RecyclerView?>(R.id.list)
             .also { recyclerView ->
                 with(model.item.listConfig) {
-                    safeLet(layoutManager) { recyclerView.layoutManager = it }
+                    recyclerView.layoutManager = layoutManager(holder.context)
                     safeLet(decorator) { recyclerView.addItemDecoration(it) }
                 }
             }

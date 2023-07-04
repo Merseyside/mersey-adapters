@@ -1,10 +1,36 @@
 package com.merseyside.adapters.core.modelList
 
+import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import kotlinx.coroutines.withContext
 
 abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
+
+    private val batchedUpdates: MutableList<suspend () -> Unit> = ArrayList()
+
+    var isBatched = false
+        private set
+
+    suspend fun <R> batchedUpdate(block: suspend () -> R): R {
+        isBatched = true
+        val result = block()
+        isBatched = false
+
+        runForUI {
+            batchedUpdates.forEach { update -> update() }
+            batchedUpdates.clear()
+        }
+
+        return result
+    }
+
+    private suspend fun doUpdate(update: suspend () -> Unit) {
+        if (isBatched) batchedUpdates.add(update)
+        else withContext(uiDispatcher) { update() }
+    }
 
     private val callbacks: MutableList<ModelListCallback<Model>> = ArrayList()
 
@@ -12,22 +38,47 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         callbacks.add(callback)
     }
 
-    fun onInserted(models: List<Model>, position: Int) {
-        val count = models.size
-        callbacks.forEach { it.onInserted(models, position, count) }
+    fun removeModelListCallback(callback: ModelListCallback<Model>) {
+        callbacks.remove(callback)
     }
 
-    fun onRemoved(models: List<Model>, position: Int) {
-        val count = models.size
+    protected suspend fun onInsert(models: List<Model>) {
+        callbacks.forEach { it.onInsert(models)}
+    }
+
+    protected suspend fun onInserted(models: List<Model>, position: Int) = doUpdate {
+        callbacks.forEach { it.onInserted(models, position) }
+    }
+
+    protected suspend fun onRemove(
+        models: List<Model>,
+        count: Int = models.size
+    )  {
+        callbacks.forEach { it.onRemove(models, count) }
+    }
+
+    protected suspend fun onRemoved(
+        models: List<Model>,
+        position: Int,
+        count: Int = models.size
+    ) = doUpdate {
         callbacks.forEach { it.onRemoved(models, position, count) }
     }
 
-    fun onChanged(model: Model, position: Int, payloads: List<AdapterParentViewModel.Payloadable>) {
+    protected suspend fun onChanged(
+        model: Model,
+        position: Int,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    ) = doUpdate {
         callbacks.forEach { it.onChanged(model, position, payloads) }
     }
 
-    fun onMoved(fromPosition: Int, toPosition: Int) {
+    protected suspend fun onMoved(fromPosition: Int, toPosition: Int) = doUpdate {
         callbacks.forEach { it.onMoved(fromPosition, toPosition) }
+    }
+
+    protected suspend fun onCleared() = doUpdate {
+        callbacks.forEach { it.onCleared() }
     }
 
     abstract fun getModels(): List<Model>
@@ -52,9 +103,12 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
 
     abstract suspend fun removeAll(models: List<Model>)
 
-    abstract suspend fun onModelUpdated(model: Model, payloads: List<AdapterParentViewModel.Payloadable>)
+    abstract suspend fun onModelUpdated(
+        model: Model,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    )
 
-    abstract fun clear()
+    abstract suspend fun clear()
 
     abstract override operator fun get(index: Int): Model
 

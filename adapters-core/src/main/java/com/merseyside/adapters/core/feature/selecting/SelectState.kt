@@ -3,7 +3,9 @@ package com.merseyside.adapters.core.feature.selecting
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
 import com.merseyside.merseyLib.kotlin.observable.SingleObservableEvent
 import com.merseyside.merseyLib.kotlin.observable.ObservableField
-import com.merseyside.merseyLib.kotlin.observable.combineFields
+import com.merseyside.merseyLib.kotlin.observable.ext.combineFields
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
+import com.merseyside.merseyLib.kotlin.observable.ext.valueNotNull
 
 class SelectState(
     selected: Boolean = false,
@@ -25,18 +27,18 @@ class SelectState(
     private var listener: OnSelectStateListener? = null
 
     var selected: Boolean = selected
-        internal set(value) {
+        set(value) {
             if (field != value) {
                 field = value
 
-                selectedObservable.value = value
+                selectedObservable.compareAndSet(value)
                 listener?.onSelected(value)
             }
         }
 
     var selectable: Boolean
-        get() = selectableObservable.value!!
-        internal set(value) { itemSelectable.value = value }
+        get() = selectableObservable.valueNotNull()
+        set(value) { itemSelectable.compareAndSet(value) }
 
     init {
         selectableObservable.observe { value ->

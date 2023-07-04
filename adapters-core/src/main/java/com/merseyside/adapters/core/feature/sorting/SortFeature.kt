@@ -8,14 +8,16 @@ import com.merseyside.adapters.core.config.feature.ConfigurableFeature
 import com.merseyside.adapters.core.config.update.UpdateActions
 import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.config.update.sorted.SortedUpdate
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.ComparatorProvider
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.SortedModelList
-import com.merseyside.adapters.core.sortedList.SortedList
-import com.merseyside.adapters.core.sortedList.recalculatePositions
-
+import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
+import com.merseyside.adapters.core.feature.sorting.sortedList.recalculatePositions
 
 open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Config<Parent, Model>>(),
-    ModelListProvider<Parent, Model>, UpdateLogicProvider<Parent, Model>, ComparatorProvider<Parent, Model>
+    ModelListProvider<Parent, Model>, UpdateLogicProvider<Parent, Model>,
+    ComparatorProvider<Parent, Model>
         where Model : VM<Parent> {
 
     override val config: Config<Parent, Model> = Config()

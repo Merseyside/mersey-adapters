@@ -1,23 +1,26 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-    }
-}
-
-@Suppress("DSL_SCOPE_VIOLATION")
-plugins {
-    alias(common.plugins.versionChecker)
-    `nexus-config`
-}
-
 allprojects {
-    group = "io.github.merseyside"
-    version = "1.0.0"
+    plugins.withId("org.gradle.maven-publish") {
+        group = "io.github.merseyside"
+        version = androidLibs.versions.mersey.adapters.get()
+    }
 }
 
 tasks.register("clean", Delete::class).configure {
     group = "build"
     delete(rootProject.buildDir)
+}
+
+val javadocDisabledModules = listOf(
+    "adapters-delegates"
+)
+
+subprojects {
+    gradle.taskGraph.whenReady {
+        if (javadocDisabledModules.contains(this@subprojects.name)) {
+            tasks.matching { it.name == "javaDocReleaseGeneration" }.configureEach {
+                // See: https://youtrack.jetbrains.com/issue/KTIJ-19005/JDK-17-PermittedSubclasses-requires-ASM9-exception-multiple-times-per-second-during-analysis
+                enabled = false
+            }
+        }
+    }
 }

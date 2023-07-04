@@ -1,6 +1,5 @@
 package com.merseyside.adapters.core.listManager
 
-import com.merseyside.adapters.core.async.addOrUpdateAsync
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
@@ -39,7 +38,7 @@ interface INestedModelListManager<Parent, Model, InnerData, InnerAdapter> :
             val adapter = provideNestedAdapter(model)
             model.getNestedData()?.let { data ->
                 workManager.subTaskWith(adapter) {
-                    addOrUpdateAsync(data)
+                    update(data)
                 }
             }
         }

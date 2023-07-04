@@ -71,7 +71,7 @@
 
     <fragment
         android:id="@+id/delegatesFragment"
-        android:name="com.merseyside.adapters.sample.features.adapters.delegate.view.DelegateFragment"
+        android:name="com.merseyside.adapters.sample.features.adapters.delegate.animals.view.DelegateFragment"
         android:label="delegates_fragment"
         tools:layout="@layout/fragment_delegate"
         app:navGraph="@navigation/nav_graph" />

@@ -8,10 +8,13 @@ import com.merseyside.adapters.compose.dsl.context.compose
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
-import com.merseyside.adapters.core.async.addOrUpdateAsync
+import com.merseyside.adapters.core.async.doAsync
+import com.merseyside.adapters.core.async.updateAsync
 
 
 interface HasCompositeAdapter {
+
+    var rootContext: ComposeContext
 
     val adapter: ViewCompositeAdapter<SCV, ViewAdapterViewModel>
     val delegates: List<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>>
@@ -26,19 +29,22 @@ interface HasCompositeAdapter {
             adapter.delegatesManager.addDelegateList(delegates)
         }
 
-        val screenContext = compose(context, viewLifecycleOwner, composeScreen()).apply {
-            relativeAdapter = adapter
-        }
-
-        showViews(screenContext.views)
+        rootContext = compose(context, viewLifecycleOwner, adapter, composeScreen())
     }
 
     fun showViews(views: List<SCV>) {
-        adapter.addOrUpdateAsync(views)
+        adapter.updateAsync(views)
     }
 
     fun invalidateAsync(onComplete: (Unit) -> Unit = {}) {
-        adapter.workManager.doAsync(onComplete) { invalidate() }
+        adapter.doAsync(onComplete) { invalidate() }
+    }
+
+    fun clear() {
+        adapter.doAsync {
+            rootContext.clear()
+            this@HasCompositeAdapter.adapter.delegatesManager.resetDelegates()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

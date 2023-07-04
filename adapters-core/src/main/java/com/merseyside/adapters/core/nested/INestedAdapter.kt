@@ -2,11 +2,11 @@
 
 package com.merseyside.adapters.core.nested
 
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.config.NestedAdapterConfig
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.listManager.INestedModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
@@ -26,7 +26,7 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
         get() = adapterConfig.listManager
 
     fun initNestedAdapter(model: Model): InnerAdapter
-    fun getNestedView(binding: ViewDataBinding): RecyclerView?
+    fun getNestedView(holder: ViewHolder<Parent, Model>): RecyclerView?
 
     private fun internalInitInnerAdapter(model: Model): InnerAdapter {
         return initNestedAdapter(model).also { innerAdapter ->
@@ -66,9 +66,8 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
         }
     }
 
-    @InternalAdaptersApi
-    override suspend fun removeAll() {
-        super.removeAll()
-        adapterList.clear()
-    }
+//    override suspend fun clear() {
+//        adapterList.clear()
+//        super.clear()
+//    }
 }

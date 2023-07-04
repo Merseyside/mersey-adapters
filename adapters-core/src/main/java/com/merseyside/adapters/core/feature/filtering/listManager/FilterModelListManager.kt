@@ -6,9 +6,9 @@ import com.merseyside.adapters.core.feature.filtering.AdapterFilter
 import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.workManager.AdapterWorkManager
-import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
+import com.merseyside.adapters.core.utils.InternalAdaptersApi
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.move
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 
@@ -42,7 +42,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
 
             setFilterCallback(object : AdapterFilter.FilterCallback<Model> {
                 override suspend fun onFiltered(models: List<Model>) {
-                    filterUpdate { update(models) }
+                    filterUpdate { update(models, filteredList) }
                 }
             })
         }
@@ -70,7 +70,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
         return true
     }
 
-    override suspend fun getModelByItem(item: Parent): Model? {
+    override fun getModelByItem(item: Parent): Model? {
         return getModelByItem(item, allModelList)
     }
 
@@ -111,16 +111,13 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
 
     override suspend fun addModel(position: Int, model: Model): Boolean {
         requireValidPosition(position, allModelList)
-        if (!isFiltering) {
-            mutAllModelList.add(position, model)
-        }
 
         if (isFiltered) {
             if (adapterFilter.filter(model)) {
-                val filteredPosition = calculatePositionInFilteredList(position)
-                super.addModel(filteredPosition, model)
+                super.addModel(position, model)
             }
         } else {
+            mutAllModelList.add(position, model)
             super.addModel(position, model)
         }
 

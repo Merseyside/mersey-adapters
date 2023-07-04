@@ -9,6 +9,7 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.ModelListCallback
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -49,7 +50,7 @@ class AdapterExpand<Parent, Model>(
                 field = value
 
                 modelList.mapNotNull { it.asExpandable() }
-                    .forEach { it.expandState.globalExpandable.value = value }
+                    .forEach { it.expandState.globalExpandable.compareAndSet(value) }
             }
         }
 
@@ -57,7 +58,7 @@ class AdapterExpand<Parent, Model>(
         modelList.addModelListCallback(this)
     }
 
-    override fun onInserted(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
         val items = models.filterIsInstance<ExpandableItem>()
         initNewItems(items)
     }
@@ -68,18 +69,22 @@ class AdapterExpand<Parent, Model>(
         notifyItemsExpanded(expandedItems, false)
     }
 
-    override fun onRemoved(models: List<Model>, position: Int, count: Int) {
+    override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
         val expandableItems = models.mapNotNull { it.asExpandable() }
         expandedList.removeAll(expandableItems)
     }
 
-    override fun onChanged(
+    override suspend fun onChanged(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
     ) {}
 
-    override fun onMoved(fromPosition: Int, toPosition: Int) {}
+    override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
+
+    override suspend fun onCleared() {
+        expandedList.clear()
+    }
 
     fun changeItemExpandedState(item: ExpandableItem, isExpandedByUser: Boolean = true) {
         with(item) {

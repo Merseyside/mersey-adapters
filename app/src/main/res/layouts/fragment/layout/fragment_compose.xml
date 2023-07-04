@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            app:layoutManager="com.merseyside.utils.layout.LinearLayoutManager" />
+            app:layoutManager="com.merseyside.utils.layoutManager.LinearLayoutManager" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

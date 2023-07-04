@@ -2,7 +2,7 @@ package com.merseyside.adapters.core.model
 
 //import androidx.databinding.BindingAdapter
 //import androidx.recyclerview.widget.RecyclerView
-//import com.merseyside.adapters.feature.selecting.callback.OnItemSelectedListener
+//import com.merseyside.adapters.core.feature.selecting.callback.OnItemSelectedListener
 //
 //@BindingAdapter("onSelected")
 //fun setSelectedListener(

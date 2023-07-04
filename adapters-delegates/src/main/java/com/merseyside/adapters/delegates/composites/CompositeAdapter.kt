@@ -3,10 +3,10 @@ package com.merseyside.adapters.delegates.composites
 import android.view.ViewGroup
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.delegate.DA
+import com.merseyside.adapters.delegates.DA
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 
 open class CompositeAdapter<Parent, ParentModel>(
@@ -23,6 +23,8 @@ open class CompositeAdapter<Parent, ParentModel>(
             val removeList = models.filter { delegate.isResponsibleFor(it.item) }
             remove(removeList.map { it.item })
         }
+
+        delegatesManager.getRelativeAdapter = { this }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -32,13 +34,13 @@ open class CompositeAdapter<Parent, ParentModel>(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): TypedBindingHolder<ParentModel> {
+    ): ViewHolder<Parent, ParentModel> {
         return delegatesManager.createViewHolder(parent, viewType)
     }
 
     @InternalAdaptersApi
     override fun bindModel(
-        holder: TypedBindingHolder<ParentModel>,
+        holder: ViewHolder<Parent, ParentModel>,
         model: ParentModel,
         position: Int
     ) {
@@ -47,7 +49,7 @@ open class CompositeAdapter<Parent, ParentModel>(
     }
 
     override fun onBindViewHolder(
-        holder: TypedBindingHolder<ParentModel>,
+        holder: ViewHolder<Parent, ParentModel>,
         position: Int,
         payloads: List<Any>
     ) {
@@ -59,4 +61,5 @@ open class CompositeAdapter<Parent, ParentModel>(
     override fun createModel(item: Parent): ParentModel {
         return delegatesManager.createModel(item)
     }
+
 }

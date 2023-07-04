@@ -2,7 +2,7 @@ package com.merseyside.adapters.delegates.composites
 
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.config.NestedAdapterConfig
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.nested.INestedAdapter
@@ -20,11 +20,11 @@ abstract class NestedCompositeAdapter<Parent, Model, Data, InnerAdapter>(
     override var adapterList: MutableList<Pair<Model, InnerAdapter>> = ArrayList()
     override var onInitAdapterListener: OnInitNestedAdapterListener<Data>? = null
 
-    override fun onBindViewHolder(holder: TypedBindingHolder<Model>, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {
         super.onBindViewHolder(holder, position)
         val model = getModelByPosition(position)
 
-        getNestedView(holder.binding)?.apply {
+        getNestedView(holder)?.apply {
             val adapter = getNestedAdapterByModel(model)
             if (this.adapter != adapter) {
                 this.adapter = adapter

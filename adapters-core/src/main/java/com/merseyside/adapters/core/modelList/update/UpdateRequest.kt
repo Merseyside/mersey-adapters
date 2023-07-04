@@ -1,14 +1,22 @@
 package com.merseyside.adapters.core.modelList.update
 
-class UpdateRequest<Item>(val list: List<Item>) {
+class UpdateRequest<Item>(val items: List<Item>) {
 
     constructor(item: Item): this(listOf(item))
 
-    var isAddNew = true
+    var addNew = true
         private set
 
-    var isDeleteOld = true
+    var removeOld = true
         private set
+
+    internal fun isUpdateExistingOnly(): Boolean {
+        return !removeOld && !addNew
+    }
+
+    internal fun isFullUpdate(): Boolean {
+        return removeOld && addNew
+    }
 
     class Builder<Item>(list: List<Item>) {
 
@@ -17,12 +25,12 @@ class UpdateRequest<Item>(val list: List<Item>) {
         private val request: UpdateRequest<Item> = UpdateRequest(list)
 
         fun isAddNew(bool: Boolean): Builder<Item> {
-            request.isAddNew = bool
+            request.addNew = bool
             return this
         }
 
         fun isDeleteOld(bool: Boolean): Builder<Item> {
-            request.isDeleteOld = bool
+            request.removeOld = bool
             return this
         }
 
@@ -33,17 +41,10 @@ class UpdateRequest<Item>(val list: List<Item>) {
 
     companion object {
         fun <Item> fromBehaviour(items: List<Item>, updateBehaviour: UpdateBehaviour): UpdateRequest<Item> {
-            updateBehaviour as UpdateBehaviour.UPDATE
             return Builder(items)
                 .isAddNew(updateBehaviour.addNew)
                 .isDeleteOld(updateBehaviour.removeOld)
                 .build()
         }
     }
-}
-
-sealed class UpdateBehaviour {
-    object ADD: UpdateBehaviour()
-    open class UPDATE(val removeOld: Boolean = true, val addNew: Boolean = true): UpdateBehaviour()
-    class ADD_UPDATE(removeOld: Boolean = true, addNew: Boolean = true): UPDATE(removeOld, addNew)
 }

@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     with(catalogPlugins.plugins) {
         plugin(android.library)
@@ -8,7 +7,7 @@ plugins {
         id(mersey.kotlin.extension.id())
         plugin(kotlin.kapt)
     }
-    `android-maven-publish-config`
+    `maven-publish-plugin`
 }
 
 android {
@@ -19,7 +18,9 @@ android {
         minSdk = Application.minSdk
     }
     
-    buildFeatures.dataBinding = true
+    buildFeatures {
+        dataBinding = true
+    }
 
     lint {
         lintConfig = rootProject.file(".lint/config.xml")

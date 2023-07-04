@@ -41,7 +41,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         resources.excludes.addAll(
             listOf(
                 "META-INF/DEPENDENCIES",

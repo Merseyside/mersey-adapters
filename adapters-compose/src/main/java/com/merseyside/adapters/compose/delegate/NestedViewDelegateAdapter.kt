@@ -5,11 +5,10 @@ import com.merseyside.adapters.compose.manager.ViewDelegatesManager
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
 
 abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerModel, InnerAdapter> :
@@ -24,33 +23,37 @@ abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerM
 
     override var adapterList: MutableList<Pair<Model, InnerAdapter>> = ArrayList()
 
-    override lateinit var delegatesManagerProvider: () -> DelegatesManager<*, *, *>
-
     abstract fun createCompositeAdapter(
         model: Model,
         delegateManager: ViewDelegatesManager<InnerParent, InnerModel>,
     ): InnerAdapter
 
     @Suppress("UNCHECKED_CAST")
-    override fun initNestedAdapter(model: Model): InnerAdapter {
-        val innerDelegateManager = delegatesManagerProvider() as ViewDelegatesManager<InnerParent, InnerModel>
+    @OptIn(InternalAdaptersApi::class)
+    override fun createNestedAdapter(model: Model): InnerAdapter {
+        val innerDelegateManager = requireRelativeDelegatesManager() as ViewDelegatesManager<InnerParent, InnerModel>
         return createCompositeAdapter(model, innerDelegateManager)
     }
 
     @InternalAdaptersApi
-    override fun onBindViewHolder(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder<SCV, Model>, model: Model, position: Int) {
         super.onBindViewHolder(holder, model, position)
-        bindNestedAdapter(holder, model, position)
+        onBindNestedAdapter(holder, model, position)
     }
 
     @InternalAdaptersApi
     override fun onBindViewHolder(
-        holder: TypedBindingHolder<Model>,
+        holder: ViewHolder<SCV, Model>,
         model: Model,
         position: Int,
         payloads: List<Any>
     ) {
         super.onBindViewHolder(holder, model, position, payloads)
         onModelUpdated(model)
+    }
+
+    override suspend fun clear() {
+        super.clear()
+        clearAdapters()
     }
 }

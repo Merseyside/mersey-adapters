@@ -1,9 +1,9 @@
 package com.merseyside.adapters.sample.features.adapters.colors.model
 
-import com.merseyside.adapters.core.model.AdapterViewModel
+import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.sample.features.adapters.colors.entity.HexColor
 
-class ColorItemViewModel(obj: HexColor) : AdapterViewModel<HexColor>(obj) {
+class ColorItemViewModel(obj: HexColor) : AdapterParentViewModel<HexColor, Any>(obj) {
 
     fun getColor(): Int {
         return item.color

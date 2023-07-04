@@ -4,7 +4,6 @@ import com.merseyside.adapters.core.config.update.UpdateActions
 import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
-import com.merseyside.adapters.core.async.runWithDefault
 import com.merseyside.merseyLib.kotlin.extensions.subtractBy
 
 class SortedUpdate<Parent, Model : VM<Parent>>(
@@ -19,20 +18,20 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
     private suspend fun getUpdateTransaction(
         updateRequest: UpdateRequest<Parent>,
         models: List<Model>
-    ): UpdateTransaction<Parent, Model> = runWithDefault {
+    ): UpdateTransaction<Parent, Model>  {
         val updateTransaction = UpdateTransaction<Parent, Model>()
         with(updateTransaction) {
-            if (updateRequest.isDeleteOld) {
-                modelsToRemove = findOutdatedModels(updateRequest.list, models)
+            if (updateRequest.removeOld) {
+                modelsToRemove = findOutdatedModels(updateRequest.items, models)
             }
 
             val addList = ArrayList<Parent>()
             val updateList = ArrayList<Pair<Model, Parent>>()
 
-            updateRequest.list.forEach { newItem ->
+            updateRequest.items.forEach { newItem ->
                 val model = getModelByItem(newItem, models)
                 if (model == null) {
-                    if (updateRequest.isAddNew) addList.add(newItem)
+                    if (updateRequest.addNew) addList.add(newItem)
                 } else {
                     if (!model.areContentsTheSame(newItem)) {
                         updateList.add(model to newItem)
@@ -44,12 +43,12 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             itemsToAdd = addList
         }
 
-        updateTransaction
+        return updateTransaction
     }
 
     private suspend fun applyUpdateTransaction(
         updateTransaction: UpdateTransaction<Parent, Model>
-    ): Boolean {
+    ): Boolean = updateActions.transaction {
         with(updateTransaction) {
             if (modelsToRemove.isNotEmpty()) {
                 updateActions.removeModels(modelsToRemove)
@@ -64,7 +63,7 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             }
         }
 
-        return !updateTransaction.isEmpty()
+        !updateTransaction.isEmpty()
     }
 
     override suspend fun update(dest: List<Model>, source: List<Model>) {

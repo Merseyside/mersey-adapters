@@ -3,7 +3,9 @@ package com.merseyside.adapters.core.feature.expanding
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
 import com.merseyside.merseyLib.kotlin.observable.ObservableField
 import com.merseyside.merseyLib.kotlin.observable.SingleObservableEvent
-import com.merseyside.merseyLib.kotlin.observable.combineFields
+import com.merseyside.merseyLib.kotlin.observable.ext.combineFields
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
+import com.merseyside.merseyLib.kotlin.observable.ext.valueNotNull
 
 class ExpandState(
     expanded: Boolean = false,
@@ -24,18 +26,18 @@ class ExpandState(
     private var listener: OnExpandStateListener? = null
 
     var expanded: Boolean = expanded
-        internal set(value) {
+        set(value) {
             if (field != value) {
                 field = value
 
-                expandedObservable.value = value
+                expandedObservable.compareAndSet(value)
                 listener?.onExpanded(value)
             }
         }
 
     var expandable: Boolean
-        get() = expandableField.value!!
-        internal set(value) { itemExpandable.value = value }
+        get() = expandableField.valueNotNull()
+        set(value) { itemExpandable.compareAndSet(value) }
 
     init {
         expandableField.observe { value ->

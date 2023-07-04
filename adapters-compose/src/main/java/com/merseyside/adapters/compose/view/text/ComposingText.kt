@@ -1,17 +1,21 @@
 package com.merseyside.adapters.compose.view.text
 
 import android.content.Context
+import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.GravityInt
 import androidx.core.content.ContextCompat
 import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.style.ComposingStyle
-import com.merseyside.adapters.compose.viewProvider.ViewProviderContext
-import com.merseyside.adapters.compose.viewProvider.addView
-import com.merseyside.utils.view.ext.setTextSizePx
+import com.merseyside.adapters.compose.view.base.StyleableComposingView
+import com.merseyside.adapters.compose.view.text.drawables.CompoundDrawables
+import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.utils.ext.getColorFromAttr
 
 open class ComposingText<Style : ComposingTextStyle>(
     id: String,
@@ -44,16 +48,24 @@ open class ComposingText<Style : ComposingTextStyle>(
     }
 }
 
-open class ComposingTextStyle(context: Context) : ComposingStyle(context) {
+open class ComposingTextStyle(context: Context) : ComposingStyle(context), CompoundDrawables {
     @ColorInt
     var textColor: Int? = null
 
     var textSize: Int? = null
-    var gravity: Int? = null
+    @GravityInt var gravity: Int? = null
     var maxLines: Int? = null
+
+    var typeface: Int = Typeface.NORMAL
+
+    override var compoundDrawables: Array<Drawable?>? = null
 
     fun setTextColor(@ColorRes color: Int) {
         textColor = ContextCompat.getColor(context, color)
+    }
+
+    fun setTextColorAttr(@AttrRes color: Int) {
+        textColor = context.getColorFromAttr(color)
     }
 
     fun setTextSize(@DimenRes size: Int) {

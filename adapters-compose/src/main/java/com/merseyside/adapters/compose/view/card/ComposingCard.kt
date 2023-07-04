@@ -8,15 +8,18 @@ import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.compose.viewProvider.addView
+import com.merseyside.adapters.compose.dsl.context.addView
 import com.merseyside.adapters.compose.view.list.selectable.SelectableListConfig
+import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroup
+import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
+import com.merseyside.adapters.compose.view.viewGroup.dsl.context.ViewGroupComposeContext
 
 open class ComposingCard(
     id: String,
     val configure: SelectableListConfig.() -> Unit,
     override val composingStyle: ComposingCardStyle,
-    open val viewList: List<SCV> = emptyList()
-) : StyleableComposingView<ComposingCardStyle>(id) {
+    viewGroupComposeContext: ViewGroupComposeContext<SCV>
+) : ComposingViewGroup<ComposingCardStyle>(id, composingStyle, viewGroupComposeContext) {
 
     override fun getSuitableDelegate():
             ViewDelegateAdapter<out StyleableComposingView<out ComposingCardStyle>, out ComposingCardStyle, *> {
@@ -30,19 +33,17 @@ open class ComposingCard(
             id: String,
             configure: SelectableListConfig.() -> Unit = {},
             style: ComposingCardStyle.() -> Unit = {},
-            buildViews: ComposeContext.() -> Unit
+            initContext: ComposeContext.() -> Unit
         ): ComposingCard {
-            val cardContext = card(id, buildViews)
-            val views = cardContext.views
+            val cardContext = card(id, initContext)
 
-            return ComposingCard(id, configure, ComposingCardStyle(context, style), views)
+            return ComposingCard(id, configure, ComposingCardStyle(context, style), cardContext)
                 .addView()
         }
     }
 }
 
-open class ComposingCardStyle(context: Context) : ComposingStyle(context) {
-    override val tag: String = "CardStyle"
+open class ComposingCardStyle(context: Context) : ComposingViewGroupStyle(context) {
 
     @DimenRes
     var cardCornerRadius: Int? = null
@@ -54,6 +55,8 @@ open class ComposingCardStyle(context: Context) : ComposingStyle(context) {
     var backgroundCardColor: Int? = null
 
     var contentPaddings: Paddings? = null
+
+    override val tag: String = "CardStyle"
 
     companion object {
         operator fun invoke(

@@ -8,10 +8,10 @@ import com.merseyside.adapters.core.feature.selecting.SelectState
 import com.merseyside.adapters.core.feature.selecting.SelectableMode
 import com.merseyside.adapters.core.feature.selecting.Selecting
 import com.merseyside.adapters.core.feature.sorting.Sorting
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
 import com.merseyside.adapters.sample.features.adapters.contacts.model.ContactItemViewModel
-import com.merseyside.adapters.core.feature.sorting.Comparator
 
 class ContactAdapter(
     config: AdapterConfig<String, ContactItemViewModel>

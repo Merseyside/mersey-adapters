@@ -1,18 +1,27 @@
 package com.merseyside.adapters.sample.features.adapters.colors.adapter
 
 import android.graphics.Color
+import com.merseyside.adapters.core.feature.sorting.comparator.SimpleComparator
 import com.merseyside.adapters.core.feature.sorting.async.updateAsync
-import com.merseyside.adapters.sample.features.adapters.colors.entity.HexColor
+import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.sample.features.adapters.colors.model.ColorItemViewModel
 
 class ColorsComparator(
     private var comparisonRule: ColorComparisonRule
-) : com.merseyside.adapters.core.feature.sorting.Comparator<HexColor, ColorItemViewModel>() {
-    override fun compare(model1: ColorItemViewModel, model2: ColorItemViewModel): Int {
-        return when(comparisonRule) {
-            ColorComparisonRule.ASC -> model1.getColor().compareTo(model2.getColor())
-            ColorComparisonRule.DESC -> model2.getColor().compareTo(model1.getColor())
-            ColorComparisonRule.RAINBOW -> rainbowComparison(model1.getColor(), model2.getColor())
+) : SimpleComparator() {
+    override fun compare(model1: VM<Any>, model2: VM<Any>): Int {
+        return if (model1 == model2) 0
+        else if (model1 !is ColorItemViewModel) -1
+        else if (model2 !is ColorItemViewModel) 1
+        else {
+            return when (comparisonRule) {
+                ColorComparisonRule.ASC -> model1.getColor().compareTo(model2.getColor())
+                ColorComparisonRule.DESC -> model2.getColor().compareTo(model1.getColor())
+                ColorComparisonRule.RAINBOW -> rainbowComparison(
+                    model1.getColor(),
+                    model2.getColor()
+                )
+            }
         }
     }
 

@@ -1,34 +1,28 @@
 package com.merseyside.adapters.delegates.nestedDelegate
 
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.async.addOrUpdateAsync
+import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.base.BaseAdapter
-import com.merseyside.adapters.core.holder.TypedBindingHolder
+import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.manager.DelegatesManager
-import com.merseyside.adapters.delegates.delegate.IDelegateAdapter
 import com.merseyside.merseyLib.kotlin.extensions.remove
 
-interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapter>
-    : IDelegateAdapter<Item, Parent, Model>
+interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, NestedAdapter>
         where Model : NestedAdapterParentViewModel<Item, Parent, out Data>,
-              InnerAdapter : BaseAdapter<Data, out VM<Data>> {
+              NestedAdapter : BaseAdapter<Data, out VM<Data>> {
 
-    var delegatesManagerProvider: () -> DelegatesManager<*, *, *>
+    val adapterList: MutableList<Pair<Model, NestedAdapter>>
 
-    val adapterList: MutableList<Pair<Model, InnerAdapter>>
+    fun createNestedAdapter(model: Model): NestedAdapter
 
-    fun initNestedAdapter(model: Model): InnerAdapter
+    fun onNestedAdapterCreated(adapter: NestedAdapter, model: Model) {}
 
-    fun getNestedView(binding: ViewDataBinding, model: Model): RecyclerView?
+    fun getNestedRecyclerView(holder: ViewHolder<Parent, Model>, model: Model): RecyclerView?
 
     fun removeNestedAdapterByModel(model: Model): Boolean {
-        return adapterList.remove { (adaptersModel, _) ->
-            adaptersModel == model
-        }
+        return adapterList.remove { (adaptersModel, _) -> adaptersModel == model }
     }
 
     @InternalAdaptersApi
@@ -38,36 +32,46 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapte
     }
 
     @InternalAdaptersApi
-    private fun getNestedAdapterByModel(model: Model): InnerAdapter {
-        return getAdapterIfExists(model) ?: initNestedAdapter(model)
+    private fun getNestedAdapterByModel(model: Model): NestedAdapter {
+        return getAdapterIfExists(model) ?: createNestedAdapter(model)
             .also { adapter ->
                 putAdapter(model, adapter)
+                onNestedAdapterCreated(adapter, model)
             }
     }
 
     @InternalAdaptersApi
-    private fun getAdapterIfExists(model: Model): InnerAdapter? {
+    private fun getAdapterIfExists(model: Model): NestedAdapter? {
         return adapterList.find { it.first.areItemsTheSameInternal(model.item) }?.second
     }
 
-    private fun putAdapter(model: Model, adapter: InnerAdapter) {
+    private fun putAdapter(model: Model, adapter: NestedAdapter) {
         adapterList.add(model to adapter)
     }
 
-    private fun setInnerData(adapter: InnerAdapter, model: Model) {
+    private fun setInnerData(adapter: NestedAdapter, model: Model) {
         model.getNestedData()?.let { data ->
-            adapter.addOrUpdateAsync(data)
+            handleInnerData(adapter, data)
         }
     }
 
+    fun handleInnerData(adapter: NestedAdapter, data: List<Data>) {
+        adapter.updateAsync(data)
+    }
+
     @InternalAdaptersApi
-    fun bindNestedAdapter(holder: TypedBindingHolder<Model>, model: Model, position: Int) {
-        getNestedView(holder.binding, model)?.apply {
+    fun onBindNestedAdapter(holder: ViewHolder<Parent, Model>, model: Model, position: Int) {
+        getNestedRecyclerView(holder, model)?.apply {
             val adapter = getNestedAdapterByModel(model)
             setInnerData(adapter, model)
             if (this.adapter != adapter) {
                 this.adapter = adapter
             }
         }
+    }
+
+    suspend fun clearAdapters() {
+        adapterList.forEach { it.second.clear() }
+        adapterList.clear()
     }
 }

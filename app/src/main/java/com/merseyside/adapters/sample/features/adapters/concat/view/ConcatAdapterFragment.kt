@@ -22,7 +22,6 @@ class ConcatAdapterFragment : BaseSampleFragment<FragmentConcatAdapterBinding, C
     private val newsAdapter = NewsAdapter()
     private val adsAdapter = AdsAdapter()
 
-    override fun hasTitleBackButton() = true
     override fun getLayoutId() = R.layout.fragment_concat_adapter
     override fun performInjection(bundle: Bundle?, vararg params: Any) {
         DaggerConcatComponent.builder()

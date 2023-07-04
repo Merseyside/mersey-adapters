@@ -6,33 +6,40 @@ import android.view.View
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.core.async.addAsync
+import com.merseyside.adapters.core.async.removeAsync
 import com.merseyside.adapters.core.async.updateAsync
+import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.config.init.initAdapter
 import com.merseyside.adapters.core.feature.filtering.Filtering
 import com.merseyside.adapters.core.feature.filtering.ext.addFilterAsync
 import com.merseyside.adapters.core.feature.filtering.ext.applyFiltersAsync
 import com.merseyside.adapters.core.feature.filtering.ext.removeFilterAsync
 import com.merseyside.adapters.core.feature.sorting.Sorting
-import com.merseyside.adapters.core.modelList.update.UpdateRequest
+import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
+import com.merseyside.adapters.delegates.composites.SimpleCompositeAdapter
+import com.merseyside.adapters.delegates.feature.placeholder.Placeholder
+import com.merseyside.adapters.delegates.feature.placeholder.resolver.EmptyDataResolver
+import com.merseyside.adapters.delegates.feature.placeholder.textPlaceholder.TextPlaceholderProvider
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
 import com.merseyside.adapters.sample.application.base.BaseSampleFragment
 import com.merseyside.adapters.sample.databinding.FragmentColorsBinding
-import com.merseyside.adapters.sample.features.adapters.colors.adapter.ColorsAdapter
 import com.merseyside.adapters.sample.features.adapters.colors.adapter.ColorsComparator
+import com.merseyside.adapters.sample.features.adapters.colors.adapter.ColorsDelegateAdapter
 import com.merseyside.adapters.sample.features.adapters.colors.adapter.ColorsFilter
 import com.merseyside.adapters.sample.features.adapters.colors.di.ColorsModule
 import com.merseyside.adapters.sample.features.adapters.colors.di.DaggerColorsComponent
 import com.merseyside.adapters.sample.features.adapters.colors.model.ColorsViewModel
 import com.merseyside.archy.presentation.view.valueSwitcher.ValueSwitcher
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.utils.view.ext.addTextChangeListener
+import com.merseyside.utils.ext.addTextChangeListener
 
 class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel>() {
 
     private val colorsFilter = ColorsFilter()
     private val colorsComparator = ColorsComparator(ColorsComparator.ColorComparisonRule.ASC)
 
-    private val adapter = ColorsAdapter {
+    private val adapter = initAdapter(::SimpleCompositeAdapter) {
         coroutineScope = lifecycleScope
 
         Sorting {
@@ -42,12 +49,18 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
         Filtering {
             filter = colorsFilter
         }
-    }
+
+        Placeholder {
+            placeholderProvider = TextPlaceholderProvider("No colors. Press button below :)")
+            placeholderDataResolver = EmptyDataResolver(showPlaceholderOnAttach = true)
+        }
+    }.apply { delegatesManager.addDelegates(ColorsDelegateAdapter().also {
+        it.onClick { color -> this@apply.removeAsync(color) }
+    }) }
 
     override fun getBindingVariable() = BR.viewModel
     override fun getLayoutId() = R.layout.fragment_colors
     override fun getTitle(context: Context) = "Colors"
-    override fun hasTitleBackButton() = true
 
     override fun performInjection(bundle: Bundle?, vararg params: Any) {
         DaggerColorsComponent.builder()
@@ -111,16 +124,17 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
             })
 
 
-        viewModel.getColorsFlow().asLiveData().observe(viewLifecycleOwner) {
+        viewModel.getColorsFlow().asLiveData().observe(viewLifecycleOwner) { colors ->
             if (requireBinding().add.isChecked) {
-                adapter.addAsync(it)
+                adapter.addAsync(items = colors)
             } else {
-                val updateRequest = UpdateRequest.Builder(it)
-                    .isAddNew(requireBinding().updateAdd.isChecked)
-                    .isDeleteOld(requireBinding().updateRemove.isChecked)
-                    .build()
-
-                adapter.updateAsync(updateRequest)
+                adapter.updateAsync(
+                    colors,
+                    UpdateBehaviour(
+                        removeOld = requireBinding().updateRemove.isChecked,
+                        addNew = requireBinding().updateAdd.isChecked
+                    )
+                )
             }
         }
     }

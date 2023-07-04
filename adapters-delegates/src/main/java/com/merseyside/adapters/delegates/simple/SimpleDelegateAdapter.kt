@@ -1,7 +1,7 @@
-package com.merseyside.adapters.delegates
+package com.merseyside.adapters.delegates.simple
 
 import com.merseyside.adapters.core.config.AdapterConfig
-import com.merseyside.adapters.delegates.delegate.DelegateAdapter
+import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.model.SimpleAdapterViewModel
 import com.merseyside.adapters.delegates.nestedDelegate.NestedDelegateAdapter
 
