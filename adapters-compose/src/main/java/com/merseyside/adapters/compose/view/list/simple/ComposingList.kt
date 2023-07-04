@@ -16,7 +16,7 @@ import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.utils.layout.LinearLayoutManager
+import com.merseyside.utils.layoutManager.LinearLayoutManager
 
 open class ComposingList(
     id: String,

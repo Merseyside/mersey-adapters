@@ -41,6 +41,14 @@ fun <Parent> IBaseAdapter<Parent, *>.addAsyncToStart(
     addAsync(position = 0, items, onComplete)
 }
 
+fun <Parent> IBaseAdapter<Parent, *>.updateSingleAsync(
+    item: Parent,
+    updateBehaviour: UpdateBehaviour = UpdateBehaviour.updateExistingOnly(),
+    onComplete: (Boolean) -> Unit = {}
+) {
+    doAsync(onComplete) { update(listOf(item), updateBehaviour) }
+}
+
 fun <Parent> IBaseAdapter<Parent, *>.updateAsync(
     items: List<Parent>,
     updateBehaviour: UpdateBehaviour = UpdateBehaviour(),

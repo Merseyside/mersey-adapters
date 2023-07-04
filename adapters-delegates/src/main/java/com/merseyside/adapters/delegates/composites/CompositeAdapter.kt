@@ -23,6 +23,8 @@ open class CompositeAdapter<Parent, ParentModel>(
             val removeList = models.filter { delegate.isResponsibleFor(it.item) }
             remove(removeList.map { it.item })
         }
+
+        delegatesManager.getRelativeAdapter = { this }
     }
 
     override fun getItemViewType(position: Int): Int {

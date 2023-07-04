@@ -1,7 +1,7 @@
 package com.merseyside.adapters.core.modelList
 
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.core.feature.sorting.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
 import com.merseyside.adapters.core.feature.sorting.sortedList.find

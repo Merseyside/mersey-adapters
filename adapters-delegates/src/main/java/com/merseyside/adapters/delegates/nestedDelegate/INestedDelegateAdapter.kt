@@ -7,16 +7,12 @@ import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.merseyLib.kotlin.extensions.remove
-import com.merseyside.merseyLib.kotlin.logger.log
-import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
 
 interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, NestedAdapter>
         where Model : NestedAdapterParentViewModel<Item, Parent, out Data>,
               NestedAdapter : BaseAdapter<Data, out VM<Data>> {
 
-    var delegatesManagerProvider: () -> DelegatesManager<*, *, *>
     val adapterList: MutableList<Pair<Model, NestedAdapter>>
 
     fun createNestedAdapter(model: Model): NestedAdapter
@@ -26,9 +22,7 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, NestedAdapt
     fun getNestedRecyclerView(holder: ViewHolder<Parent, Model>, model: Model): RecyclerView?
 
     fun removeNestedAdapterByModel(model: Model): Boolean {
-        return adapterList.remove { (adaptersModel, _) ->
-            adaptersModel == model
-        }
+        return adapterList.remove { (adaptersModel, _) -> adaptersModel == model }
     }
 
     @InternalAdaptersApi

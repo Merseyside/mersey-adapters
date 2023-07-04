@@ -10,13 +10,24 @@ import com.merseyside.adapters.core.holder.builder.BindingViewHolderBuilder
 import com.merseyside.adapters.core.holder.builder.ViewHolderBuilder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
+import com.merseyside.adapters.delegates.composites.CompositeAdapter
+import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.utils.reflection.ReflectionUtils
 
 abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickListener<Item>
         where Model : AdapterParentViewModel<Item, Parent> {
 
-    private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> = BindingViewHolderBuilder(::getBindingVariable)
+    private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> =
+        BindingViewHolderBuilder(::getBindingVariable)
     override var clickListeners: MutableList<OnItemClickListener<Item>> = ArrayList()
+
+    open var getRelativeDelegatesManager: (() -> DelegatesManager<*, Parent, Model>)? = null
+
+    @InternalAdaptersApi
+    protected fun requireRelativeDelegatesManager(): DelegatesManager<*, Parent, Model> {
+        return getRelativeDelegatesManager?.invoke()
+            ?: throw NullPointerException("Delegate not attached to delegates manager!")
+    }
 
     @InternalAdaptersApi
     val onClick: (Item) -> Unit = { item ->
@@ -29,13 +40,17 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
 
     @LayoutRes
     protected open fun getLayoutIdForItem(viewType: Int): Int {
-        throw NotImplementedError("This method calls if view holder builder requires view type." +
-                " Please override this method.")
+        throw NotImplementedError(
+            "This method calls if view holder builder requires view type." +
+                    " Please override this method."
+        )
     }
 
     protected open fun getBindingVariable(): Int {
-        throw NotImplementedError("This method calls if view holder builder requires view type." +
-                " Please override this method.")
+        throw NotImplementedError(
+            "This method calls if view holder builder requires view type." +
+                    " Please override this method."
+        )
     }
 
     @CallSuper
@@ -79,7 +94,13 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
         model: Model,
         position: Int,
         payloads: List<Any>
-    ) {}
+    ) {
+    }
+
+    @OptIn(InternalAdaptersApi::class)
+    protected fun getRelativeCompositeAdapter(): CompositeAdapter<Parent, Model> {
+        return requireRelativeDelegatesManager().getRelativeAdapter()
+    }
 
     @Suppress("UNCHECKED_CAST")
     private val persistentClass: Class<Item> by lazy {

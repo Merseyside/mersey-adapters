@@ -7,9 +7,9 @@ import com.merseyside.adapters.core.feature.filtering.AdapterFilter
 import com.merseyside.adapters.core.feature.filtering.AdapterQueryFilter
 import com.merseyside.adapters.core.feature.selecting.AdapterSelect
 import com.merseyside.adapters.core.feature.selecting.SelectProvider
-import com.merseyside.adapters.core.feature.sorting.ComparatorProvider
+import com.merseyside.adapters.core.feature.sorting.comparator.ComparatorProvider
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.core.feature.sorting.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 
 fun AdapterConfig<*, *>.hasFeature(featureKey: String): Boolean {
     return featureList.find { it.featureKey == featureKey } != null

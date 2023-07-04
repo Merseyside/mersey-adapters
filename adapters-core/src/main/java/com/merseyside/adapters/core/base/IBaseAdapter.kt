@@ -98,8 +98,8 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     @InternalAdaptersApi
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
         return if (isEmpty()) {
-            if (updateRequest.isAddNew) {
-                add(updateRequest.list)
+            if (updateRequest.addNew) {
+                add(updateRequest.items)
             } else add(emptyList())
             true
         } else {

@@ -9,7 +9,6 @@ import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
 
 abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerModel, InnerAdapter> :
@@ -24,16 +23,15 @@ abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerM
 
     override var adapterList: MutableList<Pair<Model, InnerAdapter>> = ArrayList()
 
-    override lateinit var delegatesManagerProvider: () -> DelegatesManager<*, *, *>
-
     abstract fun createCompositeAdapter(
         model: Model,
         delegateManager: ViewDelegatesManager<InnerParent, InnerModel>,
     ): InnerAdapter
 
     @Suppress("UNCHECKED_CAST")
+    @OptIn(InternalAdaptersApi::class)
     override fun createNestedAdapter(model: Model): InnerAdapter {
-        val innerDelegateManager = delegatesManagerProvider() as ViewDelegatesManager<InnerParent, InnerModel>
+        val innerDelegateManager = requireRelativeDelegatesManager() as ViewDelegatesManager<InnerParent, InnerModel>
         return createCompositeAdapter(model, innerDelegateManager)
     }
 

@@ -6,7 +6,6 @@ import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.BaseComposingListDelegate
 import com.merseyside.adapters.compose.view.list.simple.ComposingListViewModel
-import com.merseyside.adapters.core.async.updateAsync
 
 class ComposingPagingListDelegate :
     BaseComposingListDelegate<ComposingPagingList<*>, ComposingListViewModel<ComposingPagingList<*>>,

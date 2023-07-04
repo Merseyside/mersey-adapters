@@ -1,6 +1,5 @@
 package com.merseyside.adapters.core.listManager
 
-import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.base.BaseAdapter
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel

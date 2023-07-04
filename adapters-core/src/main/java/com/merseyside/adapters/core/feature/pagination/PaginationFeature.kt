@@ -29,15 +29,15 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
         with(config) {
             adapter.dataProvider(
                 viewLifecycleOwner,
-                onNextPage,
+                onNextPageFlow,
                 nextPageDataObserver,
                 observeWhenAttached
             )
 
-            safeLet(onPrevPage) { flow ->
+            safeLet(onPrevPageFlow) { onPrev ->
                 adapter.dataProvider(
                     viewLifecycleOwner,
-                    flow,
+                    onPrev,
                     prevPageDataObserver,
                     observeWhenAttached
                 )
@@ -58,8 +58,8 @@ open class Config<Parent, Model>(
 
     lateinit var viewLifecycleOwner: LifecycleOwner
 
-    lateinit var onNextPage: Flow<List<*>>
-    var onPrevPage: Flow<List<*>>? = null
+    lateinit var onNextPageFlow: Flow<List<*>>
+    var onPrevPageFlow: Flow<List<*>>? = null
 
     var nextPageDataObserver: DataObserver<out Any, Parent> = AddDataObserver()
     var prevPageDataObserver: DataObserver<out Any, Parent> = AddDataObserver(addToStart = true)
@@ -73,7 +73,7 @@ open class Config<Parent, Model>(
 }
 
 object Pagination {
-    context (AdapterConfig<Parent, Model>) @Suppress("UNCHECKED_CAST")
+    context (AdapterConfig<Parent, Model>)
     operator fun <Parent, Model : VM<Parent>> invoke(config: Config<Parent, Model>.() -> Unit)
             : PaginationFeature<Parent, Model> {
         return PaginationFeature<Parent, Model>().also { feature ->

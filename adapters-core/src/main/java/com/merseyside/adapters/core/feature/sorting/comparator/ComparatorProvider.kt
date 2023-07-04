@@ -1,4 +1,4 @@
-package com.merseyside.adapters.core.feature.sorting
+package com.merseyside.adapters.core.feature.sorting.comparator
 
 import com.merseyside.adapters.core.model.VM
 

@@ -15,44 +15,83 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         updateRequest: UpdateRequest<Parent>,
         models: List<Model>
     ): Boolean = updateActions.transaction {
-            var isUpdated = false
-
-            with(updateRequest) {
-
-                val modelsToRemove = findOutdatedModels(list, models)
-                isUpdated = updateActions.removeModels(modelsToRemove)
-
-                list.forEachIndexed { newPosition, item ->
-                    val oldModel = models.find { it.areItemsTheSameInternal(item) }
-                    if (oldModel == null) {
-                        updateActions.add(newPosition, listOf(item))
-                    } else {
-                        val oldPosition = getPositionOfItem(item, models)
-                        updateActions.move(oldModel, oldPosition, newPosition)
-                        if (!oldModel.areContentsTheSame(item)) {
-                            isUpdated = updateActions.updateModel(oldModel, item) || isUpdated
-                        }
-                    }
-                }
-
-                isUpdated
-            }
+        if (updateRequest.isUpdateExistingOnly()) {
+            updateExistingModels(updateRequest.items, models)
+        } else if (updateRequest.isFullUpdate()) {
+            fullUpdate(updateRequest.items, models)
+        } else {
+            throw UnsupportedOperationException("Simple update support only full update or update" +
+                    " without adding or removing items. Please use simple add/remove operations")
+        }
     }
 
-    override suspend fun update(dest: List<Model>, source: List<Model>) = updateActions.transaction {
-        val destItems = dest.toItems()
-        val modelsToRemove = findOutdatedModels(destItems, source)
-        removeModels(modelsToRemove)
+    override suspend fun update(dest: List<Model>, source: List<Model>) =
+        updateActions.transaction {
+            val destItems = dest.toItems()
+            val modelsToRemove = findOutdatedModels(destItems, source)
+            removeModels(modelsToRemove)
 
-        dest.forEachIndexed { newPosition, model ->
-            val oldPosition = source.findPosition { it.areItemsTheSameInternal(model.item) }
-            if (oldPosition == -1) {
-                addModel(newPosition, model)
-            } else {
-                val oldModel = source[oldPosition]
-                move(oldModel, oldPosition, newPosition)
-                //if (updateActions.updateModel(oldModel, item)) isUpdated = true
+            dest.forEachIndexed { newPosition, model ->
+                val oldPosition = source.findPosition { it.areItemsTheSameInternal(model.item) }
+                if (oldPosition == -1) {
+                    addModel(newPosition, model)
+                } else {
+                    val oldModel = source[oldPosition]
+                    move(oldModel, oldPosition, newPosition)
+                    //if (updateActions.updateModel(oldModel, item)) isUpdated = true
+                }
             }
         }
+
+    private suspend fun UpdateActions<Parent, Model>.fullUpdate(
+        items: List<Parent>,
+        models: List<Model>
+    ): Boolean {
+        var isUpdated = false
+
+        isUpdated = removeOutdatedModels(items, models)
+
+        items.forEachIndexed { newPosition, item ->
+            val oldModel = findModelByItem(item, models)
+            if (oldModel == null) {
+                add(newPosition, listOf(item))
+            } else {
+                val oldPosition = getPositionOfItem(item, models)
+                move(oldModel, oldPosition, newPosition)
+                if (!oldModel.areContentsTheSame(item)) {
+                    isUpdated = updateModel(oldModel, item) || isUpdated
+                }
+            }
+        }
+
+        return isUpdated
+    }
+
+    private suspend fun UpdateActions<Parent, Model>.updateExistingModels(
+        items: List<Parent>,
+        models: List<Model>
+    ): Boolean {
+        var isUpdated = false
+
+        items.forEach { item ->
+            val oldModel = findModelByItem(item, models)
+            if (oldModel != null) {
+                isUpdated = updateModel(oldModel, item) || isUpdated
+            }
+        }
+
+        return isUpdated
+    }
+
+    private suspend fun UpdateActions<Parent, Model>.removeOutdatedModels(
+        items: List<Parent>,
+        models: List<Model>
+    ): Boolean {
+        val modelsToRemove = findOutdatedModels(items, models)
+        return removeModels(modelsToRemove)
+    }
+
+    private fun findModelByItem(item: Parent, models: List<Model>): Model? {
+        return models.find { it.areItemsTheSameInternal(item) }
     }
 }

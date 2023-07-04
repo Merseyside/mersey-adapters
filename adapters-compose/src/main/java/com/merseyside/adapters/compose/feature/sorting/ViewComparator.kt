@@ -3,7 +3,7 @@ package com.merseyside.adapters.compose.feature.sorting
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.utils.reflection.ReflectionUtils
-import com.merseyside.adapters.core.feature.sorting.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 
 abstract class ViewComparator<Model : ViewAdapterViewModel> : Comparator<SCV, ViewAdapterViewModel>() {
 

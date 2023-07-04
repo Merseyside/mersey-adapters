@@ -5,7 +5,6 @@ import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.merseyLib.kotlin.extensions.subtractBy
-import com.merseyside.merseyLib.kotlin.logger.log
 
 class SortedUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>
@@ -22,17 +21,17 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
     ): UpdateTransaction<Parent, Model>  {
         val updateTransaction = UpdateTransaction<Parent, Model>()
         with(updateTransaction) {
-            if (updateRequest.isDeleteOld) {
-                modelsToRemove = findOutdatedModels(updateRequest.list, models)
+            if (updateRequest.removeOld) {
+                modelsToRemove = findOutdatedModels(updateRequest.items, models)
             }
 
             val addList = ArrayList<Parent>()
             val updateList = ArrayList<Pair<Model, Parent>>()
 
-            updateRequest.list.forEach { newItem ->
+            updateRequest.items.forEach { newItem ->
                 val model = getModelByItem(newItem, models)
                 if (model == null) {
-                    if (updateRequest.isAddNew) addList.add(newItem)
+                    if (updateRequest.addNew) addList.add(newItem)
                 } else {
                     if (!model.areContentsTheSame(newItem)) {
                         updateList.add(model to newItem)

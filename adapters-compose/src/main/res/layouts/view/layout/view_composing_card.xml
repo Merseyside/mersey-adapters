@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="@{ _ -> model.onClick()}"
-            app:layoutManager="com.merseyside.utils.layout.LinearLayoutManager" />
+            app:layoutManager="com.merseyside.utils.layoutManager.LinearLayoutManager" />
 
     </androidx.cardview.widget.CardView>
 

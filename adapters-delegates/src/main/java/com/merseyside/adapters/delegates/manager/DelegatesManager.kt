@@ -3,20 +3,14 @@ package com.merseyside.adapters.delegates.manager
 import android.util.SparseArray
 import android.view.ViewGroup
 import androidx.core.util.isEmpty
-import androidx.core.util.size
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.DelegateAdapter
-import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
+import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
 import com.merseyside.merseyLib.kotlin.logger.Logger
-import com.merseyside.merseyLib.kotlin.logger.log
-import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
-import com.merseyside.utils.ext.containsKey
-import com.merseyside.utils.ext.filterValues
-import com.merseyside.utils.ext.findKey
-import com.merseyside.utils.ext.findValue
-import com.merseyside.utils.ext.forEach
+import com.merseyside.utils.ext.*
 
 open class DelegatesManager<Delegate, Parent, ParentModel>(
     delegates: List<DelegateAdapter<out Parent, Parent, out ParentModel>> = emptyList()
@@ -25,6 +19,8 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
 
     protected val delegates = SparseArray<Delegate>()
     private lateinit var onDelegateRemoveCallback: suspend (DelegateAdapter<out Parent, Parent, *>) -> Unit
+
+    internal lateinit var getRelativeAdapter: () -> CompositeAdapter<Parent, ParentModel>
 
     protected val count: Int
         get() = delegates.size()
@@ -50,16 +46,20 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         addDelegateList(delegates.toList() as List<Delegate>)
     }
 
+    @OptIn(InternalAdaptersApi::class)
     private fun addDelegate(delegate: Delegate, key: Int = count) {
         if (!delegates.containsKey(key)) {
             delegates.put(key, delegate)
-            if (delegate is INestedDelegateAdapter<*, *, *, *, *>) {
-                delegate.delegatesManagerProvider = { this }
-            }
+
+            if (delegate.getRelativeDelegatesManager != null)
+                Logger.logErr("DelegatesManager", "Warning: $delegate already attached" +
+                        " to another manager. Reatached to another manager.")
+
+            delegate.getRelativeDelegatesManager = { this }
+
         } else throw IllegalArgumentException("View type already exists!")
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, ParentModel> {
         return getDelegateByViewType(viewType).createViewHolder(parent, viewType)
     }
@@ -123,7 +123,6 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         return delegates.filterValues { it.isResponsibleFor(item) }
     }
 
-    @Suppress("UNCHECKED_CAST")
     suspend fun removeResponsibleDelegate(clazz: Class<out Parent>): Boolean {
         val delegate = getResponsibleDelegate(clazz)
         return delegate?.let {
@@ -153,7 +152,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     internal open fun getResponsibleDelegate(model: ParentModel): Delegate {
         return if (count.isNotZero()) {
             requireDelegate { delegates.findValue { it.second.isResponsibleFor(model.item) } }
-        } else throw IllegalStateException("Delegates are empty. Please, add delegates before using this!")
+        } else throw IllegalStateException("Delegates are empty. Please, add delegates call this method!")
     }
 
     internal fun createModel(item: Parent): ParentModel {
