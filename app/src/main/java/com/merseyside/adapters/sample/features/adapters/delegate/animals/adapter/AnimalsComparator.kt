@@ -2,7 +2,7 @@ package com.merseyside.adapters.sample.features.adapters.delegate.animals.adapte
 
 import com.merseyside.adapters.sample.features.adapters.delegate.animals.entity.Animal
 import com.merseyside.adapters.sample.features.adapters.delegate.animals.model.AnimalItemViewModel
-import com.merseyside.adapters.core.feature.sorting.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 
 class AnimalsComparator : Comparator<Animal, AnimalItemViewModel<out Animal>>() {
     override fun compare(

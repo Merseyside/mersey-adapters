@@ -1,6 +1,6 @@
 package com.merseyside.adapters.sample.features.adapters.contacts.adapter
 
-import com.merseyside.adapters.core.feature.sorting.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 import com.merseyside.adapters.sample.features.adapters.contacts.entity.ContactGroup
 import com.merseyside.adapters.sample.features.adapters.contacts.model.ContactGroupItemViewModel
 
