@@ -38,7 +38,7 @@ open class ComposingTextDelegate<View : ComposingText<Style>, Style : ComposingT
         }
     }
 
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_text
+    override fun getLayoutIdForItem() = R.layout.view_composing_text
     override fun getBindingVariable() = BR.model
 
     @Suppress("UNCHECKED_CAST")

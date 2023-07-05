@@ -10,6 +10,6 @@ import com.merseyside.adapters.sample.features.adapters.delegate.animals.model.D
 class DogDelegateAdapter: DelegateAdapter<Dog, Animal, DogItemViewModel>() {
 
     override fun createItemViewModel(item: Dog) = DogItemViewModel(item)
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.item_dog
+    override fun getLayoutIdForItem() = R.layout.item_dog
     override fun getBindingVariable() = BR.model
 }

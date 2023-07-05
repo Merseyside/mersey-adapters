@@ -6,6 +6,7 @@ import androidx.core.util.isEmpty
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
+import com.merseyside.adapters.delegates.set.DelegateAdapterSet
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
@@ -46,6 +47,13 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         addDelegateList(delegates.toList() as List<Delegate>)
     }
 
+    fun addDelegateSet(delegateSet: DelegateAdapterSet<*, out Parent, Parent, out ParentModel>) {
+        val list = delegateSet.getDelegates()
+        list.forEachIndexed { index, delegateAdapter ->
+            delegates.put(count + index, delegateAdapter as Delegate)
+        }
+    }
+
     @OptIn(InternalAdaptersApi::class)
     private fun addDelegate(delegate: Delegate, key: Int = count) {
         if (!delegates.containsKey(key)) {
@@ -78,12 +86,17 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         payloads: List<Any>
     ) {
         val model = holder.model
-        requireDelegate { getResponsibleDelegate(model) }.onBindViewHolder(holder, model, position, payloads)
+        requireDelegate { getResponsibleDelegate(model) }.onBindViewHolder(
+            holder,
+            model,
+            position,
+            payloads
+        )
     }
 
     fun getViewTypeByItem(model: ParentModel): Int {
         return if (count.isNotZero()) {
-            delegates.findKey { it.second.isResponsibleFor(model.item) }
+            delegates.findKey { it.second.isResponsibleForParent(model.item) }
                 ?: throw IllegalArgumentException("No responsible delegates found!")
         } else throw IllegalStateException("Delegates are empty. Please, add delegates before using this!")
     }
@@ -116,11 +129,11 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     open fun getResponsibleDelegate(item: Parent): Delegate? {
-        return delegates.findValue { it.second.isResponsibleFor(item) }
+        return delegates.findValue { it.second.isResponsibleForParent(item) }
     }
 
     open fun getResponsibleDelegates(item: Parent): List<Delegate> {
-        return delegates.filterValues { it.isResponsibleFor(item) }
+        return delegates.filterValues { it.isResponsibleForParent(item) }
     }
 
     suspend fun removeResponsibleDelegate(clazz: Class<out Parent>): Boolean {
@@ -151,14 +164,14 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
 
     internal open fun getResponsibleDelegate(model: ParentModel): Delegate {
         return if (count.isNotZero()) {
-            requireDelegate { delegates.findValue { it.second.isResponsibleFor(model.item) } }
+            requireDelegate { delegates.findValue { it.second.isResponsibleForParent(model.item) } }
         } else throw IllegalStateException("Delegates are empty. Please, add delegates call this method!")
     }
 
     internal fun createModel(item: Parent): ParentModel {
         val delegate = requireDelegate {
             delegates.findValue {
-                it.second.isResponsibleFor(item)
+                it.second.isResponsibleForParent(item)
             } ?: run {
                 Logger.logErr("Can not find delegate for ${item!!::class}")
                 null

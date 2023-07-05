@@ -5,7 +5,7 @@ import com.merseyside.adapters.delegates.BR
 import com.merseyside.adapters.delegates.simple.SimpleDelegateAdapter
 
 class DrawablePlaceholderDelegate : SimpleDelegateAdapter<DrawablePlaceholder, DrawablePlaceholderViewModel>(){
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_drawable_placeholder
+    override fun getLayoutIdForItem() = R.layout.view_drawable_placeholder
     override fun getBindingVariable() = BR.model
     override fun createItemViewModel(item: DrawablePlaceholder) = DrawablePlaceholderViewModel(item)
 }

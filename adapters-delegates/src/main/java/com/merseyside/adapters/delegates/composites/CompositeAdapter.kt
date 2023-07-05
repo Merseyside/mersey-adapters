@@ -20,7 +20,7 @@ open class CompositeAdapter<Parent, ParentModel>(
 
     init {
         delegatesManager.setOnDelegateRemoveCallback { delegate ->
-            val removeList = models.filter { delegate.isResponsibleFor(it.item) }
+            val removeList = models.filter { delegate.isResponsibleForParent(it.item) }
             remove(removeList.map { it.item })
         }
 
@@ -44,7 +44,6 @@ open class CompositeAdapter<Parent, ParentModel>(
         model: ParentModel,
         position: Int
     ) {
-        super.bindModel(holder, model, position)
         delegatesManager.onBindViewHolder(holder, model, position)
     }
 

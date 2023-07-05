@@ -15,7 +15,7 @@ class ColorsDelegateAdapter: SimpleDelegateAdapter<HexColor, ColorItemViewModel>
 //        }
 //    }
 
-    override fun getLayoutIdForItem(viewType: Int)  = R.layout.item_color
+    override fun getLayoutIdForItem()  = R.layout.item_color
 
     override fun getBindingVariable() = BR.viewModel
 

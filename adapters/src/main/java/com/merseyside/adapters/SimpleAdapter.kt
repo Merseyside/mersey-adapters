@@ -43,7 +43,6 @@ abstract class SimpleAdapter<Item, Model>(
 
     @InternalAdaptersApi
     override fun bindModel(holder: ViewHolder<Item, Model>, model: Model, position: Int) {
-        super.bindModel(holder, model, position)
         holder.bind(model)
     }
 

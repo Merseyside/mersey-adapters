@@ -39,7 +39,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     }
 
     @LayoutRes
-    protected open fun getLayoutIdForItem(viewType: Int): Int {
+    protected open fun getLayoutIdForItem(): Int {
         throw NotImplementedError(
             "This method calls if view holder builder requires view type." +
                     " Please override this method."
@@ -53,14 +53,20 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
         )
     }
 
-    @CallSuper
-    open fun isResponsibleFor(parent: Parent): Boolean {
-        return parent?.let { isResponsibleForItemClass(it::class.java) }
+    open fun isResponsibleForParent(parent: Parent): Boolean {
+        val isResponsible = parent?.let { isResponsibleForItemClass(it::class.java) }
             ?: throw NullPointerException("Parent is null!")
+
+        return if (isResponsible) isResponsibleFor(parent as Item)
+        else false
     }
 
     open fun isResponsibleForItemClass(clazz: Class<out Parent>): Boolean {
         return persistentClass == clazz
+    }
+
+    open fun isResponsibleFor(item: Item): Boolean {
+        return true
     }
 
     abstract fun createItemViewModel(item: Item): Model
@@ -74,7 +80,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     }
 
     fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, Model> {
-        return viewHolderBuilder.build(parent, getLayoutIdForItem(viewType))
+        return viewHolderBuilder.build(parent, getLayoutIdForItem())
     }
 
     open suspend fun clear() {}

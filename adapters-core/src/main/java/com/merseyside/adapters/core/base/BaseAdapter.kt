@@ -104,12 +104,11 @@ abstract class BaseAdapter<Parent, Model>(
 
     @InternalAdaptersApi
     @CallSuper
-    open fun bindModel(
+    abstract fun bindModel(
         holder: ViewHolder<Parent, Model>,
         model: Model,
         position: Int
-    ) {
-    }
+    )
 
     open fun removeListeners() {
         removeAllClickListeners()

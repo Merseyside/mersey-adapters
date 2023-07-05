@@ -8,6 +8,6 @@ import com.merseyside.adapters.sample.features.adapters.delegate.animals.model.B
 
 class ButtonDelegateAdapter : SimpleDelegateAdapter<ButtonItem, ButtonViewModel>() {
     override fun createItemViewModel(item: ButtonItem) = ButtonViewModel(item)
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.item_button
+    override fun getLayoutIdForItem() = R.layout.item_button
     override fun getBindingVariable() = BR.model
 }

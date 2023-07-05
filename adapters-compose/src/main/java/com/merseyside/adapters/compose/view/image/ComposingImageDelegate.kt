@@ -11,7 +11,7 @@ import com.merseyside.adapters.core.holder.ViewHolder
 class ComposingImageDelegate<View : ComposingImage<Style>, Style : ComposingImageStyle, Model : ComposingImageViewModel<View>> :
     ViewDelegateAdapter<View, Style, Model>() {
 
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_image
+    override fun getLayoutIdForItem() = R.layout.view_composing_image
 
     override fun getBindingVariable() = BR.model
 

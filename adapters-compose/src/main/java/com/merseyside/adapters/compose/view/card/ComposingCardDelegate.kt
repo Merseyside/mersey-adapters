@@ -21,7 +21,7 @@ class ComposingCardDelegate : ComposingViewGroupDelegate<ComposingCard, Composin
         ComposingCardViewModel<ComposingCard>,
         SCV, ViewAdapterViewModel, ViewCompositeAdapter<SCV, ViewAdapterViewModel>>() {
 
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_card
+    override fun getLayoutIdForItem() = R.layout.view_composing_card
     override fun createItemViewModel(item: ComposingCard) = ComposingCardViewModel(item)
     override fun getBindingVariable() = BR.model
 

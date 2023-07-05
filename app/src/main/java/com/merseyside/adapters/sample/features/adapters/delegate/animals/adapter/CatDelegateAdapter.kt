@@ -10,6 +10,6 @@ import com.merseyside.adapters.sample.features.adapters.delegate.animals.model.C
 class CatDelegateAdapter: DelegateAdapter<Cat, Animal, CatItemViewModel>() {
 
     override fun createItemViewModel(item: Cat) = CatItemViewModel(item)
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.item_cat
+    override fun getLayoutIdForItem() = R.layout.item_cat
     override fun getBindingVariable() = BR.model
 }

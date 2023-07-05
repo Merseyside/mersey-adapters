@@ -24,7 +24,7 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
               InnerModel : VM<InnerParent>,
               InnerAdapter : ViewCompositeAdapter<InnerParent, out InnerModel> {
 
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_list
+    override fun getLayoutIdForItem() = R.layout.view_composing_list
 
     override fun getNestedRecyclerView(holder: ViewHolder<SCV, Model>, model: Model): RecyclerView? {
         return (holder.root as RecyclerView).also { recyclerView ->
