@@ -10,7 +10,8 @@ import com.merseyside.merseyLib.kotlin.logger.Logger
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Receives Result and adds placeholder on success if adapter's data is empty and data in result is empty too.
+ * Receives Result and adds placeholder on success
+ * if adapter's data is empty and data in result is empty too.
  * Removes placeholder in other cases.
  */
 open class ResultDataResolver<Data, Parent, ParentModel : VM<Parent>>(
