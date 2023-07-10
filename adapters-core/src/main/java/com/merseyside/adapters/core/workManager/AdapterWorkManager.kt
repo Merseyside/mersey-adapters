@@ -5,8 +5,10 @@ import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
 import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
+import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import com.merseyside.merseyLib.kotlin.logger.Logger
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class AdapterWorkManager(
@@ -61,7 +63,7 @@ class AdapterWorkManager(
 
                     subCompositeJob.joinAll()
                 }
-                onComplete(result)
+                withContext(uiDispatcher) { onComplete(result) }
             } catch(e: Exception) {
                 Logger.logErr("AdapterWorkManager", e)
                 onError?.invoke(e) ?: errorHandler(e)

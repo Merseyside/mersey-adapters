@@ -168,7 +168,7 @@ class MovieScreenAdapterComposer(
             }
 
             val color1: Int by stateFlow.asComposeState(this)
-            var someState: Int by composeState(this) { 0 }
+            var someState: Int by composeState { 0 }
 
             Text("text1",
                 style = {

@@ -3,6 +3,7 @@
 package com.merseyside.adapters.core.base
 
 import androidx.annotation.CallSuper
+import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
@@ -78,7 +79,7 @@ abstract class BaseAdapter<Parent, Model>(
     }
 
     override fun getItemCount(): Int {
-        return listManager.getItemCount()
+        return listManager.modelList.notifySize
     }
 
     override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {

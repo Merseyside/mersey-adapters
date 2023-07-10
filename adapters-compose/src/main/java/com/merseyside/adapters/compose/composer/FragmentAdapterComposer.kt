@@ -11,6 +11,7 @@ import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
+import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.logger.log
 
 abstract class FragmentAdapterComposer(
@@ -22,6 +23,7 @@ abstract class FragmentAdapterComposer(
 
     init {
         adapter.addOnAttachToRecyclerViewListener(object : OnAttachToRecyclerViewListener {
+            @InternalAdaptersApi
             override fun onAttached(recyclerView: RecyclerView, adapter: IBaseAdapter<*, *>) {
                 invalidateAsync()
             }

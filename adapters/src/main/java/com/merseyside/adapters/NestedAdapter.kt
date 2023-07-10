@@ -10,8 +10,7 @@ import com.merseyside.adapters.core.nested.OnInitNestedAdapterListener
 
 abstract class NestedAdapter<Item, Model, Data, InnerAdapter>(
     final override val adapterConfig: NestedAdapterConfig<Item, Model, Data, InnerAdapter>
-) : SimpleAdapter<Item, Model>(adapterConfig),
-    INestedAdapter<Item, Model, Data, InnerAdapter>
+) : SimpleAdapter<Item, Model>(adapterConfig), INestedAdapter<Item, Model, Data, InnerAdapter>
         where Model : NestedAdapterViewModel<Item, Data>,
               InnerAdapter : BaseAdapter<Data, out VM<Data>> {
 

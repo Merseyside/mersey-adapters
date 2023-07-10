@@ -22,6 +22,9 @@ class AddDataObserver<Item, Parent>(
 
     @Suppress("UNCHECKED_CAST")
     private fun castToAdaptersList(data: Item): List<Parent> {
-        return data as List<Parent>
+        return if (data is List<*>) {
+            data as List<Parent>
+        } else listOf(data as Parent)
+        //return data as List<Parent>
     }
 }

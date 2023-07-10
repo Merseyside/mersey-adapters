@@ -11,8 +11,11 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
 
     private val batchedUpdates: MutableList<suspend () -> Unit> = ArrayList()
 
-    var isBatched = false
-        private set
+    var isMutable: Boolean = false
+
+    private var isBatched = false
+
+    var notifySize: Int = 0
 
     suspend fun <R> batchedUpdate(block: suspend () -> R): R {
         isBatched = true
@@ -20,6 +23,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         isBatched = false
 
         runForUI {
+            notifySize = getModels().size
             batchedUpdates.forEach { update -> update() }
             batchedUpdates.clear()
         }
@@ -29,7 +33,10 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
 
     private suspend fun doUpdate(update: suspend () -> Unit) {
         if (isBatched) batchedUpdates.add(update)
-        else withContext(uiDispatcher) { update() }
+        else runForUI {
+            notifySize = getModels().size
+            update()
+        }
     }
 
     private val callbacks: MutableList<ModelListCallback<Model>> = ArrayList()
@@ -43,7 +50,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
     }
 
     protected suspend fun onInsert(models: List<Model>) {
-        callbacks.forEach { it.onInsert(models)}
+        callbacks.forEach { it.onInsert(models) }
     }
 
     protected suspend fun onInserted(models: List<Model>, position: Int) = doUpdate {
@@ -53,7 +60,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
     protected suspend fun onRemove(
         models: List<Model>,
         count: Int = models.size
-    )  {
+    ) {
         callbacks.forEach { it.onRemove(models, count) }
     }
 

@@ -19,7 +19,7 @@ internal object compose {
         context: Context,
         viewLifecycleOwner: LifecycleOwner,
         rootAdapter: ViewCompositeAdapter<SCV, VM<SCV>>,
-        initContext: ComposeContext.() -> Unit
+        initContext: Composer
     ): RootComposeContext {
         return RootComposeContext(rootContextId, context, viewLifecycleOwner, initContext).apply {
             setRelativeAdapter(rootAdapter)
@@ -28,3 +28,5 @@ internal object compose {
 
     private const val rootContextId = "root_context"
 }
+
+typealias Composer = ComposeContext.() -> Unit

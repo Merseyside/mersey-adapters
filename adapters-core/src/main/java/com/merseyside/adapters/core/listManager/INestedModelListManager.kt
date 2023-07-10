@@ -29,8 +29,7 @@ interface INestedModelListManager<Parent, Model, InnerData, InnerAdapter> :
     }
 
     fun removeNestedAdapterByModel(model: Model): Boolean {
-        adapterActions.removeNestedAdapterByModel(model)
-        return true
+        return adapterActions.removeNestedAdapterByModel(model)
     }
 
     override suspend fun updateModel(model: Model, item: Parent): Boolean {

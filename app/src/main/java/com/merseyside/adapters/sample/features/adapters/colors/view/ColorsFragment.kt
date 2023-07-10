@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.removeAsync
 import com.merseyside.adapters.core.async.updateAsync
@@ -32,6 +33,7 @@ import com.merseyside.adapters.sample.features.adapters.colors.di.DaggerColorsCo
 import com.merseyside.adapters.sample.features.adapters.colors.model.ColorsViewModel
 import com.merseyside.archy.presentation.view.valueSwitcher.ValueSwitcher
 import com.merseyside.merseyLib.kotlin.extensions.isZero
+import com.merseyside.merseyLib.kotlin.logger.log
 import com.merseyside.utils.ext.addTextChangeListener
 
 class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel>() {
@@ -105,7 +107,7 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireBinding().run {
+        requireBinding().apply {
             recyclerView.adapter = adapter
             rColor.addTextChangeListener(textChangeListener)
             gColor.addTextChangeListener(textChangeListener)

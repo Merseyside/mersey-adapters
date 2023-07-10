@@ -35,6 +35,7 @@ class CheckpointItemViewModel(item: Checkpoint) : AdapterViewModel<Checkpoint>(i
 
     override fun onPositionChanged(fromPosition: Int, toPosition: Int) {
         this.rank = toPosition
+        "on position changed".log()
 
         notifyPropertyChanged(BR.rank)
     }

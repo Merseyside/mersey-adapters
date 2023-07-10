@@ -3,7 +3,6 @@ package com.merseyside.adapters.compose.viewProvider
 import androidx.lifecycle.asLiveData
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.merseyLib.kotlin.utils.safeLet
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -51,6 +50,7 @@ fun <T> StateFlow<T>.asComposeState(context: ComposeContext): ComposeStateDelega
 
         override fun createComposeState(propertyName: String): MutableComposeState<T> {
             val composeState = MutableComposeState(propertyName, value)
+
             asLiveData().observe(context.viewLifecycleOwner) { newValue ->
                 composeState.value = newValue
             }
@@ -151,11 +151,10 @@ abstract class ComposeStateDelegate<T>(val context: ComposeContext) :
     }
 }
 
-fun <T> composeState(
-    context: ComposeContext,
+fun <T> ComposeContext.composeState(
     initValue: () -> T
 ): ComposeStateDelegate<T> =
-    object : ComposeStateDelegate<T>(context) {
+    object : ComposeStateDelegate<T>(this) {
         override fun createComposeState(propertyName: String): MutableComposeState<T> {
             return MutableComposeState(propertyName, initValue())
         }

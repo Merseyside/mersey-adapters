@@ -20,10 +20,10 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
+import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
-@SuppressLint("NotifyDataSetChanged")
 interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     HasOnItemClickListener<Parent>, ModelListCallback<Model>, HasAdapterWorkManager
         where Model : VM<Parent> {
@@ -45,24 +45,13 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     @CallSuper
     override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
-        if (count == 1) {
-            adapter.notifyItemInserted(position)
-        } else {
-            adapter.notifyItemRangeInserted(position, count)
-        }
-
+        adapter.notifyItemRangeInserted(position, count)
         notifyPositionsChanged(position)
     }
 
-
     @CallSuper
     override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
-        if (count == 1) {
-            adapter.notifyItemRemoved(position)
-        } else {
-            adapter.notifyItemRangeRemoved(position, count)
-        }
-
+        adapter.notifyItemRangeRemoved(position, count)
         notifyPositionsChanged(position)
     }
 
@@ -79,6 +68,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         notifyPositionsChanged(toPosition, fromPosition)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override suspend fun onCleared() {
         adapter.notifyDataSetChanged()
     }
@@ -98,9 +88,8 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     @InternalAdaptersApi
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
         return if (isEmpty()) {
-            if (updateRequest.addNew) {
-                add(updateRequest.items)
-            } else add(emptyList())
+            if (updateRequest.addNew) add(updateRequest.items)
+            else add(emptyList())
             true
         } else {
             listManager.update(updateRequest)
@@ -128,7 +117,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     suspend fun remove(item: Parent): Model? {
         return listManager.remove(item)
     }
-
 
     suspend fun remove(items: List<Parent>): List<Model> {
         return listManager.remove(items)
@@ -179,7 +167,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
             model.areItemsTheSameInternal(item)
         }
     }
-
 
     suspend fun clear() {
         listManager.clear()
@@ -258,7 +245,8 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     fun notifyPositionsChanged(newPosition: Int, oldPosition: Int = -1) {
         if (hasFeature(PositionFeature.key)) {
-            val range = calculateChangedPositionsRange(newPosition, oldPosition)
+
+            val range = calculateChangedPositionsRange(newPosition, oldPosition).log("positions")
             for (index in range) {
                 models[index].onPositionChanged(index)
             }

@@ -29,9 +29,6 @@ class ContactNestedAdapter(config: ContactNestedAdapterConfig) : NestedAdapter<C
 
     override fun createItemViewModel(item: ContactGroup) = ContactGroupItemViewModel(item)
     override fun initNestedAdapter(model: ContactGroupItemViewModel) = ContactAdapter()
-//    override fun getNestedView(holder: ViewHolder<ContactGroup, Contac>): RecyclerView {
-//        return (binding as ItemGroupContactBinding).recycler
-//    }
 
     companion object {
         operator fun invoke(

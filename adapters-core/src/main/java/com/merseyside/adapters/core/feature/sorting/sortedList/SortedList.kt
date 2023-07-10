@@ -950,22 +950,12 @@ class SortedList<T> @JvmOverloads constructor(
      * complete, you **must** always call [BatchedCallback.dispatchLastEvent] to flush
      * all changes to the Callback.
      */
-    class BatchedCallback<T2>(val mWrappedCallback: Callback<T2>) :
-        Callback<T2>() {
-        private val mBatchingListUpdateCallback: BatchingListUpdateCallback
+    class BatchedCallback<Item>(val mWrappedCallback: Callback<Item>) :
+        Callback<Item>() {
+        private val mBatchingListUpdateCallback: BatchingListUpdateCallback =
+            BatchingListUpdateCallback(mWrappedCallback)
 
-        /**
-         * Creates a new BatchedCallback that wraps the provided Callback.
-         *
-         * @param wrappedCallback The Callback which should received the data change callbacks.
-         * Other method calls (e.g. [.compare] from
-         * the SortedList are directly forwarded to this Callback.
-         */
-        init {
-            mBatchingListUpdateCallback = BatchingListUpdateCallback(mWrappedCallback)
-        }
-
-        override fun compare(item1: T2, item2: T2): Int {
+        override fun compare(item1: Item, item2: Item): Int {
             return mWrappedCallback.compare(item1, item2)
         }
 
@@ -989,15 +979,15 @@ class SortedList<T> @JvmOverloads constructor(
             mBatchingListUpdateCallback.onChanged(position, count, payload)
         }
 
-        override fun areContentsTheSame(oldItem: T2, newItem: T2): Boolean {
+        override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
             return mWrappedCallback.areContentsTheSame(oldItem, newItem)
         }
 
-        override fun areItemsTheSame(item1: T2, item2: T2): Boolean {
+        override fun areItemsTheSame(item1: Item, item2: Item): Boolean {
             return mWrappedCallback.areItemsTheSame(item1, item2)
         }
 
-        override fun getChangePayload(item1: T2, item2: T2): Any? {
+        override fun getChangePayload(item1: Item, item2: Item): Any? {
             return mWrappedCallback.getChangePayload(item1, item2)
         }
 
