@@ -4,6 +4,7 @@ import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.adapters.compose.view.base.SCV
+import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.utils.ext.values
 
@@ -14,10 +15,18 @@ class ViewDelegatesManager<Parent : SCV, Model>(
         where Model : VM<Parent> {
 
     override fun getResponsibleDelegate(item: Parent): DelegateAdapter<out Parent, Parent, Model>? {
-        return super.getResponsibleDelegate(item)
+        return super.getResponsibleDelegate(item) ?: getDelegateFromView(item)
+    }
+
+    private fun getDelegateFromView(item: Parent): DelegateAdapter<out Parent, Parent, Model> {
+        return (item.getDelegate() as DelegateAdapter<out Parent, Parent, Model>).also { delegate ->
+            addDelegates(delegate)
+        }
     }
 
     fun getAllDelegates(): List<ViewDelegateAdapter<out Parent, *, *>> {
         return delegates.values() as List<ViewDelegateAdapter<out Parent, *, *>>
     }
 }
+
+typealias ViewDelegate<Style> = ViewDelegateAdapter<out StyleableComposingView<out Style>, out Style, *>

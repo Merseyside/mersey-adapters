@@ -36,7 +36,7 @@ open class ComposingText<Style : ComposingTextStyle>(
         }
     }
 
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
+    override fun getDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
         return ComposingTextDelegate()
     }
 

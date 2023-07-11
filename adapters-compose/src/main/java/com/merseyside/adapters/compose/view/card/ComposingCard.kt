@@ -21,7 +21,7 @@ open class ComposingCard(
     viewGroupComposeContext: ViewGroupComposeContext<SCV>
 ) : ComposingViewGroup<ComposingCardStyle>(id, composingStyle, viewGroupComposeContext) {
 
-    override fun getSuitableDelegate():
+    override fun getDelegate():
             ViewDelegateAdapter<out StyleableComposingView<out ComposingCardStyle>, out ComposingCardStyle, *> {
         return ComposingCardDelegate()
     }

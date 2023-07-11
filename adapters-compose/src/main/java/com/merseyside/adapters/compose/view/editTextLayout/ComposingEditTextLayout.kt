@@ -20,7 +20,7 @@ open class ComposingEditTextLayout<Style : ComposingEditTextLayoutStyle>(
     var isClearFocus = false
     var textWatcherCallback: (String) -> Unit = {}
 
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
+    override fun getDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
         return ComposingEditTextLayoutDelegate()
     }
 

@@ -15,7 +15,7 @@ open class ComposingCheckBox<Style : ComposingCheckBoxStyle>(
     var checked: Boolean = false
 
     @Suppress("UNCHECKED_CAST")
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out ComposingCheckBox<Style>, Style, *> {
+    override fun getDelegate(): ViewDelegateAdapter<out ComposingCheckBox<Style>, Style, *> {
         return ComposingCheckBoxDelegate() as ViewDelegateAdapter<out ComposingCheckBox<Style>, Style, *>
     }
 

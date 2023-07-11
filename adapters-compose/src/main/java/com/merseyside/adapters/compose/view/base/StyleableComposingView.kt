@@ -1,7 +1,7 @@
 package com.merseyside.adapters.compose.view.base
 
 import androidx.annotation.CallSuper
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
+import com.merseyside.adapters.compose.manager.ViewDelegate
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.style.StyleableItem
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
@@ -39,7 +39,7 @@ abstract class StyleableComposingView<Style : ComposingStyle>(
     id: String
 ) : ComposingView(id), StyleableItem<Style> {
 
-    abstract fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<out Style>, out Style, *>
+    abstract fun getDelegate(): ViewDelegate<Style>
 }
 
 typealias SCV = StyleableComposingView<*>

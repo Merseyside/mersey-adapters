@@ -16,7 +16,7 @@ class ComposingImage<Style : ComposingImageStyle>(
 
     lateinit var drawable: Drawable
 
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<out Style>, out Style, *> {
+    override fun getDelegate(): ViewDelegateAdapter<out StyleableComposingView<out Style>, out Style, *> {
         return ComposingImageDelegate()
     }
 

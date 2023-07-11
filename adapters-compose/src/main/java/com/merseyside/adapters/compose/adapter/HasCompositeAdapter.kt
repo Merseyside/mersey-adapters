@@ -22,7 +22,7 @@ interface HasCompositeAdapter {
     var rootContext: ComposeContext
 
     val adapter: ViewCompositeAdapter<SCV, ViewAdapterViewModel>
-    val delegates: List<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>>
+
 
     val context: Context
     val viewLifecycleOwner: LifecycleOwner
@@ -32,9 +32,7 @@ interface HasCompositeAdapter {
 
     @InternalAdaptersApi
     suspend fun composeInternal() {
-        if (adapter.delegatesManager.isEmpty()) {
-            adapter.delegatesManager.addDelegateList(delegates)
-        }
+
 
         withContext(uiDispatcher) {
             rootContext = compose(context, viewLifecycleOwner, adapter, composeScreen())

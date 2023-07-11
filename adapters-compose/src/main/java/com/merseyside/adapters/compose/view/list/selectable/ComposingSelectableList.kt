@@ -25,7 +25,7 @@ class ComposingSelectableList(
 
     override val listConfig: SelectableListConfig by lazy { SelectableListConfig().apply(configure) }
 
-    override fun getSuitableDelegate():
+    override fun getDelegate():
             ViewDelegateAdapter<out StyleableComposingView<out ComposingListStyle>, out ComposingListStyle, *> {
         return ComposingSelectableListDelegate()
     }

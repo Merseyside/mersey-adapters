@@ -54,14 +54,15 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         }
     }
 
-    @OptIn(InternalAdaptersApi::class)
     private fun addDelegate(delegate: Delegate, key: Int = count) {
         if (!delegates.containsKey(key)) {
             delegates.put(key, delegate)
 
             if (delegate.getRelativeDelegatesManager != null)
-                Logger.logErr("DelegatesManager", "Warning: $delegate already attached" +
-                        " to another manager. Reatached to another manager.")
+                Logger.logErr(
+                    "DelegatesManager", "Warning: $delegate already attached" +
+                            " to another manager. Reatached to another manager."
+                )
 
             delegate.getRelativeDelegatesManager = { this }
 
@@ -86,12 +87,8 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         payloads: List<Any>
     ) {
         val model = holder.model
-        requireDelegate { getResponsibleDelegate(model) }.onBindViewHolder(
-            holder,
-            model,
-            position,
-            payloads
-        )
+        requireDelegate { getResponsibleDelegate(model) }
+            .onBindViewHolder(holder, model, position, payloads)
     }
 
     fun getViewTypeByItem(model: ParentModel): Int {
@@ -155,32 +152,23 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     suspend fun resetDelegates() {
-        delegates.forEach {
-            it.second.clear()
-        }
+        delegates.forEach { it.second.clear() }
     }
 
     fun isEmpty(): Boolean = delegates.isEmpty()
 
     internal open fun getResponsibleDelegate(model: ParentModel): Delegate {
-        return if (count.isNotZero()) {
-            requireDelegate { delegates.findValue { it.second.isResponsibleForParent(model.item) } }
-        } else throw IllegalStateException("Delegates are empty. Please, add delegates call this method!")
+        return requireDelegate { getResponsibleDelegate(model.item) }
     }
 
     internal fun createModel(item: Parent): ParentModel {
-        val delegate = requireDelegate {
-            delegates.findValue {
-                it.second.isResponsibleForParent(item)
-            } ?: run {
-                Logger.logErr("Can not find delegate for ${item!!::class}")
-                null
-            }
-        }
+        val delegate = requireDelegate { getResponsibleDelegate(item) }
         return delegate.createViewModel(item)
     }
 
-    internal fun setOnDelegateRemoveCallback(callback: suspend (DelegateAdapter<out Parent, Parent, *>) -> Unit) {
+    internal fun setOnDelegateRemoveCallback(
+        callback: suspend (DelegateAdapter<out Parent, Parent, *>) -> Unit
+    ) {
         onDelegateRemoveCallback = callback
     }
 

@@ -42,10 +42,10 @@ class MovieScreenAdapterComposer(
 
     override val delegates: ArrayList<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>> =
         listOf(
-            ComposingCheckBoxDelegate(),
-            ComposingTextDelegate(),
-            ComposingSelectableListDelegate(),
-            ComposingListDelegate()
+//            ComposingCheckBoxDelegate(),
+//            ComposingTextDelegate(),
+//            ComposingSelectableListDelegate(),
+//            ComposingListDelegate()
         )
 
     init {

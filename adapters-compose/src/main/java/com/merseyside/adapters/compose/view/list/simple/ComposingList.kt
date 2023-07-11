@@ -27,7 +27,7 @@ open class ComposingList(
 
     open val listConfig: ListConfig by lazy { ListConfig().apply(configure) }
 
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<out ComposingListStyle>, out ComposingListStyle, *> {
+    override fun getDelegate(): ViewDelegateAdapter<out StyleableComposingView<out ComposingListStyle>, out ComposingListStyle, *> {
         return ComposingListDelegate()
     }
 

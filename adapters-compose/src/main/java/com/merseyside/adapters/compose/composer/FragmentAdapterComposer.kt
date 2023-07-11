@@ -6,8 +6,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.compose.adapter.HasCompositeAdapter
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
+import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
+import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
@@ -21,6 +23,9 @@ abstract class FragmentAdapterComposer(
 
     override lateinit var rootContext: ComposeContext
 
+    open val delegates: List<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>> =
+        emptyList()
+
     init {
         adapter.addOnAttachToRecyclerViewListener(object : OnAttachToRecyclerViewListener {
             @InternalAdaptersApi
@@ -32,6 +37,14 @@ abstract class FragmentAdapterComposer(
                 clear()
             }
         })
+    }
+
+    @OptIn(InternalAdaptersApi::class)
+    override suspend fun composeInternal() {
+        if (adapter.delegatesManager.isEmpty()) {
+            adapter.delegatesManager.addDelegateList(delegates)
+        }
+        super.composeInternal()
     }
 
     override val context: Context
