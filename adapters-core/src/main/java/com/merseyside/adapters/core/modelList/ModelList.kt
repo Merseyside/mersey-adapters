@@ -1,20 +1,19 @@
 package com.merseyside.adapters.core.modelList
 
-import com.merseyside.adapters.core.async.runForUI
+import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.logger.ILogger
-import kotlinx.coroutines.withContext
 
-abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
+abstract class ModelList<Parent, Model : VM<Parent>>(
+    override val workManager: AdapterWorkManager
+) : List<Model>, HasAdapterWorkManager, ILogger {
 
     private val batchedUpdates: MutableList<suspend () -> Unit> = ArrayList()
 
     var isMutable: Boolean = false
-
     private var isBatched = false
-
     var notifySize: Int = 0
 
     suspend fun <R> batchedUpdate(block: suspend () -> R): R {
@@ -22,7 +21,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
         val result = block()
         isBatched = false
 
-        runForUI {
+        workManager.postMainWork {
             notifySize = getModels().size
             batchedUpdates.forEach { update -> update() }
             batchedUpdates.clear()
@@ -33,7 +32,7 @@ abstract class ModelList<Parent, Model : VM<Parent>> : List<Model>, ILogger {
 
     private suspend fun doUpdate(update: suspend () -> Unit) {
         if (isBatched) batchedUpdates.add(update)
-        else runForUI {
+        else workManager.postMainWork {
             notifySize = getModels().size
             update()
         }

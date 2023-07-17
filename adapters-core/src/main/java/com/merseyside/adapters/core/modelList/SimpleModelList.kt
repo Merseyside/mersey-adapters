@@ -2,11 +2,13 @@ package com.merseyside.adapters.core.modelList
 
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.move
 
 open class SimpleModelList<Parent, Model : VM<Parent>>(
+    workManager: AdapterWorkManager,
     private val mutModels: MutableList<Model> = ArrayList()
-) : ModelList<Parent, Model>() {
+) : ModelList<Parent, Model>(workManager) {
 
     override fun getModels(): List<Model> {
         return mutModels

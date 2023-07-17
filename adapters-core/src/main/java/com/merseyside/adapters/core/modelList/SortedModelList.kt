@@ -7,11 +7,13 @@ import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
 import com.merseyside.adapters.core.feature.sorting.sortedList.find
 import com.merseyside.adapters.core.feature.sorting.sortedList.removeAll
 import com.merseyside.adapters.core.feature.sorting.sortedList.subList
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 
 class SortedModelList<Parent, Model : VM<Parent>>(
+    workManager: AdapterWorkManager,
     internal val sortedList: SortedList<Model>,
     private val comparator: Comparator<Parent, Model>
-) : ModelList<Parent, Model>() {
+) : ModelList<Parent, Model>(workManager) {
 
     private val sortedListCallback = object : SortedList.Callback<Model>() {
         override suspend fun onInserted(position: Int, count: Int) {

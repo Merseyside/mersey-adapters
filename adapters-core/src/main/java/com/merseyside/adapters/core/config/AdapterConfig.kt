@@ -87,7 +87,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
         )
 
         return if (listProviders.isEmpty()) {
-            SimpleModelList()
+            SimpleModelList(workManager)
         } else {
             val listProvider = listProviders.first()
             val listProviderFeature = listProvider as Feature<Parent, Model>

@@ -3,12 +3,10 @@ package com.merseyside.adapters.compose.adapter
 import android.content.Context
 import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.dsl.context.Composer
 import com.merseyside.adapters.compose.dsl.context.compose
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
-import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.async.doAsync
 import com.merseyside.adapters.core.async.updateAsync
@@ -23,7 +21,6 @@ interface HasCompositeAdapter {
 
     val adapter: ViewCompositeAdapter<SCV, ViewAdapterViewModel>
 
-
     val context: Context
     val viewLifecycleOwner: LifecycleOwner
 
@@ -32,8 +29,6 @@ interface HasCompositeAdapter {
 
     @InternalAdaptersApi
     suspend fun composeInternal() {
-
-
         withContext(uiDispatcher) {
             rootContext = compose(context, viewLifecycleOwner, adapter, composeScreen())
         }

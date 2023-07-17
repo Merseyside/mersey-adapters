@@ -44,7 +44,7 @@ open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Confi
         }
 
         val sortedList = SortedList(modelClass)
-        modelList = SortedModelList(sortedList, comparator)
+        modelList = SortedModelList(adapterConfig.workManager, sortedList, comparator)
 
         comparator.workManager = adapter.workManager
         comparator.setOnComparatorUpdateCallback(object : Comparator.OnComparatorUpdateCallback {

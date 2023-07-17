@@ -1,14 +1,16 @@
 package com.merseyside.adapters.core.workManager
 
 import androidx.collection.ArraySet
+import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
 import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
-import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
+import com.merseyside.merseyLib.kotlin.extensions.iteratePop
 import com.merseyside.merseyLib.kotlin.logger.Logger
+import com.merseyside.merseyLib.kotlin.utils.ifTrue
+import com.merseyside.merseyLib.kotlin.utils.safeLet
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class AdapterWorkManager(
@@ -17,8 +19,10 @@ class AdapterWorkManager(
     private val errorHandler: (Exception) -> Unit
 ) {
 
+    private var parentWorkManager: AdapterWorkManager? = null
+
     private val subManagers = ArraySet<AdapterWorkManager>()
-    private val subCompositeJob: CompositeJob = CompositeJob()
+    private val mainWorkList = ArrayDeque<suspend () -> Unit>()
 
     private val hasQueueWork: Boolean
         get() = coroutineQueue.hasQueueWork
@@ -28,8 +32,15 @@ class AdapterWorkManager(
         block: suspend T.() -> Result
     ) {
         val subWorkManager = adapter.workManager
+        subWorkManager.parentWorkManager = this
         subManagers.add(subWorkManager)
         subWorkManager.add { block(adapter) }
+    }
+
+    internal fun postMainWork(action: suspend () -> Unit) {
+        safeLet(parentWorkManager) { manager ->
+            manager.postMainWork(action)
+        } ?: mainWorkList.addLast(action)
     }
 
     fun <Result> doAsync(
@@ -45,7 +56,11 @@ class AdapterWorkManager(
         return coroutineQueue.executeAsync(coroutineContext)
     }
 
-    fun <Result> add(
+    private suspend fun execute() {
+        coroutineQueue.execute()
+    }
+
+    private fun <Result> add(
         onComplete: (Result) -> Unit = {},
         onError: ((e: Exception) -> Unit)? = null,
         work: suspend () -> Result
@@ -54,6 +69,7 @@ class AdapterWorkManager(
             try {
                 val result = work()
                 if (subManagers.isNotEmpty()) {
+                    val subCompositeJob = CompositeJob()
                     subManagers.forEach { manager ->
                         if (manager.hasQueueWork) {
                             val job = manager.executeAsync()
@@ -62,8 +78,16 @@ class AdapterWorkManager(
                     }
 
                     subCompositeJob.joinAll()
+                    subManagers.clear()
                 }
-                withContext(uiDispatcher) { onComplete(result) }
+
+                runForUI {
+                    mainWorkList.iteratePop { action ->
+                        action()
+                    }
+
+                    onComplete(result)
+                }
             } catch(e: Exception) {
                 Logger.logErr("AdapterWorkManager", e)
                 onError?.invoke(e) ?: errorHandler(e)
@@ -72,6 +96,9 @@ class AdapterWorkManager(
     }
 
     fun cancel(): Boolean {
-        return coroutineQueue.cancelAndClear()
+        return coroutineQueue.cancelAndClear().ifTrue {
+            subManagers.clear()
+            mainWorkList.clear()
+        }
     }
 }
