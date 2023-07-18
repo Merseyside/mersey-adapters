@@ -1,22 +1,13 @@
 package com.merseyside.adapters.sample.features.adapters.compose.adapter
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.*
+import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.compose.composer.FragmentAdapterComposer
-import com.merseyside.adapters.compose.adapter.SimpleViewCompositeAdapter
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.dsl.context.RootComposeContext
-import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.style.ComposingStyle
-import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.checkBox.CheckBox
-import com.merseyside.adapters.compose.view.checkBox.ComposingCheckBoxDelegate
 import com.merseyside.adapters.compose.view.list.selectable.ComposingSelectableList
-import com.merseyside.adapters.compose.view.list.selectable.ComposingSelectableListDelegate
-import com.merseyside.adapters.compose.view.list.simple.ComposingListDelegate
 import com.merseyside.adapters.compose.view.list.simple.adapterConfig
-import com.merseyside.adapters.compose.view.text.ComposingTextDelegate
 import com.merseyside.adapters.compose.view.text.Text
 import com.merseyside.adapters.compose.viewProvider.asComposeState
 import com.merseyside.adapters.compose.viewProvider.composeState
@@ -33,20 +24,8 @@ import com.merseyside.utils.randomColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import com.merseyside.adapters.sample.features.adapters.compose.adapter.views.MarginComposingList as List
-import kotlin.collections.List as ArrayList
 
-class MovieScreenAdapterComposer(
-    fragment: Fragment,
-    adapter: SimpleViewCompositeAdapter,
-) : FragmentAdapterComposer(fragment, adapter), ILogger {
-
-    override val delegates: ArrayList<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>> =
-        listOf(
-//            ComposingCheckBoxDelegate(),
-//            ComposingTextDelegate(),
-//            ComposingSelectableListDelegate(),
-//            ComposingListDelegate()
-        )
+class MovieScreenAdapterComposer(fragment: Fragment, ) : FragmentAdapterComposer(fragment), ILogger {
 
     init {
         fragment.lifecycleScope.launchWhenStarted {
@@ -59,7 +38,7 @@ class MovieScreenAdapterComposer(
 
     private val stateFlow = MutableStateFlow(R.color.red)
 
-    override suspend fun composeScreen(): ComposeContext.() -> Unit = {
+    override fun ComposeContext.compose() {
 
         val color2: Int by stateFlow.asComposeState(this)
 

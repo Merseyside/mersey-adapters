@@ -11,7 +11,7 @@ class RootComposeContext(
     contextId: String,
     context: Context,
     viewLifecycleOwner: LifecycleOwner,
-    initContext: ComposeContext.() -> Unit
+    initContext: Composer
 ) : ListComposeContext(contextId, context, viewLifecycleOwner, initContext)
 
 internal object compose {
@@ -29,4 +29,4 @@ internal object compose {
     private const val rootContextId = "root_context"
 }
 
-typealias Composer = ComposeContext.() -> Unit
+internal typealias Composer = ComposeContext.() -> Unit

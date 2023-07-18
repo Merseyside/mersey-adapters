@@ -67,7 +67,7 @@ abstract class ViewComposeContext<View : SCV>(
     abstract fun onContextStateChanged()
 
     private fun startObservingViews() {
-        viewsObserverDisposable = mutViews.observe(ignoreCurrent = false) { views ->
+        viewsObserverDisposable = mutViews.observe { views ->
             if (views.isEmpty() && relativeAdapter.isNotEmpty()) relativeAdapter.clearAsync()
             else onViewsChanged(relativeAdapter, views)
         }
@@ -86,7 +86,7 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     open fun clear() {
-        childContextList.forEach { (_, u) -> u.clear() }
+        childContextList.forEach { (_, context) -> context.clear() }
         childContextList.clear()
         clearViews()
     }

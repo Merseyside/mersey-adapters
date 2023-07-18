@@ -15,6 +15,8 @@ class ComposingPagingList<Data>(
     listComposeContext: PaginationComposeContext<Data>
 ): ComposingList(id, configure, composingStyle, listComposeContext) {
 
+    override fun getDelegate() = ComposingPagingListDelegate()
+
     companion object {
         context(ComposeContext) operator fun <Data> invoke(
             id: String,
