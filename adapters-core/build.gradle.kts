@@ -69,11 +69,11 @@ val androidLibz = listOf(
 )
 
 val merseyLibs = listOf(
+    common.mersey.kotlin.ext,
     androidLibs.mersey.utils
 )
 
 dependencies {
-    api(common.mersey.kotlin.ext)
     androidLibz.forEach { lib -> api(lib) }
     merseyLibs.forEach { lib -> api(lib) }
 }

@@ -6,11 +6,12 @@ import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
 import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
-import com.merseyside.merseyLib.kotlin.extensions.iteratePop
 import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.utils.ifTrue
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import kotlinx.coroutines.Job
+import java.util.Collections
+import java.util.LinkedList
 import kotlin.coroutines.CoroutineContext
 
 class AdapterWorkManager(
@@ -22,7 +23,7 @@ class AdapterWorkManager(
     private var parentWorkManager: AdapterWorkManager? = null
 
     private val subManagers = ArraySet<AdapterWorkManager>()
-    private val mainWorkList = ArrayDeque<suspend () -> Unit>()
+    private val mainWorkList = Collections.synchronizedList<suspend () -> Unit>(LinkedList())
 
     private val hasQueueWork: Boolean
         get() = coroutineQueue.hasQueueWork
@@ -40,7 +41,7 @@ class AdapterWorkManager(
     internal fun postMainWork(action: suspend () -> Unit) {
         safeLet(parentWorkManager) { manager ->
             manager.postMainWork(action)
-        } ?: mainWorkList.addLast(action)
+        } ?: mainWorkList.add(action)
     }
 
     fun <Result> doAsync(
@@ -82,7 +83,8 @@ class AdapterWorkManager(
                 }
 
                 runForUI {
-                    mainWorkList.iteratePop { action ->
+                    while(mainWorkList.iterator().hasNext()) {
+                        val action = mainWorkList.removeFirst()
                         action()
                     }
 
