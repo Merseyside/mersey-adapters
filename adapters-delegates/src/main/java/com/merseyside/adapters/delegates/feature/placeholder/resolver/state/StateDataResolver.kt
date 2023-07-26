@@ -3,6 +3,7 @@ package com.merseyside.adapters.delegates.feature.placeholder.resolver.state
 import androidx.lifecycle.LifecycleOwner
 import com.merseyside.adapters.core.feature.dataProvider.DataObserver
 import com.merseyside.adapters.core.feature.dataProvider.dataProvider
+import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.resolver.PlaceholderDataResolver

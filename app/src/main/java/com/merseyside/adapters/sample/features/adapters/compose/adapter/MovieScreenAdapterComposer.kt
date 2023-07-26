@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import com.merseyside.adapters.sample.features.adapters.compose.adapter.views.MarginComposingList as List
 
-class MovieScreenAdapterComposer(fragment: Fragment, ) : FragmentAdapterComposer(fragment), ILogger {
+class MovieScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(fragment), ILogger {
 
     init {
         fragment.lifecycleScope.launchWhenStarted {

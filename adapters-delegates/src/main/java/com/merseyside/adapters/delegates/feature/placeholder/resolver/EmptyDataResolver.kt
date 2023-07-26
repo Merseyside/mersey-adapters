@@ -12,10 +12,6 @@ class EmptyDataResolver<Parent, ParentModel : VM<Parent>>(
     private val showPlaceholderOnAttach: Boolean
 ) : PlaceholderDataResolver<Parent, ParentModel>() {
 
-    override fun getPlaceholderPosition(adapter: CompositeAdapter<Parent, out ParentModel>): Int {
-        return LAST_POSITION
-    }
-
     override fun onAdapterAttached(adapter: CompositeAdapter<Parent, out ParentModel>) {
         super.onAdapterAttached(adapter)
         if (showPlaceholderOnAttach) {

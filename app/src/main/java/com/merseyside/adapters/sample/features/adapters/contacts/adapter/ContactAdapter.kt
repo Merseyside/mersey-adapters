@@ -17,7 +17,7 @@ class ContactAdapter(
     config: AdapterConfig<String, ContactItemViewModel>
 ): SimpleAdapter<String, ContactItemViewModel>(config) {
 
-    override fun getLayoutIdForPosition(position: Int) = R.layout.item_contact
+    override fun getLayoutIdForViewType(position: Int) = R.layout.item_contact
     override fun getBindingVariable() = BR.model
     override fun createItemViewModel(item: String) = ContactItemViewModel(item, SelectState())
 

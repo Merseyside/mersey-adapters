@@ -5,7 +5,8 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.model.VM
 
-abstract class ViewHolder<Parent, Model : VM<Parent>>(val root: View) : RecyclerView.ViewHolder(root) {
+abstract class ViewHolder<Parent, Model : VM<Parent>>(open val root: View) :
+    RecyclerView.ViewHolder(root) {
 
     lateinit var model: Model
 

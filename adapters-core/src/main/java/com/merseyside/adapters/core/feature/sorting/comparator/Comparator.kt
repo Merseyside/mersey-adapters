@@ -21,7 +21,7 @@ abstract class Comparator<Parent, Model : VM<Parent>>(
         this.callback = callback
     }
 
-    internal interface OnComparatorUpdateCallback {
+    fun interface OnComparatorUpdateCallback {
         suspend fun onUpdate(animation: Boolean)
     }
 

@@ -12,7 +12,7 @@ import com.merseyside.adapters.sample.features.adapters.concat.model.NewsItemVie
 class NewsAdapter private constructor(
     override val adapterConfig: AdapterConfig<News, NewsItemViewModel>
 ) : SimpleAdapter<News, NewsItemViewModel>(adapterConfig) {
-    override fun getLayoutIdForPosition(position: Int) = R.layout.item_news
+    override fun getLayoutIdForViewType(position: Int) = R.layout.item_news
     override fun getBindingVariable() = BR.obj
     override fun createItemViewModel(item: News) = NewsItemViewModel(item)
 

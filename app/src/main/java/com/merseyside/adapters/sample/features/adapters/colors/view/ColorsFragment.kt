@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.removeAsync
 import com.merseyside.adapters.core.async.updateAsync
@@ -19,7 +18,6 @@ import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.delegates.composites.SimpleCompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.Placeholder
-import com.merseyside.adapters.delegates.feature.placeholder.resolver.EmptyDataResolver
 import com.merseyside.adapters.delegates.feature.placeholder.textPlaceholder.TextPlaceholderProvider
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
@@ -33,7 +31,6 @@ import com.merseyside.adapters.sample.features.adapters.colors.di.DaggerColorsCo
 import com.merseyside.adapters.sample.features.adapters.colors.model.ColorsViewModel
 import com.merseyside.archy.presentation.view.valueSwitcher.ValueSwitcher
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.merseyLib.kotlin.logger.log
 import com.merseyside.utils.ext.addTextChangeListener
 
 class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel>() {
@@ -43,22 +40,18 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
 
     private val adapter = initAdapter(::SimpleCompositeAdapter) {
         coroutineScope = lifecycleScope
+        Sorting { comparator = colorsComparator }
+        Filtering { filter = colorsFilter }
 
-        Sorting {
-            comparator = colorsComparator
-        }
-
-        Filtering {
-            filter = colorsFilter
-        }
-
-        Placeholder {
+        Placeholder.EmptyData {
+            showPlaceholderOnAttach = true
             placeholderProvider = TextPlaceholderProvider("No colors. Press button below :)")
-            placeholderDataResolver = EmptyDataResolver(showPlaceholderOnAttach = true)
         }
-    }.apply { delegatesManager.addDelegates(ColorsDelegateAdapter().also {
-        it.onClick { color -> this@apply.removeAsync(color) }
-    }) }
+    }.apply {
+        delegatesManager.addDelegates(ColorsDelegateAdapter().also {
+            it.onClick { color -> this@apply.removeAsync(color) }
+        })
+    }
 
     override fun getBindingVariable() = BR.viewModel
     override fun getLayoutId() = R.layout.fragment_colors
@@ -89,6 +82,7 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
             }
 
             if (length in 1..2) {
+                listOf<String>().toMutableList()
                 colorsFilter.addFilterAsync(filterName, newValue)
                 true
             } else {

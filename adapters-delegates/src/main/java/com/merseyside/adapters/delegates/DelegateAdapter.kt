@@ -1,13 +1,17 @@
 package com.merseyside.adapters.delegates
 
+import android.content.Context
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
 import com.merseyside.adapters.core.holder.ViewHolder
-import com.merseyside.adapters.core.holder.builder.BindingViewHolderBuilder
-import com.merseyside.adapters.core.holder.builder.ViewHolderBuilder
+import com.merseyside.adapters.core.holder.ViewHolderBuilder
+import com.merseyside.adapters.core.holder.binding.BindingViewHolderBuilder
+import com.merseyside.adapters.core.holder.custom.CustomViewHolderBuilder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
@@ -17,8 +21,11 @@ import com.merseyside.utils.reflection.ReflectionUtils
 abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickListener<Item>
         where Model : AdapterParentViewModel<Item, Parent> {
 
+    private val getLayoutIdInternal: (viewType: Int) -> Int = { getLayoutIdForItem() }
+
     private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> =
-        BindingViewHolderBuilder(::getBindingVariable)
+        BindingViewHolderBuilder(getLayoutIdInternal, ::getBindingVariable)
+
     override var clickListeners: MutableList<OnItemClickListener<Item>> = ArrayList()
 
     open var getRelativeDelegatesManager: (() -> DelegatesManager<*, Parent, Model>)? = null
@@ -29,13 +36,28 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
             ?: throw NullPointerException("Delegate not attached to delegates manager!")
     }
 
+    @OptIn(InternalAdaptersApi::class)
+    protected fun getAttachedRecyclerView(): RecyclerView? {
+        return requireRelativeDelegatesManager()?.getRelativeAdapter()?.recyclerView
+    }
+
     @InternalAdaptersApi
     val onClick: (Item) -> Unit = { item ->
         clickListeners.forEach { listener -> listener.onItemClicked(item) }
     }
 
-    protected fun setViewHolderBuilder(builder: ViewHolderBuilder<Parent, Model>) {
+    fun setViewHolderBuilder(builder: ViewHolderBuilder<Parent, Model>) {
         viewHolderBuilder = builder
+    }
+
+    fun <V : View> setupViewHolder(
+        createView: (context: Context) -> V,
+        bind: (V, Model) -> Unit
+    ) {
+        viewHolderBuilder = CustomViewHolderBuilder<V, Item, Parent, Model>().apply {
+            this.createView = { context, _ -> createView(context) }
+            this.bind = bind
+        }
     }
 
     @LayoutRes
@@ -62,7 +84,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     }
 
     open fun isResponsibleForItemClass(clazz: Class<out Parent>): Boolean {
-        return persistentClass == clazz
+        return itemClass == clazz
     }
 
     open fun isResponsibleFor(item: Item): Boolean {
@@ -79,8 +101,11 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
         return createItemViewModel(item).also { model -> onModelCreated(model) }
     }
 
-    fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, Model> {
-        return viewHolderBuilder.build(parent, getLayoutIdForItem())
+    /**
+     * Delegates has no viewType by itself. That's why pass -1
+     */
+    fun createViewHolder(parent: ViewGroup): ViewHolder<Parent, Model> {
+        return viewHolderBuilder.build(parent, -1)
     }
 
     open suspend fun clear() {}
@@ -109,12 +134,20 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     }
 
     @Suppress("UNCHECKED_CAST")
-    private val persistentClass: Class<Item> by lazy {
+    private val itemClass: Class<Item> by lazy {
         ReflectionUtils.getGenericParameterClass(
             this.javaClass,
             DelegateAdapter::class.java,
             0
         ) as Class<Item>
+    }
+
+    internal val modelClass: Class<Model> by lazy {
+        ReflectionUtils.getGenericParameterClass(
+            this.javaClass,
+            DelegateAdapter::class.java,
+            2
+        ) as Class<Model>
     }
 }
 

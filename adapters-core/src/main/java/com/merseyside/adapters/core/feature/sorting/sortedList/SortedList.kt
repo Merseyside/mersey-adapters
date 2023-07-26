@@ -584,11 +584,7 @@ class SortedList<T> @JvmOverloads constructor(
     private suspend fun remove(item: T, notify: Boolean): Boolean {
         val index = findIndexOf(item, mData, 0, mSize, DELETION)
         if (index == INVALID_POSITION) {
-            Logger.logErr(
-                tag = "SortedList",
-                "OnRemove invalid position. Check your comparator implementation."
-            )
-            return false
+            throw RuntimeException("OnRemove invalid position. Check your comparator implementation.")
         }
         removeItemAtIndex(index, notify)
         return true

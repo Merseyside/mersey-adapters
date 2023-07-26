@@ -10,7 +10,7 @@ import com.merseyside.adapters.core.base.IBaseAdapter
  * Simply add data to start or end of the
  * @param addToStart set's behaviour of adding
  */
-class AddDataObserver<Item, Parent>(
+class AddDataObserver<Item: Parent, Parent>(
     private val addToStart: Boolean = false
 ) : DataObserver<Item, Parent> {
 

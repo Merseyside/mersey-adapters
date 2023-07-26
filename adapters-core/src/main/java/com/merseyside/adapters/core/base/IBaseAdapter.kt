@@ -112,7 +112,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     /**
      * Removes model by item
      * Calls onItemRemoved callback method on success.
-     * @return position of removed item
+     * @return removed model
      */
     suspend fun remove(item: Parent): Model? {
         return listManager.remove(item)
@@ -262,7 +262,4 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     fun hasFeature(key: String): Boolean
-
-    @Throws(IllegalStateException::class)
-    fun getModelClass(): Class<Model>
 }

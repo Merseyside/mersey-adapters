@@ -8,6 +8,7 @@ import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
 import com.merseyside.merseyLib.kotlin.logger.ILogger
@@ -17,13 +18,13 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
     ModelListCallback<ParentModel>, ILogger {
 
     private lateinit var modelList: ModelList<Parent, ParentModel>
-    private lateinit var provider: PlaceholderProvider<Parent, ParentModel>
-    protected lateinit var adapter: CompositeAdapter<Parent, out ParentModel>
+    private lateinit var provider: PlaceholderProvider<out Parent, Parent>
+    protected lateinit var adapter: CompositeAdapter<Parent, ParentModel>
 
     var isPlaceholderAdded = false
         private set
 
-    fun setPlaceholderProvider(provider: PlaceholderProvider<Parent, ParentModel>) {
+    fun setPlaceholderProvider(provider: PlaceholderProvider<out Parent, Parent>) {
         this.provider = provider
     }
 
@@ -31,13 +32,11 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         this.adapter = adapter
         modelList = adapter.adapterConfig.modelList
         safeLet(provider.placeholderDelegate) {
-            adapter.delegatesManager.addDelegates(it)
+            adapter.delegatesManager.addDelegates(it as DelegateAdapter<out Parent, Parent, out ParentModel>)
         }
 
         adapter.addOnAttachToRecyclerViewListener(onAttachListener)
     }
-
-    abstract fun getPlaceholderPosition(adapter: CompositeAdapter<Parent, out ParentModel>): Int
 
     open fun onAdapterAttached(adapter: CompositeAdapter<Parent, out ParentModel>) {
         enableModelListCallback()
@@ -63,11 +62,11 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
 
     override suspend fun onCleared() {}
 
-    protected fun addPlaceholderAsync(position: Int = getPlaceholderPosition(adapter)) {
+    protected fun addPlaceholderAsync(position: Int = LAST_POSITION) {
         adapter.doAsync { addPlaceholder(position) }
     }
 
-    protected suspend fun addPlaceholder(position: Int = getPlaceholderPosition(adapter)) =
+    protected suspend fun addPlaceholder(position: Int = LAST_POSITION) =
         turnMutableState {
             isPlaceholderAdded = true
             if (position == LAST_POSITION) adapter.add(provider.placeholder)
@@ -95,7 +94,6 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         override fun onDetached(recyclerView: RecyclerView, adapter: IBaseAdapter<*, *>) {
             disableModelListCallback()
         }
-
     }
 
     private suspend fun turnMutableState(block: suspend () -> Unit) {
@@ -113,6 +111,8 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
     }
 
     protected fun isEmpty() = adapter.isEmpty()
+
+    override val tag: String = "PlaceholderDataResolver"
 
     companion object {
         const val LAST_POSITION = -1

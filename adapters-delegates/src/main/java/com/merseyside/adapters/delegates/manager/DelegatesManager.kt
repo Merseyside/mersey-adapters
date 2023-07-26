@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.core.util.isEmpty
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.set.DelegateAdapterSet
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
@@ -14,13 +13,12 @@ import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.utils.ext.*
 
 open class DelegatesManager<Delegate, Parent, ParentModel>(
-    delegates: List<DelegateAdapter<out Parent, Parent, out ParentModel>> = emptyList()
+    delegates: List<DelegateAdapter<out Parent, Parent, ParentModel>> = emptyList()
 ) where ParentModel : VM<Parent>,
         Delegate : DelegateAdapter<out Parent, Parent, ParentModel> {
 
     protected val delegates = SparseArray<Delegate>()
     private lateinit var onDelegateRemoveCallback: suspend (DelegateAdapter<out Parent, Parent, *>) -> Unit
-
     internal lateinit var getRelativeAdapter: () -> CompositeAdapter<Parent, ParentModel>
 
     protected val count: Int
@@ -70,7 +68,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, ParentModel> {
-        return getDelegateByViewType(viewType).createViewHolder(parent, viewType)
+        return getDelegateByViewType(viewType).createViewHolder(parent)
     }
 
     internal fun onBindViewHolder(
@@ -107,18 +105,6 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         return if (index >= 0) {
             delegates.keyAt(index)
         } else throw IllegalArgumentException("View type of passed delegate not found!")
-    }
-
-    fun hasDelegate(delegate: Delegate): Boolean {
-        return delegates.findValue { it.second == delegate } != null
-    }
-
-    fun hasResponsibleDelegate(clazz: Class<out Parent>): Boolean {
-        return getResponsibleDelegate(clazz) != null
-    }
-
-    fun hasResponsibleDelegate(item: Parent): Boolean {
-        return getResponsibleDelegate(item) != null
     }
 
     fun getResponsibleDelegate(clazz: Class<out Parent>): Delegate? {
@@ -175,7 +161,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     private fun requireDelegate(
         block: () -> Delegate?
     ): Delegate {
-        return block() ?: throw NullPointerException("Delegate was required but have null!")
+        return block() ?: throw NullPointerException("Delegate is required but have null!")
     }
 }
 

@@ -3,7 +3,6 @@
 package com.merseyside.adapters.core.base
 
 import androidx.annotation.CallSuper
-import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
@@ -17,7 +16,6 @@ import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import com.merseyside.merseyLib.kotlin.utils.safeLet
-import com.merseyside.utils.reflection.ReflectionUtils
 
 abstract class BaseAdapter<Parent, Model>(
     override val adapterConfig: AdapterConfig<Parent, Model>,
@@ -42,7 +40,7 @@ abstract class BaseAdapter<Parent, Model>(
     @InternalAdaptersApi
     override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
 
-    protected var recyclerView: RecyclerView? = null
+    var recyclerView: RecyclerView? = null
 
     override val provideModelByItem: suspend (Parent) -> Model = { item ->
         createModel(item).also { model ->
@@ -53,15 +51,6 @@ abstract class BaseAdapter<Parent, Model>(
     override fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener) {
         onAttachToRecyclerViewListeners.add(listener)
         safeLet(recyclerView) { listener.onAttached(it, this) }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun getModelClass(): Class<Model> {
-        return ReflectionUtils.getGenericParameterClass(
-            this.javaClass,
-            BaseAdapter::class.java,
-            1
-        ) as Class<Model>
     }
 
     @InternalAdaptersApi
@@ -75,7 +64,6 @@ abstract class BaseAdapter<Parent, Model>(
         this.recyclerView = recyclerView
         onAttachToRecyclerViewListeners.forEach { it.onAttached(recyclerView, this) }
         super.onAttachedToRecyclerView(recyclerView)
-
     }
 
     override fun getItemCount(): Int {

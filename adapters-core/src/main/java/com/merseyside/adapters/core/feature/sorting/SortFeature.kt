@@ -9,11 +9,15 @@ import com.merseyside.adapters.core.config.update.UpdateActions
 import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.config.update.sorted.SortedUpdate
 import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
+import com.merseyside.adapters.core.feature.sorting.comparator.ComparatorManager
 import com.merseyside.adapters.core.feature.sorting.comparator.ComparatorProvider
+import com.merseyside.adapters.core.feature.sorting.comparator.ItemComparator
+import com.merseyside.adapters.core.feature.sorting.config.getItemComparators
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.SortedModelList
 import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
 import com.merseyside.adapters.core.feature.sorting.sortedList.recalculatePositions
+import com.merseyside.adapters.core.model.AdapterParentViewModel
 
 open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Config<Parent, Model>>(),
     ModelListProvider<Parent, Model>, UpdateLogicProvider<Parent, Model>,
@@ -27,7 +31,6 @@ open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Confi
 
     override fun prepare(configure: Config<Parent, Model>.() -> Unit) {
         config.apply(configure)
-        comparator = config.comparator
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -36,28 +39,39 @@ open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Confi
         adapter: IBaseAdapter<Parent, Model>
     ) {
         super.install(adapterConfig, adapter)
+        val itemComparators = adapterConfig.getItemComparators()
+        itemComparators.forEach { config.itemComparators.add(it) }
 
+        comparator = resolveComparator(adapterConfig, config)
         val modelClass: Class<Model> = try {
             comparator.getModelClass() as Class<Model>
         } catch (e: IllegalStateException) {
-            getModelClass()
+            getModelClass(adapter)
         }
 
         val sortedList = SortedList(modelClass)
         modelList = SortedModelList(adapterConfig.workManager, sortedList, comparator)
+    }
 
-        comparator.workManager = adapter.workManager
-        comparator.setOnComparatorUpdateCallback(object : Comparator.OnComparatorUpdateCallback {
-            override suspend fun onUpdate(animation: Boolean) {
-                modelList.sortedList.recalculatePositions()
-            }
-        })
+    private fun resolveComparator(
+        adapterConfig: AdapterConfig<Parent, Model>,
+        config: Config<Parent, Model>
+    ): Comparator<Parent, Model> {
+        config.comparator.apply {
+            workManager = adapterConfig.workManager
+            setOnComparatorUpdateCallback { modelList.sortedList.recalculatePositions() }
+        }
+
+        return if (config.itemComparators.isEmpty()) config.comparator
+        else ComparatorManager(config.comparator, config.itemComparators)
     }
 
     @Suppress("UNCHECKED_CAST")
-    open fun getModelClass(): Class<Model> {
-        return config.modelClass as? Class<Model> ?: throw NotImplementedError("Can not identify model class." +
-                " Please pass it explicitly.")
+    open fun getModelClass(adapter: IBaseAdapter<Parent, Model>): Class<Model> {
+        return config.modelClass as? Class<Model> ?: throw NotImplementedError(
+            "Can not identify model class." +
+                    " Please pass it explicitly."
+        )
     }
 
     override fun updateLogic(updateActions: UpdateActions<Parent, Model>): UpdateLogic<Parent, Model> {
@@ -68,10 +82,19 @@ open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Confi
 }
 
 class Config<Parent, Model>
-        where Model : VM<Parent> {
+        where Model : AdapterParentViewModel<out Parent, Parent> {
 
     var modelClass: Class<*>? = null
     lateinit var comparator: Comparator<Parent, Model>
+    internal val itemComparators: MutableList<ItemComparator<out Parent, Parent, out Model>> =
+        mutableListOf()
+
+    @Suppress("UNCHECKED_CAST")
+    fun <Item : Parent> addItemComparator(
+        comparator: ItemComparator<Item, Parent, AdapterParentViewModel<Item, Parent>>
+    ) {
+        itemComparators.add(comparator as ItemComparator<out Parent, Parent, Model>)
+    }
 }
 
 @Suppress("UNCHECKED_CAST")

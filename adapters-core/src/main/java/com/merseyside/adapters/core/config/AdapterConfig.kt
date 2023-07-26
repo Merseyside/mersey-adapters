@@ -83,7 +83,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
             featureList.filterIsInstance<ModelListProvider<Parent, Model>>()
 
         if (listProviders.size > 1) throw IllegalArgumentException(
-            "There are few list provider features. Have to be zero or one"
+            "There are few list provider features. It must to be zero or one"
         )
 
         return if (listProviders.isEmpty()) {

@@ -32,7 +32,8 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         override suspend fun onChanged(position: Int, count: Int) {}
 
         override fun compare(item1: Model, item2: Model): Int {
-            return comparator.compare(item1, item2)
+            return if (item1 != item2) comparator.compare(item1, item2)
+            else 0
         }
 
         override fun areContentsTheSame(oldItem: Model, newItem: Model): Boolean {

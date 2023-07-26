@@ -10,7 +10,7 @@ import com.merseyside.adapters.sample.features.adapters.news.model.NewsItemViewM
 
 class NewsAdapter private constructor(config: AdapterConfig<News, NewsItemViewModel>): SimpleAdapter<News, NewsItemViewModel>(config) {
 
-    override fun getLayoutIdForPosition(position: Int) = R.layout.item_news1
+    override fun getLayoutIdForViewType(position: Int) = R.layout.item_news1
 
     override fun getBindingVariable() = BR.model
 
