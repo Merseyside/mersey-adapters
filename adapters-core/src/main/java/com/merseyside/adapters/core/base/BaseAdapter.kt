@@ -42,7 +42,7 @@ abstract class BaseAdapter<Parent, Model>(
     @InternalAdaptersApi
     override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
 
-    protected var recyclerView: RecyclerView? = null
+    var recyclerView: RecyclerView? = null
 
     override val provideModelByItem: suspend (Parent) -> Model = { item ->
         createModel(item).also { model ->
