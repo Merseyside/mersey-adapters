@@ -8,13 +8,12 @@ import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import kotlinx.coroutines.flow.Flow
-import java.lang.NullPointerException
 
 open class DataProvider<Parent>(
     private val adapter: IBaseAdapter<Parent, *>,
     private val viewLifecycleOwner: LifecycleOwner,
     private val providerFlow: Flow<*>,
-    observeWhenAttached: Boolean = false
+    private val observeWhenAttached: Boolean = false
 ) {
     private val dataObservers: MutableList<DataObserver<*, Parent>> = mutableListOf()
 
@@ -40,7 +39,7 @@ open class DataProvider<Parent>(
 
     fun addObserver(observer: DataObserver<*, Parent>) {
         dataObservers.add(observer)
-        startObserving()
+        if (!observeWhenAttached) startObserving()
     }
 
     private fun startObserving() {
