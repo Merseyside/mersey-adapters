@@ -51,7 +51,7 @@ fun <T> StateFlow<T>.asComposeState(context: ComposeContext): ComposeStateDelega
         override fun createComposeState(propertyName: String): MutableComposeState<T> {
             val composeState = MutableComposeState(propertyName, value)
 
-            asLiveData().observe(context.viewLifecycleOwner) { newValue ->
+            asLiveData().observe(context.lifecycleOwner) { newValue ->
                 composeState.value = newValue
             }
 
@@ -66,7 +66,7 @@ fun <T> StateFlow<T?>.asComposeNullableState(context: ComposeContext): ComposeNu
 
         override fun createComposeState(propertyName: String): MutableComposeState<T?> {
             val composeState = MutableComposeState(propertyName, value)
-            asLiveData().observe(context.viewLifecycleOwner) { newValue ->
+            asLiveData().observe(context.lifecycleOwner) { newValue ->
                 composeState.value = newValue
             }
 

@@ -1,44 +1,72 @@
 package com.merseyside.adapters.core.modelList
 
+import androidx.annotation.MainThread
+import androidx.collection.ArraySet
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.OnModelListChangedCallback
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
+import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 
 abstract class ModelList<Parent, Model : VM<Parent>>(
     override val workManager: AdapterWorkManager
 ) : List<Model>, HasAdapterWorkManager, ILogger {
 
-    private val batchedUpdates: MutableList<suspend () -> Unit> = ArrayList()
+    private val callbacks = ArraySet<ModelListCallback<Model>>()
+    private val modelListChangedCallbacks= ArraySet<OnModelListChangedCallback>()
 
-    var isMutable: Boolean = false
     private var isBatched = false
     var notifySize: Int = 0
 
-    suspend fun <R> batchedUpdate(block: suspend () -> R): R {
+    private val hashMap: MutableMap<Any, Model> = mutableMapOf()
+
+    init {
+        workManager.addOnMainWorkStartedListener { notifySize = size }
+    }
+
+    internal suspend fun <R> batchedUpdate(update: suspend () -> R): R = handleListChanges {
         isBatched = true
-        val result = block()
+        val result = update()
         isBatched = false
 
-        workManager.postMainWork {
-            notifySize = getModels().size
-            batchedUpdates.forEach { update -> update() }
-            batchedUpdates.clear()
-        }
-
-        return result
+        result
     }
 
-    private suspend fun doUpdate(update: suspend () -> Unit) {
-        if (isBatched) batchedUpdates.add(update)
-        else workManager.postMainWork {
-            notifySize = getModels().size
-            update()
+    private suspend fun <R> handleListChanges(update: suspend () -> R): R {
+        if (isBatched) return update()
+        else {
+            val oldSize = count()
+            val result = update()
+            val newSize = count()
+
+            onModelListChanged(oldSize, newSize)
+
+            return result
         }
     }
 
-    private val callbacks: MutableList<ModelListCallback<Model>> = ArrayList()
+    private fun postMainWork(work: suspend () -> Unit) {
+        workManager.postMainWork(work)
+    }
+
+    fun getModelByItem(item: Parent): Model? {
+        return try {
+            getModelByIdentifiable(item)
+        } catch (e: RuntimeException) {
+            getModels().find { model ->
+                model.areItemsTheSameInternal(item)
+            }
+        }
+    }
+
+    @Throws(RuntimeException::class)
+    private fun getModelByIdentifiable(item: Parent): Model? {
+        return if (item !is Identifiable<*>) throw RuntimeException("Item is not identifiable!")
+        else hashMap[item.id]
+    }
 
     fun addModelListCallback(callback: ModelListCallback<Model>) {
         callbacks.add(callback)
@@ -48,43 +76,58 @@ abstract class ModelList<Parent, Model : VM<Parent>>(
         callbacks.remove(callback)
     }
 
-    protected suspend fun onInsert(models: List<Model>) {
-        callbacks.forEach { it.onInsert(models) }
+    fun addOnModelListChangedCallback(callback: OnModelListChangedCallback) {
+        modelListChangedCallbacks.add(callback)
     }
 
-    protected suspend fun onInserted(models: List<Model>, position: Int) = doUpdate {
-        callbacks.forEach { it.onInserted(models, position) }
+    fun removeOnModelListChangedCallback(callback: OnModelListChangedCallback) {
+        modelListChangedCallbacks.remove(callback)
     }
 
-    protected suspend fun onRemove(
-        models: List<Model>,
-        count: Int = models.size
-    ) {
-        callbacks.forEach { it.onRemove(models, count) }
+    @MainThread
+    protected suspend fun onInserted(models: List<Model>, position: Int, count: Int = models.size) {
+        models.forEach { model -> hashMap[model.id] = model }
+
+        if (!isBatched) onModelListChanged(size - count, size)
+        postMainWork { callbacks.forEach { it.onInserted(models, position) } }
     }
 
+    @MainThread
     protected suspend fun onRemoved(
         models: List<Model>,
         position: Int,
         count: Int = models.size
-    ) = doUpdate {
-        callbacks.forEach { it.onRemoved(models, position, count) }
+    ) {
+        models.map { it.id }.forEach { id -> hashMap.remove(id) }
+
+        if (!isBatched) onModelListChanged(size + count, size)
+        postMainWork { callbacks.forEach { it.onRemoved(models, position, count) } }
     }
 
+    @MainThread
     protected suspend fun onChanged(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
-    ) = doUpdate {
+    ) = postMainWork {
         callbacks.forEach { it.onChanged(model, position, payloads) }
     }
 
-    protected suspend fun onMoved(fromPosition: Int, toPosition: Int) = doUpdate {
+    @MainThread
+    protected suspend fun onMoved(fromPosition: Int, toPosition: Int) = postMainWork {
         callbacks.forEach { it.onMoved(fromPosition, toPosition) }
     }
 
-    protected suspend fun onCleared() = doUpdate {
-        callbacks.forEach { it.onCleared() }
+    @MainThread
+    protected suspend fun onCleared(sizeBeforeCleared: Int) {
+        if (!isBatched) onModelListChanged(sizeBeforeCleared, size)
+        postMainWork { callbacks.forEach { it.onCleared() } }
+    }
+
+    private suspend fun onModelListChanged(oldSize: Int, newSize: Int) {
+        modelListChangedCallbacks.forEach { callback ->
+            callback.onModelListChanged(oldSize, newSize)
+        }
     }
 
     abstract fun getModels(): List<Model>
@@ -114,7 +157,16 @@ abstract class ModelList<Parent, Model : VM<Parent>>(
         payloads: List<AdapterParentViewModel.Payloadable>
     )
 
-    abstract suspend fun clear()
+    protected abstract suspend fun clearAll()
+
+    suspend fun clear() {
+        val models = getModels()
+        val nonDeletableModels = models.filter { !it.isDeletable }
+        if (nonDeletableModels.isNotEmpty()) {
+            val deletableModels = models.subtract(nonDeletableModels.toSet())
+            removeAll(deletableModels.toList())
+        } else clearAll()
+    }
 
     abstract override operator fun get(index: Int): Model
 
@@ -126,11 +178,9 @@ abstract class ModelList<Parent, Model : VM<Parent>>(
         return getModels().containsAll(elements)
     }
 
-    fun getPositionOfModel(model: Model): Int {
-        return getModels().indexOf(model)
-    }
+    abstract fun getPositionOfModel(model: Model): Int
 
-    abstract fun getModelByItem(item: Parent): Model?
+    abstract protected fun getModelByItemInternal(item: Parent): Model?
 
     override val tag: String = "ModelList"
 }

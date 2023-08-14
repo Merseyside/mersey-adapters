@@ -17,15 +17,16 @@ abstract class NestedCompositeAdapter<Parent, Model, Data, InnerAdapter>(
         where Model : NestedAdapterParentViewModel<out Parent, Parent, Data>,
               InnerAdapter : BaseAdapter<Data, out VM<Data>> {
 
-    override var adapterList: MutableList<Pair<Model, InnerAdapter>> = ArrayList()
+    override var adapterMap: MutableMap<Any, InnerAdapter> = HashMap()
     override var onInitAdapterListener: OnInitNestedAdapterListener<Data>? = null
 
     override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {
         super.onBindViewHolder(holder, position)
-        val model = getModelByPosition(position)
 
         getNestedView(holder)?.apply {
-            val adapter = getNestedAdapterByModel(model)
+            val adapter = getNestedAdapterByModel(holder.model)
+                ?: throw RuntimeException("Something went wrong!")
+
             if (this.adapter != adapter) {
                 this.adapter = adapter
             }

@@ -9,7 +9,5 @@ data class Checkpoint(
     val time: Millis,
     val gap: Millis
 ): Identifiable<String> {
-    override fun getId(): String {
-        return racer.name
-    }
+    override val id = racer.name
 }

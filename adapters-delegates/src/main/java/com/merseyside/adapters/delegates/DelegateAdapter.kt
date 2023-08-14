@@ -112,7 +112,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
 
     @OptIn(InternalAdaptersApi::class)
     open fun onModelCreated(model: Model) {
-        model.clickEvent.observe(observer = onClick)
+        model.addOnClickListener(onClick)
     }
 
     @CallSuper

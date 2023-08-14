@@ -44,8 +44,8 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
         Filtering { filter = colorsFilter }
 
         Placeholder.EmptyData {
-            showPlaceholderOnAttach = true
-            placeholderProvider = TextPlaceholderProvider("No colors. Press button below :)")
+            showOnAttach = true
+            provider = TextPlaceholderProvider("No colors. Press button below :)")
         }
     }.apply {
         delegatesManager.addDelegates(ColorsDelegateAdapter().also {

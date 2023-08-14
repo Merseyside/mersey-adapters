@@ -20,7 +20,7 @@ open class ViewCompositeAdapter<Parent, Model>(
         models.forEach { model ->
             val view = model.item
             val foundView = if (view is ViewGroup) view.findViewById(id)
-            else if (view.getId() == id) view as View
+            else if (view.id == id) view as View
             else null
 
             if (foundView != null) return foundView

@@ -60,7 +60,7 @@ class RacingFragment : BaseSampleFragment<FragmentRacingBinding, RacingViewModel
         adapter.dataProvider(
             viewLifecycleOwner,
             viewModel.getCheckpointFlow(),
-            UpdateDataObserver(removeOld = false)
+            UpdateDataObserver(removeOld = false) // your custom observer
         )
     }
 }

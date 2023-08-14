@@ -9,9 +9,8 @@ class ComposePlaceholderProvider<Item : SCV>(
     private val provideView: () -> Item
 ) : PlaceholderProvider<Item, SCV>() {
 
-    override val placeholder: Item
-        get() = provideView()
+    override val placeholder: Item = provideView()
 
-    override val placeholderDelegate: DelegateAdapter<Item, SCV, out AdapterParentViewModel<Item, SCV>>? =
-        null
+    override val placeholderDelegate = placeholder.delegate
+            as DelegateAdapter<Item, SCV, out AdapterParentViewModel<Item, SCV>>
 }

@@ -56,11 +56,11 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         if (!delegates.containsKey(key)) {
             delegates.put(key, delegate)
 
-            if (delegate.getRelativeDelegatesManager != null)
-                Logger.logErr(
-                    "DelegatesManager", "Warning: $delegate already attached" +
-                            " to another manager. Reatached to another manager."
-                )
+//            if (delegate.getRelativeDelegatesManager != null)
+//                Logger.logErr(
+//                    "DelegatesManager", "Warning: $delegate already attached" +
+//                            " to another manager. Reatached to another manager."
+//                )
 
             delegate.getRelativeDelegatesManager = { this }
 

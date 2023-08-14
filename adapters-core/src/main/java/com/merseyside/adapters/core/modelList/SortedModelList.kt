@@ -53,16 +53,20 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         return sortedList.getAll()
     }
 
-    override fun getModelByItem(item: Parent): Model? {
+    override fun getModelByItemInternal(item: Parent): Model? {
         return sortedList.find { it.areItemsTheSameInternal(item) }
     }
 
-    override suspend fun addAll(position: Int, models: List<Model>) {
-        throw Exception("Adding by position is not supported.")
+    override fun getPositionOfModel(model: Model): Int {
+        return sortedList.indexOf(model)
     }
 
-    override suspend fun add(position: Int, model: Model) {
-        throw Exception("Adding by position is not supported.")
+    override suspend fun add(model: Model) {
+        sortedList.add(model)
+    }
+
+    override suspend fun addAll(models: List<Model>) {
+        batchedUpdate { sortedList.addAll(models) }
     }
 
     override fun get(index: Int): Model {
@@ -74,13 +78,19 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun remove(model: Model): Boolean {
-        onRemove(listOf(model))
         return sortedList.remove(model)
     }
 
     override suspend fun removeAll(models: List<Model>) {
-        onRemove(models)
-        sortedList.removeAll(models)
+        batchedUpdate { sortedList.removeAll(models) }
+    }
+
+    override suspend fun addAll(position: Int, models: List<Model>) {
+        throw Exception("Adding by position is not supported.")
+    }
+
+    override suspend fun add(position: Int, model: Model) {
+        throw Exception("Adding by position is not supported.")
     }
 
     override fun lastIndexOf(element: Model): Int {
@@ -89,16 +99,6 @@ class SortedModelList<Parent, Model : VM<Parent>>(
 
     override fun indexOf(element: Model): Int {
         return sortedList.indexOf(element)
-    }
-
-    override suspend fun addAll(models: List<Model>) {
-        onInsert(models)
-        sortedList.addAll(models)
-    }
-
-    override suspend fun add(model: Model) {
-        onInsert(listOf(model))
-        sortedList.add(model)
     }
 
     override suspend fun onModelUpdated(
@@ -112,11 +112,12 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         }
     }
 
-    override suspend fun clear() {
+    override suspend fun clearAll() {
+        val sizeBeforeCleared = count()
         doWithoutCallback {
             sortedList.clear()
         }
-        onCleared()
+        onCleared(sizeBeforeCleared)
     }
 
     override fun listIterator(): ListIterator<Model> {

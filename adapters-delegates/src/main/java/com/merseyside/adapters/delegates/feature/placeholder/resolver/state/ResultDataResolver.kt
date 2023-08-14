@@ -18,9 +18,6 @@ open class ResultDataResolver<Parent, ParentModel : VM<Parent>>(
     flow: Flow<Result<*>>
 ) : StateDataResolver<Result<*>, Parent, ParentModel>(viewLifecycleOwner, flow) {
 
-    private var currentResult: Result<*> = Result.NotInitialized<Any>()
-
-    override val tag: String = "ResultDataResolver"
     override fun onDataProvided(
         adapter: IBaseAdapter<Parent, *>,
         @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") stateData: Result<*>
@@ -40,6 +37,9 @@ open class ResultDataResolver<Parent, ParentModel : VM<Parent>>(
 
             else -> {}
         }
-        currentResult = stateData
     }
+
+    override val tag: String = "ResultDataResolver"
+
+    override suspend fun onModelListChanged(oldSize: Int, newSize: Int) {}
 }

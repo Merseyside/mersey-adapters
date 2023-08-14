@@ -9,10 +9,8 @@ import com.merseyside.adapters.core.base.callback.OnItemClickListener
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.utils.getClassName
 
-abstract class ComposingView(private val id: String) : Identifiable<String>,
+abstract class ComposingView(override val id: String) : Identifiable<String>,
     HasOnItemClickListener<ComposingView> {
-
-    override fun getId() = id
 
     override val clickListeners: MutableList<OnItemClickListener<ComposingView>> by lazy { ArrayList() }
 
@@ -31,15 +29,12 @@ abstract class ComposingView(private val id: String) : Identifiable<String>,
     final override fun toString(): String {
         return getStringBuilder().toString()
     }
-
-
 }
 
-abstract class StyleableComposingView<Style : ComposingStyle>(
-    id: String
-) : ComposingView(id), StyleableItem<Style> {
+abstract class StyleableComposingView<Style : ComposingStyle>(id: String) : ComposingView(id),
+    StyleableItem<Style> {
 
-    abstract fun getDelegate(): ViewDelegate<Style>
+    abstract val delegate: ViewDelegate<Style>
 }
 
 typealias SCV = StyleableComposingView<*>

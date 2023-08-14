@@ -7,7 +7,7 @@ import com.merseyside.adapters.core.feature.expanding.callback.OnItemExpandedLis
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import org.jetbrains.annotations.Contract

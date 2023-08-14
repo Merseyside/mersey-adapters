@@ -4,18 +4,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.async.doAsync
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
-import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
-import com.merseyside.adapters.delegates.DelegateAdapter
+import com.merseyside.adapters.core.modelList.callback.OnModelListChangedCallback
+import com.merseyside.adapters.delegates.DA
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
 import com.merseyside.merseyLib.kotlin.logger.ILogger
+import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.utils.safeLet
+import kotlinx.coroutines.job
+import kotlin.coroutines.coroutineContext
 
 abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
-    ModelListCallback<ParentModel>, ILogger {
+    OnModelListChangedCallback, ILogger {
 
     private lateinit var modelList: ModelList<Parent, ParentModel>
     private lateinit var provider: PlaceholderProvider<out Parent, Parent>
@@ -32,7 +34,7 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         this.adapter = adapter
         modelList = adapter.adapterConfig.modelList
         safeLet(provider.placeholderDelegate) {
-            adapter.delegatesManager.addDelegates(it as DelegateAdapter<out Parent, Parent, out ParentModel>)
+            adapter.delegatesManager.addDelegates(it as DA<Parent, ParentModel>)
         }
 
         adapter.addOnAttachToRecyclerViewListener(onAttachListener)
@@ -42,44 +44,31 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         enableModelListCallback()
     }
 
-    /* Model list callbacks are optional */
-    override suspend fun onInsert(models: List<ParentModel>, count: Int) {}
-
-    override suspend fun onInserted(models: List<ParentModel>, position: Int, count: Int) {}
-
-    override suspend fun onRemove(models: List<ParentModel>, count: Int) {}
-
-    override suspend fun onRemoved(models: List<ParentModel>, position: Int, count: Int) {}
-
-    override suspend fun onChanged(
-        model: ParentModel,
-        position: Int,
-        payloads: List<AdapterParentViewModel.Payloadable>
-    ) {
-    }
-
-    override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
-
-    override suspend fun onCleared() {}
-
     protected fun addPlaceholderAsync(position: Int = LAST_POSITION) {
         adapter.doAsync { addPlaceholder(position) }
     }
 
-    protected suspend fun addPlaceholder(position: Int = LAST_POSITION) =
-        turnMutableState {
-            isPlaceholderAdded = true
-            if (position == LAST_POSITION) adapter.add(provider.placeholder)
-            else adapter.add(position, provider.placeholder)
+    protected suspend fun addPlaceholder(position: Int = LAST_POSITION) {
+        if (!isPlaceholderAdded) {
+            turnMutableState {
+                isPlaceholderAdded = true
+                if (position == LAST_POSITION) adapter.add(provider.placeholder)
+                else adapter.add(position, provider.placeholder)
+            }
         }
+    }
 
     protected fun removePlaceholderAsync() {
         adapter.doAsync { removePlaceholder() }
     }
 
-    protected suspend fun removePlaceholder() = turnMutableState {
-        isPlaceholderAdded = false
-        adapter.remove(provider.placeholder)
+    protected suspend fun removePlaceholder() {
+        if (isPlaceholderAdded) {
+            turnMutableState {
+                isPlaceholderAdded = false
+                adapter.remove(provider.placeholder)
+            }
+        }
     }
 
 
@@ -99,18 +88,18 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
     private suspend fun turnMutableState(block: suspend () -> Unit) {
         disableModelListCallback()
         block()
-        enableModelListCallback()
+        coroutineContext.job.invokeOnCompletion { enableModelListCallback() }
     }
 
     private fun enableModelListCallback() {
-        modelList.addModelListCallback(this)
+        modelList.addOnModelListChangedCallback(this)
     }
 
     private fun disableModelListCallback() {
-        modelList.removeModelListCallback(this)
+        modelList.removeOnModelListChangedCallback(this)
     }
 
-    protected fun isEmpty() = adapter.isEmpty()
+    protected fun isEmpty() = modelList.isEmpty()
 
     override val tag: String = "PlaceholderDataResolver"
 

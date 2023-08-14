@@ -14,13 +14,12 @@ import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -79,17 +78,16 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     /**
      * Delegates items adding to [IModelListManager]
-     * @return Added models
+     * @return true if mew models have been
      */
-    suspend fun add(items: List<Parent>) {
-        listManager.add(items)
+    suspend fun add(items: List<Parent>): Boolean {
+        return listManager.add(items).isNotEmpty()
     }
 
     @InternalAdaptersApi
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
         return if (isEmpty()) {
-            if (updateRequest.addNew) add(updateRequest.items)
-            else add(emptyList())
+            add(updateRequest.items)
             true
         } else {
             listManager.update(updateRequest)
@@ -106,7 +104,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     @InternalAdaptersApi
     @CallSuper
     suspend fun onModelCreated(model: Model) {
-        model.clickEvent.observe(observer = callbackClick)
+        model.addOnClickListener(callbackClick)
     }
 
     /**
@@ -135,9 +133,10 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     ) {
     }
 
-    fun getItemCount(): Int
+    val size: Int
+        get() = models.size
 
-    fun getLastPositionIndex(): Int = getItemCount() - 1
+    fun getLastPositionIndex(): Int = size - 1
 
     fun getItemByPosition(position: Int): Parent {
         return getModelByPosition(position).item
@@ -175,7 +174,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     /**
      * @return true if modelList has items else - false
      */
-    fun isEmpty(): Boolean = getItemCount().isZero()
+    fun isEmpty(): Boolean = size.isZero()
 
     fun isNotEmpty(): Boolean = !isEmpty()
 
@@ -246,7 +245,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     fun notifyPositionsChanged(newPosition: Int, oldPosition: Int = -1) {
         if (hasFeature(PositionFeature.key)) {
 
-            val range = calculateChangedPositionsRange(newPosition, oldPosition).log("positions")
+            val range = calculateChangedPositionsRange(newPosition, oldPosition)
             for (index in range) {
                 models[index].onPositionChanged(index)
             }

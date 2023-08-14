@@ -50,7 +50,7 @@ abstract class ViewDelegateAdapter<View : StyleableComposingView<Style>, Style :
     @InternalAdaptersApi
     override fun onModelCreated(model: Model) {
         super.onModelCreated(model)
-        model.clickEvent.observe { item -> model.item.notifyOnClick(item) }
+        model.addOnClickListener { item -> model.item.notifyOnClick(item) }
     }
 
     override fun onBindViewHolder(holder: ViewHolder<SCV, Model>, model: Model, position: Int) {

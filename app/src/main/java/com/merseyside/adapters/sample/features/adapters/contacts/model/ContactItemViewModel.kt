@@ -18,6 +18,8 @@ class ContactItemViewModel(item: String, override val selectState: SelectState) 
         })
     }
 
+    override val id: Any = item
+
     override fun areItemsTheSame(other: String): Boolean {
         return item == other
     }

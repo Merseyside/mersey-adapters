@@ -9,7 +9,7 @@ import com.merseyside.adapters.core.feature.selecting.callback.OnSelectEnabledLi
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.addOrSet
 import com.merseyside.merseyLib.kotlin.logger.ILogger

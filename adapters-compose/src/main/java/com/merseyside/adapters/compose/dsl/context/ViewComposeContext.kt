@@ -12,39 +12,46 @@ import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import com.merseyside.merseyLib.kotlin.observable.Disposable
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
-import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
-import com.merseyside.merseyLib.kotlin.observable.ext.compareAndUpdate
-import com.merseyside.merseyLib.kotlin.observable.ext.valueNotNull
+import com.merseyside.merseyLib.kotlin.observable.ext.compareAndUpdateNullable
+import com.merseyside.merseyLib.kotlin.observable.ext.debounce
+import com.merseyside.merseyLib.kotlin.observable.ext.merge
+import com.merseyside.merseyLib.kotlin.observable.ext.mergeSingleEvent
 
 abstract class ViewComposeContext<View : SCV>(
-    private val contextId: String,
+    contextId: String,
     val context: Context,
-    val viewLifecycleOwner: LifecycleOwner,
-    internal val initContext: ViewComposeContext<View>.() -> Unit
+    val lifecycleOwner: LifecycleOwner,
+    private val initContext: ViewComposeContext<View>.() -> Unit
 ) : ILogger, Identifiable<String> {
+
+    override val id = contextId
 
     protected lateinit var relativeAdapter: ViewCompositeAdapter<SCV, VM<SCV>>
         private set
     private val childContextList = HashMap<String, ComposeContext>()
-    private val composeStates: MutableList<MutableComposeState<*>> = ArrayList()
+    private val composeStates: MutableSet<MutableComposeState<*>> = mutableSetOf()
 
-    private val mutViews = MutableObservableField<List<View>>(emptyList())
+    private val mutViews = MutableObservableField<List<View>?>(null)
 
-    private var viewsObserverDisposable: Disposable<List<View>>? = null
+    private var viewsObserverDisposable: Disposable<List<View>?>? = null
+
+    private var composeStatesDisposable: Disposable<Unit>? = null
 
     @Suppress("UNCHECKED_CAST")
     fun <Cont : ComposeContext> getOrCreateChildContext(
         contextId: String,
-        init: (contextId: String, context: Context, viewLifecycleOwner: LifecycleOwner) -> Cont
+        init: (contextId: String, context: Context, lifecycleOwner: LifecycleOwner) -> Cont
     ): Cont {
         val existContext = childContextList[contextId] as? Cont
-        return existContext ?: init(contextId, context, viewLifecycleOwner).also {
+        return existContext ?: init(contextId, context, lifecycleOwner).also {
             childContextList[contextId] = it
         }
     }
 
-    fun updateViews(update: (current: List<View>) -> List<View>) {
-        mutViews.compareAndUpdate(update)
+    fun updateViews(update: (current: List<View>) -> List<View>): Boolean {
+        return mutViews.compareAndUpdateNullable { views ->
+            update(views ?: emptyList())
+        }
     }
 
     @CallSuper
@@ -54,8 +61,7 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     open fun onInitAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
-        initContext()
-        startObservingViews()
+        invalidateContext()
     }
 
     abstract fun onViewsChanged(adapter: ViewCompositeAdapter<SCV, VM<SCV>>, data: List<View>)
@@ -64,12 +70,16 @@ abstract class ViewComposeContext<View : SCV>(
      * Calls when state changes. Usually when declared compose state handle new value.
      * By default clear all views and reinitialize context.
      */
-    abstract fun onContextStateChanged()
+    open fun onContextStateChanged() {
+        invalidateContext()
+    }
 
     private fun startObservingViews() {
         viewsObserverDisposable = mutViews.observe { views ->
-            if (views.isEmpty() && relativeAdapter.isNotEmpty()) relativeAdapter.clearAsync()
-            else onViewsChanged(relativeAdapter, views)
+            if (views.isNullOrEmpty()) {
+                mutViews.value = null
+                relativeAdapter.clearAsync()
+            } else onViewsChanged(relativeAdapter, views)
         }
     }
 
@@ -82,7 +92,15 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     protected fun clearViews() {
-        mutViews.compareAndSet(emptyList())
+        mutViews.value = emptyList()
+    }
+
+    protected fun invalidateContext() {
+        mutableState {
+            clearViews()
+            initContext()
+            observeComposeStates()
+        }
     }
 
     open fun clear() {
@@ -98,18 +116,18 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     fun getViews(): List<View> {
-        return mutViews.valueNotNull()
+        return mutViews.value ?: emptyList()
     }
 
-    override fun getId() = contextId
+    private fun observeComposeStates() {
+        composeStatesDisposable?.dispose()
+        composeStatesDisposable = mergeSingleEvent(composeStates.map { it.onChangeEvent })
+            .debounce(50L)
+            .observe { onContextStateChanged() }
+    }
 
     internal fun addComposeState(state: MutableComposeState<*>) {
         composeStates.add(state)
-        state.observe {
-            mutableState {
-                onContextStateChanged()
-            }
-        }
     }
 
     override val tag: String = contextId

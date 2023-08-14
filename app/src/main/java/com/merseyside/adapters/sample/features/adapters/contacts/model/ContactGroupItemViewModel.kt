@@ -10,6 +10,8 @@ class ContactGroupItemViewModel(
     item: ContactGroup, override val expandState: ExpandState = ExpandState(expanded = true)
 ): NestedAdapterViewModel<ContactGroup, String>(item), ExpandableItem, ILogger {
 
+    override val id: Any = item.group
+
     override fun areItemsTheSame(other: ContactGroup): Boolean {
         return item.group == other.group
     }

@@ -27,10 +27,6 @@ open class ListComposeContext(
     viewLifecycleOwner: LifecycleOwner,
     initContext: ComposeContext.() -> Unit
 ): ViewComposeContext<SCV>(contextId, context, viewLifecycleOwner, initContext) {
-    override fun onContextStateChanged() {
-        clearViews()
-        initContext()
-    }
 
     override fun onViewsChanged(adapter: ViewCompositeAdapter<SCV, VM<SCV>>, data: List<SCV>) {
         adapter.updateAsync(data)

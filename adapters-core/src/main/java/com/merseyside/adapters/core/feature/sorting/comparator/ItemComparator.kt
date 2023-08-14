@@ -6,12 +6,12 @@ import com.merseyside.merseyLib.kotlin.logger.log
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import com.merseyside.utils.reflection.ReflectionUtils
 
-abstract class ItemComparator<Item : Parent, Parent, Model : AdapterParentViewModel<Item, Parent>> {
+abstract class ItemComparator<Item : Parent, Parent, Model : AdapterParentViewModel<Item, Parent>>() {
 
     private var modelClass: Class<*>? = null
         get() = field ?: getPersistentClass().also { field = it }
 
-    constructor(modelClass: Class<*>): super() {
+    constructor(modelClass: Class<*>): this() {
         this.modelClass = modelClass
     }
 
@@ -35,7 +35,7 @@ abstract class ItemComparator<Item : Parent, Parent, Model : AdapterParentViewMo
         return ReflectionUtils.getGenericParameterClass(
             this.javaClass,
             ItemComparator::class.java,
-            0
+            2
         )
     }
 }

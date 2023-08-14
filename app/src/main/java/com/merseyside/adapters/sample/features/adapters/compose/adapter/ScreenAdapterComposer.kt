@@ -1,5 +1,6 @@
 package com.merseyside.adapters.sample.features.adapters.compose.adapter
 
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.compose.composer.FragmentAdapterComposer
@@ -25,18 +26,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import com.merseyside.adapters.sample.features.adapters.compose.adapter.views.MarginComposingList as List
 
-class MovieScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(fragment), ILogger {
+class ScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(fragment), ILogger {
 
     init {
         fragment.lifecycleScope.launchWhenStarted {
             while(isActive) {
-                delay(Millis(400))
+                delay(Millis(500))
                 stateFlow.value = randomColor()
             }
         }
     }
 
-    private val stateFlow = MutableStateFlow(R.color.red)
+    private val stateFlow = MutableStateFlow(ContextCompat.getColor(context, R.color.red))
 
     override fun ComposeContext.compose() {
 
@@ -80,7 +81,7 @@ class MovieScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(f
                 //checked = true
             }
         }
-//
+
         List("list") {
             List("inner_list1") {
                 List("inner_list2") {
@@ -146,12 +147,11 @@ class MovieScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(f
                 }
             }
 
-            val color1: Int by stateFlow.asComposeState(this)
             var someState: Int by composeState { 0 }
 
             Text("text1",
                 style = {
-                    textColor = color1
+                    textColor = randomColor()
                     setTextSize(R.dimen.large_text_size)
                 }) {
                 text = "Click me!"

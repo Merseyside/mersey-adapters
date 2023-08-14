@@ -63,8 +63,6 @@ val androidLibz = listOf(
     androidLibs.material,
     androidLibs.recyclerView,
     androidLibs.coroutines,
-    androidLibs.lifecycleRuntime,
-    androidLibs.asyncLayoutInflater,
     androidLibs.lifecycleLiveDataKtx
 )
 

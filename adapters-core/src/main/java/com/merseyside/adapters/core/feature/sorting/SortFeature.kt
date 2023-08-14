@@ -18,8 +18,10 @@ import com.merseyside.adapters.core.modelList.SortedModelList
 import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
 import com.merseyside.adapters.core.feature.sorting.sortedList.recalculatePositions
 import com.merseyside.adapters.core.model.AdapterParentViewModel
+import com.merseyside.adapters.core.utils.InternalAdaptersApi
 
-open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Config<Parent, Model>>(),
+open class SortFeature<Parent, Model> :
+    ConfigurableFeature<Parent, Model, SortFeature.Config<Parent, Model>>(),
     ModelListProvider<Parent, Model>, UpdateLogicProvider<Parent, Model>,
     ComparatorProvider<Parent, Model>
         where Model : VM<Parent> {
@@ -68,6 +70,8 @@ open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Confi
 
     @Suppress("UNCHECKED_CAST")
     open fun getModelClass(adapter: IBaseAdapter<Parent, Model>): Class<Model> {
+
+        @OptIn(InternalAdaptersApi::class)
         return config.modelClass as? Class<Model> ?: throw NotImplementedError(
             "Can not identify model class." +
                     " Please pass it explicitly."
@@ -78,29 +82,30 @@ open class SortFeature<Parent, Model> : ConfigurableFeature<Parent, Model, Confi
         return SortedUpdate(updateActions)
     }
 
-    override val featureKey: String = "SortFeature"
-}
+    class Config<Parent, Model>
+            where Model : AdapterParentViewModel<out Parent, Parent> {
 
-class Config<Parent, Model>
-        where Model : AdapterParentViewModel<out Parent, Parent> {
+        @InternalAdaptersApi
+        var modelClass: Class<*>? = null
+        lateinit var comparator: Comparator<Parent, Model>
+        internal val itemComparators: MutableList<ItemComparator<out Parent, Parent, out Model>> =
+            mutableListOf()
 
-    var modelClass: Class<*>? = null
-    lateinit var comparator: Comparator<Parent, Model>
-    internal val itemComparators: MutableList<ItemComparator<out Parent, Parent, out Model>> =
-        mutableListOf()
-
-    @Suppress("UNCHECKED_CAST")
-    fun <Item : Parent> addItemComparator(
-        comparator: ItemComparator<Item, Parent, AdapterParentViewModel<Item, Parent>>
-    ) {
-        itemComparators.add(comparator as ItemComparator<out Parent, Parent, Model>)
+        @Suppress("UNCHECKED_CAST")
+        fun <Item : Parent> addItemComparator(
+            comparator: ItemComparator<Item, Parent, AdapterParentViewModel<Item, Parent>>
+        ) {
+            itemComparators.add(comparator as ItemComparator<out Parent, Parent, Model>)
+        }
     }
+
+    override val featureKey: String = "SortFeature"
 }
 
 @Suppress("UNCHECKED_CAST")
 object Sorting {
     context (AdapterConfig<Parent, Model>) operator fun <Parent,
-            Model : VM<Parent>, TConfig : Config<Parent, Model>> invoke(
+            Model : VM<Parent>, TConfig : SortFeature.Config<Parent, Model>> invoke(
         config: TConfig.() -> Unit
     ): SortFeature<Parent, Model> {
         return SortFeature<Parent, Model>().also { feature ->

@@ -54,6 +54,16 @@ abstract class ComposingStyle(override val context: Context) : StyleContract, IL
     ) {
 
         @DimenRes
+        var margin: Int? = null
+            get() = throw IllegalAccessException("Using just like a setter.")
+            set(value) {
+                horizontal = value
+                vertical = value
+
+                field = value
+            }
+
+        @DimenRes
         var horizontal: Int? = null
             get() = throw IllegalAccessException("Using just like a setter.")
             set(value) {

@@ -26,7 +26,11 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
         return mutModels[index]
     }
 
-    override fun getModelByItem(item: Parent): Model? {
+    override fun getPositionOfModel(model: Model): Int {
+        return mutModels.indexOf(model)
+    }
+
+    override fun getModelByItemInternal(item: Parent): Model? {
         return mutModels.find { it.areItemsTheSameInternal(item) }
     }
 
@@ -37,7 +41,6 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     override suspend fun remove(model: Model): Boolean {
         val position = getPositionOfModel(model)
         return try {
-            onRemove(listOf(model))
             val removedModel = mutModels.removeAt(position)
             val list = listOf(removedModel)
 
@@ -61,27 +64,23 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun addAll(models: List<Model>) {
-        onInsert(models)
         mutModels.addAll(models)
         onInserted(models, size - models.size)
     }
 
     override suspend fun add(model: Model) {
         val list = listOf(model)
-        onInsert(list)
         mutModels.add(model)
         onInserted(list, lastIndex)
     }
 
     override suspend fun addAll(position: Int, models: List<Model>) {
-        onInsert(models)
         mutModels.addAll(position, models)
         onInserted(models, position)
     }
 
     override suspend fun add(position: Int, model: Model) {
         val list = listOf(model)
-        onInsert(list)
         mutModels.add(position, model)
         onInserted(list, position)
     }
@@ -91,9 +90,10 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
         onMoved(fromIndex, toIndex)
     }
 
-    override suspend fun clear() {
+    override suspend fun clearAll() {
+        val sizeBeforeCleared = count()
         mutModels.clear()
-        onCleared()
+        onCleared(sizeBeforeCleared)
     }
 
     override fun listIterator(): ListIterator<Model> {

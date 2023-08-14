@@ -9,7 +9,8 @@ import com.merseyside.adapters.delegates.composites.CompositeAdapter
  * removes placeholder before some non empty data <b>will</b> be added.
  */
 class EmptyDataResolver<Parent, ParentModel : VM<Parent>>(
-    private val showPlaceholderOnAttach: Boolean
+    private val showPlaceholderOnAttach: Boolean,
+    private val ignoreClear: Boolean
 ) : PlaceholderDataResolver<Parent, ParentModel>() {
 
     override fun onAdapterAttached(adapter: CompositeAdapter<Parent, out ParentModel>) {
@@ -19,22 +20,9 @@ class EmptyDataResolver<Parent, ParentModel : VM<Parent>>(
         }
     }
 
-    override suspend fun onInsert(models: List<ParentModel>, count: Int) {
-        if (isPlaceholderAdded && count > 0) {
-            removePlaceholder()
-        }
-    }
-
-    override suspend fun onRemoved(models: List<ParentModel>, position: Int, count: Int) {
-        if (!isPlaceholderAdded && isEmpty()) {
-            addPlaceholder()
-        }
-    }
-
-    override suspend fun onCleared() {
-        if (!isPlaceholderAdded) {
-            addPlaceholder()
-        }
+    override suspend fun onModelListChanged(oldSize: Int, newSize: Int) {
+        if (newSize == 0 && (!ignoreClear || oldSize == 0)) addPlaceholder()
+        else removePlaceholder()
     }
 
     override val tag: String = "EmptyDataResolver"

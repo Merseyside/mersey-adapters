@@ -4,8 +4,11 @@ import com.merseyside.adapters.core.config.update.UpdateActions
 import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.model.ext.toItems
+import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.merseyLib.kotlin.extensions.findPosition
+import com.merseyside.merseyLib.kotlin.logger.log
+import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
 
 class SimpleUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>
@@ -20,8 +23,10 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         } else if (updateRequest.isFullUpdate()) {
             fullUpdate(updateRequest.items, models)
         } else {
-            throw UnsupportedOperationException("Simple update support only full update or update" +
-                    " without adding or removing items. Please use simple add/remove operations")
+            throw UnsupportedOperationException(
+                "Simple update support only full update or update" +
+                        " without adding or removing items. Please use simple add/remove operations"
+            )
         }
     }
 

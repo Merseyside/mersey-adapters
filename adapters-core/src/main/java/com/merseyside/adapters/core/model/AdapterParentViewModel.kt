@@ -20,16 +20,23 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     var item: Item = item
         internal set
 
+    open val id: Any by lazy {
+        (item as? Identifiable<*>)?.id ?: throw NotImplementedError(
+            "${this::class.simpleName}'s item is not Identifiable." +
+                    " Please, override this method and provide id manually!"
+        )
+    }
+
     override var position: Int = NO_ITEM_POSITION
 
     private val mutClickEvent = SingleObservableField<Item>()
 
-    @InternalAdaptersApi
-    val clickEvent: ObservableField<Item> = mutClickEvent
+    private val clickEvent: ObservableField<Item> = mutClickEvent
 
     val clickableObservable = ObservableBoolean()
     val filterableObservable = ObservableBoolean()
     val deletableObservable = ObservableBoolean()
+
 
     open var isClickable: Boolean = clickable
         set(value) {
@@ -72,7 +79,7 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     @CallSuper
     open fun onClickVoid(): Void? {
         onClick()
-        return null as Void?
+        return null
     }
 
     override fun onPositionChanged(fromPosition: Int, toPosition: Int) {}
@@ -87,7 +94,7 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     }
 
     protected open fun areItemsTheSame(other: Item): Boolean = try {
-        (item as Identifiable<*>).getId() == (other as Identifiable<*>).getId()
+        id == (other as Identifiable<*>).id
     } catch (e: ClassCastException) {
         throw NotImplementedError(
             "Items are not Identifiable. " +
@@ -116,6 +123,11 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
 
     protected open fun payload(oldItem: Item, newItem: Item): List<Payloadable> {
         return listOf(Payloadable.None)
+    }
+
+    @InternalAdaptersApi
+    fun addOnClickListener(onClick: (Item) -> Unit) {
+        clickEvent.observe { onClick(it) }
     }
 
     interface Payloadable {

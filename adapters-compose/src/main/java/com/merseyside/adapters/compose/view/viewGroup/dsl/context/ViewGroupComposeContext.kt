@@ -15,11 +15,6 @@ abstract class ViewGroupComposeContext<View : SCV>(
     initContext: ViewComposeContext<View>.() -> Unit
 ) : ViewComposeContext<View>(contextId, context, viewLifecycleOwner, initContext) {
 
-    override fun onContextStateChanged() {
-        clearViews()
-        initContext()
-    }
-
     override fun onViewsChanged(adapter: ViewCompositeAdapter<SCV, VM<SCV>>, data: List<View>) {
         adapter.updateAsync(data)
     }

@@ -15,6 +15,7 @@ import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.view.text.drawables.CompoundDrawables
 import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.manager.ViewDelegate
 import com.merseyside.utils.ext.getColorFromAttr
 
 open class ComposingText<Style : ComposingTextStyle>(
@@ -36,9 +37,7 @@ open class ComposingText<Style : ComposingTextStyle>(
         }
     }
 
-    override fun getDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
-        return ComposingTextDelegate()
-    }
+    override val delegate: ViewDelegate<Style> = ComposingTextDelegate()
 
     override fun getStringBuilder(): StringBuilder {
         return super.getStringBuilder().apply {

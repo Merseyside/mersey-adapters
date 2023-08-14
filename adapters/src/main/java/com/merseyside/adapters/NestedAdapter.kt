@@ -7,6 +7,7 @@ import com.merseyside.adapters.core.model.NestedAdapterViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.nested.INestedAdapter
 import com.merseyside.adapters.core.nested.OnInitNestedAdapterListener
+import java.util.Collections
 
 abstract class NestedAdapter<Item, Model, Data, InnerAdapter>(
     final override val adapterConfig: NestedAdapterConfig<Item, Model, Data, InnerAdapter>
@@ -14,15 +15,16 @@ abstract class NestedAdapter<Item, Model, Data, InnerAdapter>(
         where Model : NestedAdapterViewModel<Item, Data>,
               InnerAdapter : BaseAdapter<Data, out VM<Data>> {
 
-    override var adapterList: MutableList<Pair<Model, InnerAdapter>> = ArrayList()
+    override var adapterMap: MutableMap<Any, InnerAdapter> = HashMap()
     override var onInitAdapterListener: OnInitNestedAdapterListener<Data>? = null
 
     override fun onBindViewHolder(holder: ViewHolder<Item, Model>, position: Int) {
         super.onBindViewHolder(holder, position)
-        val model = getModelByPosition(position)
 
         getNestedView(holder)?.apply {
-            val adapter = getNestedAdapterByModel(model)
+            val adapter = getNestedAdapterByModel(holder.model)
+                ?: throw RuntimeException("Something went wrong!")
+
             if (this.adapter != adapter) {
                 this.adapter = adapter
             }

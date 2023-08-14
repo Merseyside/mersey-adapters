@@ -61,10 +61,10 @@ class Config<Parent, Model>(
         get() = _isAllowToCancelSelection!!
 
     var onSelect: (
-    item: Parent,
-    isSelected: Boolean,
-    isSelectedByUser: Boolean
-    ) -> Unit = { _, _, _ ->  }
+        item: Parent,
+        isSelected: Boolean,
+        isSelectedByUser: Boolean
+    ) -> Unit = { _, _, _ -> }
 
     init {
         apply(configure)

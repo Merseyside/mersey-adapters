@@ -10,7 +10,6 @@ import com.merseyside.adapters.compose.dsl.context.compose
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.async.doAsync
-import com.merseyside.adapters.core.async.updateAsync
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.config.AdapterConfig
@@ -75,10 +74,6 @@ abstract class AdapterComposer(
 
     private fun composeInternal() {
         rootContext = compose(context, lifecycleOwner, compositeAdapter) { compose() }
-    }
-
-    fun showViews(views: List<SCV>) {
-        compositeAdapter.updateAsync(views)
     }
 
     fun clear() {

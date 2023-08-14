@@ -56,6 +56,7 @@ abstract class BaseAdapter<Parent, Model>(
     @InternalAdaptersApi
     abstract fun createModel(item: Parent): Model
 
+    @InternalAdaptersApi
     override val callbackClick: (Parent) -> Unit = { item ->
         clickListeners.forEach { listener -> listener.onItemClicked(item) }
     }

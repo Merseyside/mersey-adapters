@@ -1,5 +1,6 @@
 package com.merseyside.adapters.core.workManager
 
+import androidx.annotation.MainThread
 import androidx.collection.ArraySet
 import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
@@ -20,6 +21,8 @@ class AdapterWorkManager(
     private val errorHandler: (Exception) -> Unit
 ) {
 
+    private val onMainWorkStartedListeners = mutableListOf<OnMainWorkStartedListener>()
+
     private var parentWorkManager: AdapterWorkManager? = null
 
     private val subManagers = ArraySet<AdapterWorkManager>()
@@ -36,6 +39,10 @@ class AdapterWorkManager(
         subWorkManager.parentWorkManager = this
         subManagers.add(subWorkManager)
         subWorkManager.add { block(adapter) }
+    }
+
+    fun addOnMainWorkStartedListener(listener: OnMainWorkStartedListener) {
+        onMainWorkStartedListeners.add(listener)
     }
 
     internal fun postMainWork(action: suspend () -> Unit) {
@@ -55,10 +62,6 @@ class AdapterWorkManager(
 
     private fun executeAsync(): Job? {
         return coroutineQueue.executeAsync(coroutineContext)
-    }
-
-    private suspend fun execute() {
-        coroutineQueue.execute()
     }
 
     private fun <Result> add(
@@ -83,6 +86,7 @@ class AdapterWorkManager(
                 }
 
                 runForUI {
+                    notifyMainWorkStarted()
                     while(mainWorkList.iterator().hasNext()) {
                         val action = mainWorkList.removeFirst()
                         action()
@@ -97,10 +101,19 @@ class AdapterWorkManager(
         }
     }
 
+    private fun notifyMainWorkStarted() {
+        onMainWorkStartedListeners.forEach { listener -> listener() }
+    }
+
     fun cancel(): Boolean {
         return coroutineQueue.cancelAndClear().ifTrue {
             subManagers.clear()
             mainWorkList.clear()
         }
+    }
+
+    fun interface OnMainWorkStartedListener {
+        @MainThread
+        operator fun invoke()
     }
 }

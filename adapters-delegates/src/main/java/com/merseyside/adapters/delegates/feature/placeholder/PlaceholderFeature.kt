@@ -50,7 +50,7 @@ class PlaceholderFeature<Parent, Model : VM<Parent>> :
      * Calls when Sorting feature is being installed
      */
     override fun getItemComparator(): ItemComparator<out Parent, Parent, out Model> {
-        return config.placeholderItemComparator
+        return config.itemComparator
             ?: throw RuntimeException("Item comparator is required.")
     }
 
@@ -69,7 +69,7 @@ class PlaceholderFeature<Parent, Model : VM<Parent>> :
         open var provider: PlaceholderProvider<out Parent, Parent>? = null
         open var dataResolver: PlaceholderDataResolver<Parent, out Model>? = null
 
-        open var placeholderItemComparator: ItemComparator<out Parent, Parent, out Model>? =
+        open var itemComparator: ItemComparator<out Parent, Parent, out Model>? =
             null
     }
 
@@ -102,8 +102,9 @@ object Placeholder {
             config: Config<Item, Parent>.() -> Unit
         ) {
 
-            var placeholderProvider: PlaceholderProvider<out Item, Parent>? = null
-            var showPlaceholderOnAttach: Boolean = false
+            var provider: PlaceholderProvider<out Item, Parent>? = null
+            var showOnAttach: Boolean = false
+            var ignoreClear: Boolean = false
 
             init {
                 apply(config)
@@ -116,10 +117,10 @@ object Placeholder {
         ): PlaceholderFeature<Parent, Model> {
             return Placeholder {
                 Config(config).let {
-                    dataResolver = EmptyDataResolver(it.showPlaceholderOnAttach)
-                    provider = it.placeholderProvider
+                    dataResolver = EmptyDataResolver(it.showOnAttach, it.ignoreClear)
+                    provider = it.provider
                 }
-                placeholderItemComparator =
+                itemComparator =
                     PlaceholderItemComparator(
                         provider?.placeholderDelegate?.modelClass ?:
                         throw NullPointerException("Delegate hasn't been provided!"))
@@ -133,7 +134,7 @@ object Placeholder {
      */
     object ByResult {
         class Config<Item : Parent, Parent>(config: Config<Item, Parent>.() -> Unit) {
-            var placeholderProvider: PlaceholderProvider<out Item, Parent>? = null
+            var provider: PlaceholderProvider<out Item, Parent>? = null
 
             lateinit var lifecycleOwner: LifecycleOwner
             lateinit var resultFlow: Flow<Result<*>>
@@ -150,9 +151,9 @@ object Placeholder {
             return Placeholder {
                 Config(config).let {
                     dataResolver = ResultDataResolver(it.lifecycleOwner, it.resultFlow)
-                    provider = it.placeholderProvider
+                    provider = it.provider
                 }
-                placeholderItemComparator = PlaceholderItemComparator(
+                itemComparator = PlaceholderItemComparator(
                     provider?.placeholderDelegate?.modelClass ?:
                     throw NullPointerException("Delegate hasn't been provided!")
                 )

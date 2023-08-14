@@ -3,7 +3,6 @@ package com.merseyside.adapters.compose.view.list.simple
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
 import com.merseyside.adapters.compose.view.list.dsl.context.ListContext
@@ -11,6 +10,7 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
 import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.manager.ViewDelegate
 import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.base.callback.OnItemClickListener
@@ -27,9 +27,7 @@ open class ComposingList(
 
     open val listConfig: ListConfig by lazy { ListConfig().apply(configure) }
 
-    override fun getDelegate(): ViewDelegateAdapter<out StyleableComposingView<out ComposingListStyle>, out ComposingListStyle, *> {
-        return ComposingListDelegate()
-    }
+    override val delegate: ViewDelegate<ComposingListStyle> = ComposingListDelegate()
 
     companion object {
         context(ComposeContext) operator fun invoke(

@@ -28,7 +28,7 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
 
         with(config) {
             adapter.dataProvider(
-                viewLifecycleOwner,
+                lifecycleOwner,
                 onNextPageFlow,
                 nextPageDataObserver,
                 observeWhenAttached
@@ -36,7 +36,7 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
 
             safeLet(onPrevPageFlow) { onPrev ->
                 adapter.dataProvider(
-                    viewLifecycleOwner,
+                    lifecycleOwner,
                     onPrev,
                     prevPageDataObserver,
                     observeWhenAttached
@@ -56,7 +56,7 @@ open class Config<Parent, Model>(
     configure: Config<Parent, Model>.() -> Unit
 ) where Model : VM<Parent> {
 
-    lateinit var viewLifecycleOwner: LifecycleOwner
+    lateinit var lifecycleOwner: LifecycleOwner
 
     lateinit var onNextPageFlow: Flow<List<*>>
     var onPrevPageFlow: Flow<List<*>>? = null

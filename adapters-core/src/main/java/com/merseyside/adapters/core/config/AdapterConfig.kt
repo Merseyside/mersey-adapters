@@ -16,7 +16,7 @@ import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.listManager.impl.ModelListManager
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
@@ -132,3 +132,5 @@ open class AdapterConfig<Parent, Model> internal constructor(
         return _modelListManager
     }
 }
+
+typealias SimpleAdapterConfig = AdapterConfig<Any, VM<Any>>
