@@ -18,4 +18,6 @@ abstract class StateDataResolver<StateData, Parent, ParentModel : VM<Parent>>(
         super.initAdapter(adapter)
         adapter.dataProvider(viewLifecycleOwner, flow, this)
     }
+
+    override suspend fun onModelListChanged(oldSize: Int, newSize: Int) {}
 }
