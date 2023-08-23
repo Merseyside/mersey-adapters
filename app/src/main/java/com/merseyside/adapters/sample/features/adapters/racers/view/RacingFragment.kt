@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.core.config.init.initAdapter
+import com.merseyside.adapters.core.feature.dataProvider.DataProvider
 import com.merseyside.adapters.core.feature.dataProvider.UpdateDataObserver
-import com.merseyside.adapters.core.feature.dataProvider.dataProvider
 import com.merseyside.adapters.core.feature.positioning.Positioning
 import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.decorator.SimpleItemOffsetDecorator
@@ -22,14 +22,16 @@ import com.merseyside.adapters.sample.features.adapters.racers.model.RacingViewM
 
 class RacingFragment : BaseSampleFragment<FragmentRacingBinding, RacingViewModel>() {
 
-    private val adapter = initAdapter(::RacersAdapter) {
-        coroutineScope = lifecycleScope
-
-        Sorting {
-            comparator = RacersComparator
+    private val adapter by lazy {
+        initAdapter(::RacersAdapter) {
+            coroutineScope = lifecycleScope
+            Sorting { comparator = RacersComparator }
+            Positioning()
         }
+    }
 
-        Positioning()
+    private val checkPointDataProvider by lazy {
+        DataProvider(adapter, viewModel.getCheckpointFlow())
     }
 
     override fun getBindingVariable() = BR.viewModel
@@ -57,10 +59,6 @@ class RacingFragment : BaseSampleFragment<FragmentRacingBinding, RacingViewModel
             )
         }
 
-        adapter.dataProvider(
-            viewLifecycleOwner,
-            viewModel.getCheckpointFlow(),
-            UpdateDataObserver(removeOld = false) // your custom observer
-        )
+        checkPointDataProvider.observe(viewLifecycleOwner, UpdateDataObserver(removeOld = false))
     }
 }

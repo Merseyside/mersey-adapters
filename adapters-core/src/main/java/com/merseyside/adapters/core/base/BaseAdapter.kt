@@ -23,8 +23,7 @@ abstract class BaseAdapter<Parent, Model>(
     HasOnItemClickListener<Parent>, IBaseAdapter<Parent, Model>, ILogger
         where Model : VM<Parent> {
 
-    override val models: List<Model>
-        get() = listManager.modelList
+    override var models: List<Model> = emptyList()
 
     override lateinit var workManager: AdapterWorkManager
 
@@ -34,13 +33,15 @@ abstract class BaseAdapter<Parent, Model>(
 
     protected var isRecyclable: Boolean = true
 
-    private var onAttachToRecyclerViewListeners: MutableList<OnAttachToRecyclerViewListener> =
-        mutableListOf()
+    private var onAttachToRecyclerViewListeners = mutableListOf<OnAttachToRecyclerViewListener>()
 
     @InternalAdaptersApi
     override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
 
     var recyclerView: RecyclerView? = null
+
+    override val isAttached: Boolean
+        get() = recyclerView != null
 
     override val provideModelByItem: suspend (Parent) -> Model = { item ->
         createModel(item).also { model ->
@@ -68,7 +69,7 @@ abstract class BaseAdapter<Parent, Model>(
     }
 
     override fun getItemCount(): Int {
-        return listManager.modelList.notifySize
+        return models.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder<Parent, Model>, position: Int) {

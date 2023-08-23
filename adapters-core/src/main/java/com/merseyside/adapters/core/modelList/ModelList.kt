@@ -11,41 +11,49 @@ import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 
-abstract class ModelList<Parent, Model : VM<Parent>>(
-    override val workManager: AdapterWorkManager
-) : List<Model>, HasAdapterWorkManager, ILogger {
+/**
+ * This is a mutable list and mustn't be used as a source of models for adapter.
+ * When all mutations completed it calls [OnModelListChangedCallback]'s method onModelListUpdated(newModelList).
+ * Adapter handles it and use as a source of models data.
+ */
+abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: AdapterWorkManager) :
+    List<Model>, HasAdapterWorkManager, ILogger {
 
     private val callbacks = ArraySet<ModelListCallback<Model>>()
-    private val modelListChangedCallbacks= ArraySet<OnModelListChangedCallback>()
+    private val modelListChangedCallbacks = ArraySet<OnModelListChangedCallback>()
 
     private var isBatched = false
-    var notifySize: Int = 0
+
+    internal val hasNotAppliedChanges: Boolean
+        get() = workManager.mainWorkList.isNotEmpty()
 
     private val hashMap: MutableMap<Any, Model> = mutableMapOf()
 
     init {
-        workManager.addOnMainWorkStartedListener { notifySize = size }
+        workManager.addOnMainWorkStartedListener {
+            callbacks.forEach { callback -> callback.onModelListUpdated(getModels()) }
+        }
     }
 
-    internal suspend fun <R> batchedUpdate(update: suspend () -> R): R = handleListChanges {
-        isBatched = true
-        val result = update()
-        isBatched = false
+    internal suspend fun <R> batchedUpdate(update: suspend () -> R): R {
+        return if (isBatched) update()
+        else {
+            isBatched = true
+            val result = handleListChanges(update)
+            isBatched = false
 
-        result
+            result
+        }
     }
 
     private suspend fun <R> handleListChanges(update: suspend () -> R): R {
-        if (isBatched) return update()
-        else {
-            val oldSize = count()
-            val result = update()
-            val newSize = count()
+        val oldSize = count()
+        val result = update()
+        val newSize = count()
 
-            onModelListChanged(oldSize, newSize)
+        onModelListChanged(oldSize, newSize)
 
-            return result
-        }
+        return result
     }
 
     private fun postMainWork(work: suspend () -> Unit) {
@@ -126,7 +134,7 @@ abstract class ModelList<Parent, Model : VM<Parent>>(
 
     private suspend fun onModelListChanged(oldSize: Int, newSize: Int) {
         modelListChangedCallbacks.forEach { callback ->
-            callback.onModelListChanged(oldSize, newSize)
+            callback.onModelListChanged(oldSize, newSize, hasNotAppliedChanges)
         }
     }
 
@@ -180,7 +188,7 @@ abstract class ModelList<Parent, Model : VM<Parent>>(
 
     abstract fun getPositionOfModel(model: Model): Int
 
-    abstract protected fun getModelByItemInternal(item: Parent): Model?
+    protected abstract fun getModelByItemInternal(item: Parent): Model?
 
     override val tag: String = "ModelList"
 }

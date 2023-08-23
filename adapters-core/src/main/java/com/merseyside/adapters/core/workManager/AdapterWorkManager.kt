@@ -9,7 +9,6 @@ import com.merseyside.merseyLib.kotlin.coroutines.queue.ext.executeAsync
 import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
 import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.utils.ifTrue
-import com.merseyside.merseyLib.kotlin.utils.safeLet
 import kotlinx.coroutines.Job
 import java.util.Collections
 import java.util.LinkedList
@@ -21,20 +20,16 @@ class AdapterWorkManager(
     private val errorHandler: (Exception) -> Unit
 ) {
 
-    private val onMainWorkStartedListeners = mutableListOf<OnMainWorkStartedListener>()
-
     private var parentWorkManager: AdapterWorkManager? = null
-
     private val subManagers = ArraySet<AdapterWorkManager>()
-    private val mainWorkList = Collections.synchronizedList<suspend () -> Unit>(LinkedList())
+
+    private val onMainWorkStartedListeners = mutableListOf<OnMainWorkStartedListener>()
+    internal val mainWorkList = Collections.synchronizedList<suspend () -> Unit>(LinkedList())
 
     private val hasQueueWork: Boolean
         get() = coroutineQueue.hasQueueWork
 
-    fun <Result, T: HasAdapterWorkManager> subTaskWith(
-        adapter: T,
-        block: suspend T.() -> Result
-    ) {
+    fun <Result, T: HasAdapterWorkManager> subTaskWith(adapter: T, block: suspend T.() -> Result) {
         val subWorkManager = adapter.workManager
         subWorkManager.parentWorkManager = this
         subManagers.add(subWorkManager)
@@ -46,9 +41,7 @@ class AdapterWorkManager(
     }
 
     internal fun postMainWork(action: suspend () -> Unit) {
-        safeLet(parentWorkManager) { manager ->
-            manager.postMainWork(action)
-        } ?: mainWorkList.add(action)
+        mainWorkList.add(action)
     }
 
     fun <Result> doAsync(
@@ -64,6 +57,40 @@ class AdapterWorkManager(
         return coroutineQueue.executeAsync(coroutineContext)
     }
 
+    private suspend fun runSubManagersAsyncWork() {
+        if (subManagers.isNotEmpty()) {
+            val subCompositeJob = CompositeJob()
+            subManagers.forEach { manager ->
+                if (manager.hasQueueWork) {
+                    val job = manager.executeAsync()
+                    if (job != null) subCompositeJob.add(job)
+                }
+            }
+
+            subCompositeJob.joinAll()
+        }
+    }
+
+    private suspend fun runMainWork() {
+        notifyMainWorkStarted()
+        while (mainWorkList.iterator().hasNext()) {
+            val action = mainWorkList.removeFirst()
+            action()
+        }
+
+        runSubManagersMainWork()
+    }
+
+    private suspend fun runSubManagersMainWork() {
+        if (subManagers.isNotEmpty()) {
+            subManagers.forEach { manager ->
+                manager.runMainWork()
+            }
+
+            subManagers.clear()
+        }
+    }
+
     private fun <Result> add(
         onComplete: (Result) -> Unit = {},
         onError: ((e: Exception) -> Unit)? = null,
@@ -72,27 +99,13 @@ class AdapterWorkManager(
         coroutineQueue.add {
             try {
                 val result = work()
-                if (subManagers.isNotEmpty()) {
-                    val subCompositeJob = CompositeJob()
-                    subManagers.forEach { manager ->
-                        if (manager.hasQueueWork) {
-                            val job = manager.executeAsync()
-                            if (job != null) subCompositeJob.add(job)
-                        }
+                runSubManagersAsyncWork()
+
+                if (parentWorkManager == null) {
+                    runForUI {
+                        runMainWork()
+                        onComplete(result)
                     }
-
-                    subCompositeJob.joinAll()
-                    subManagers.clear()
-                }
-
-                runForUI {
-                    notifyMainWorkStarted()
-                    while(mainWorkList.iterator().hasNext()) {
-                        val action = mainWorkList.removeFirst()
-                        action()
-                    }
-
-                    onComplete(result)
                 }
             } catch(e: Exception) {
                 Logger.logErr("AdapterWorkManager", e)
@@ -101,7 +114,7 @@ class AdapterWorkManager(
         }
     }
 
-    private fun notifyMainWorkStarted() {
+    private suspend fun notifyMainWorkStarted() {
         onMainWorkStartedListeners.forEach { listener -> listener() }
     }
 
@@ -114,6 +127,6 @@ class AdapterWorkManager(
 
     fun interface OnMainWorkStartedListener {
         @MainThread
-        operator fun invoke()
+        suspend operator fun invoke()
     }
 }

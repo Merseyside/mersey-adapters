@@ -62,6 +62,7 @@ class SortedList<T> @JvmOverloads constructor(
         override suspend fun onChanged(position: Int, count: Int) {}
         override suspend fun onInserted(position: Int, count: Int) {}
         override suspend fun onRemoved(position: Int, count: Int) {}
+        override suspend fun onRemoved(position: Int, count: Int, item: T) {}
         override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
         override fun areItemsTheSame(item1: T, item2: T): Boolean {
             return false
@@ -577,7 +578,7 @@ class SortedList<T> @JvmOverloads constructor(
     suspend fun removeItemAt(index: Int): T {
         throwIfInMutationOperation()
         val item = get(index)
-        removeItemAtIndex(index, true)
+        removeItemAtIndex(index,true, item)
         return item
     }
 
@@ -586,16 +587,16 @@ class SortedList<T> @JvmOverloads constructor(
         if (index == INVALID_POSITION) {
             throw RuntimeException("OnRemove invalid position. Check your comparator implementation.")
         }
-        removeItemAtIndex(index, notify)
+        removeItemAtIndex(index, notify, item)
         return true
     }
 
-    private suspend fun removeItemAtIndex(index: Int, notify: Boolean) {
+    private suspend fun removeItemAtIndex(index: Int, notify: Boolean, item: T) {
         System.arraycopy(mData, index + 1, mData, index, mSize - index - 1)
         mSize--
         //mData[mSize] = null
         if (notify) {
-            mCallback.onRemoved(index, 1)
+            mCallback.onRemoved(index, 1, item)
         }
     }
 
@@ -642,7 +643,7 @@ class SortedList<T> @JvmOverloads constructor(
             mCallback.onChanged(index, 1, mCallback.getChangePayload(existing, item))
         }
         // TODO this done in 1 pass to avoid shifting twice.
-        removeItemAtIndex(index, false)
+        removeItemAtIndex(index, false, item)
         val newIndex = add(item, false)
         if (index != newIndex) {
             mCallback.onMoved(index, newIndex)
@@ -682,7 +683,7 @@ class SortedList<T> @JvmOverloads constructor(
         throwIfInMutationOperation()
         // TODO can be improved
         val item = get(index)
-        removeItemAtIndex(index, false)
+        removeItemAtIndex(index, false, item)
         val newIndex = add(item, false)
         if (index != newIndex) {
             mCallback.onMoved(index, newIndex)
@@ -846,7 +847,7 @@ class SortedList<T> @JvmOverloads constructor(
      */
 
 
-    abstract class Callback<T2> : ListUpdateCallback, Comparator<T2> {
+    abstract class Callback<T2> : ListUpdateCallback<T2>, Comparator<T2> {
 
         /**
          * Similar to [java.util.Comparator.compare], should compare two and
@@ -946,9 +947,8 @@ class SortedList<T> @JvmOverloads constructor(
      * complete, you **must** always call [BatchedCallback.dispatchLastEvent] to flush
      * all changes to the Callback.
      */
-    class BatchedCallback<Item>(val mWrappedCallback: Callback<Item>) :
-        Callback<Item>() {
-        private val mBatchingListUpdateCallback: BatchingListUpdateCallback =
+    class BatchedCallback<Item>(val mWrappedCallback: Callback<Item>) : Callback<Item>() {
+        private val mBatchingListUpdateCallback: BatchingListUpdateCallback<Item> =
             BatchingListUpdateCallback(mWrappedCallback)
 
         override fun compare(item1: Item, item2: Item): Int {
@@ -961,6 +961,10 @@ class SortedList<T> @JvmOverloads constructor(
 
         override suspend fun onRemoved(position: Int, count: Int) {
             mBatchingListUpdateCallback.onRemoved(position, count)
+        }
+
+        override suspend fun onRemoved(position: Int, count: Int, item: Item) {
+            mBatchingListUpdateCallback.onRemoved(position, count, item)
         }
 
         override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
@@ -1009,7 +1013,7 @@ class SortedList<T> @JvmOverloads constructor(
     }
 }
 
-interface ListUpdateCallback {
+interface ListUpdateCallback<T> {
     /**
      * Called when `count` number of items are inserted at the given position.
      *
@@ -1024,7 +1028,9 @@ interface ListUpdateCallback {
      * @param position The position of the item which has been removed.
      * @param count    The number of items which have been removed.
      */
-    suspend fun onRemoved(position: Int, count: Int)
+    suspend fun onRemoved(position: Int, count: Int) {}
+
+    suspend fun onRemoved(position: Int, count: Int, item: T) {}
 
     /**
      * Called when an item changes its position in the list.
@@ -1045,8 +1051,8 @@ interface ListUpdateCallback {
 
 }
 
-class BatchingListUpdateCallback(val mWrapped: ListUpdateCallback) :
-    ListUpdateCallback {
+class BatchingListUpdateCallback<T>(val mWrapped: ListUpdateCallback<T>) :
+    ListUpdateCallback<T> {
     var mLastEventType: Int = TYPE_NONE
     var mLastEventPosition = -1
     var mLastEventCount = -1

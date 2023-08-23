@@ -10,6 +10,7 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.comparator.PlaceholderItemComparator
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
+import com.merseyside.adapters.delegates.feature.placeholder.resolver.AlwaysVisibleDataResolver
 import com.merseyside.adapters.delegates.feature.placeholder.resolver.EmptyDataResolver
 import com.merseyside.adapters.delegates.feature.placeholder.resolver.PlaceholderDataResolver
 import com.merseyside.adapters.delegates.feature.placeholder.resolver.state.ResultDataResolver
@@ -157,6 +158,36 @@ object Placeholder {
                     provider?.placeholderDelegate?.modelClass ?:
                     throw NullPointerException("Delegate hasn't been provided!")
                 )
+            }
+        }
+    }
+
+    object AlwaysVisible {
+        class Config<Item : Parent, Parent>(config: Config<Item, Parent>.() -> Unit) {
+
+            var provider: PlaceholderProvider<out Item, Parent>? = null
+            var showOnAttach: Boolean = false
+
+            init {
+                apply(config)
+            }
+        }
+
+        context(AdapterConfig<Parent, Model>) @Suppress("UNCHECKED_CAST")
+        operator fun <Item : Parent, Parent, Model : VM<Parent>> invoke(
+            config: Config<Item, Parent>.() -> Unit
+        ): PlaceholderFeature<Parent, Model> {
+            return Placeholder {
+                Config(config).let {
+                    dataResolver = AlwaysVisibleDataResolver(it.showOnAttach)
+                    provider = it.provider
+
+                }
+
+                itemComparator =
+                    PlaceholderItemComparator(
+                        provider?.placeholderDelegate?.modelClass ?:
+                        throw NullPointerException("Delegate hasn't been provided!"))
             }
         }
     }

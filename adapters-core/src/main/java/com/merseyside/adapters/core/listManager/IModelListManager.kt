@@ -21,12 +21,6 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
 
     val modelList: ModelList<Parent, Model>
 
-
-
-    fun getItemCount(): Int {
-        return modelList.size
-    }
-
     fun getPositionOfModel(model: Model): Int {
         return modelList.indexOf(model)
     }
@@ -35,31 +29,9 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         return adapterActions.provideModelByItem(item)
     }
 
-    fun getPositionOfItem(item: Parent, models: List<Model> = modelList): Int {
-        models.forEachIndexed { index, model ->
-            if (model.areItemsTheSameInternal(item)) return index
-        }
-
-        throw IllegalArgumentException("No data found")
-    }
-
     fun getModelByItem(item: Parent): Model? {
         return modelList.getModelByItem(item)
     }
-
-//    fun getModelByItem(item: Parent, models: List<Model>): Model? {
-//        return getModelByIdentifiable(item) ?: run {
-//            models.find { model ->
-//                model.areItemsTheSameInternal(item)
-//            }
-//        }
-//    }
-
-//    private fun getModelByIdentifiable(item: Parent): Model? {
-//        return if (item is Identifiable<*>) {
-//            hashMap[item.id]
-//        } else null
-//    }
 
     @CallSuper
     suspend fun createModel(item: Parent): Model? {
@@ -75,10 +47,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     suspend fun add(item: Parent): Model? {
-        return checkModelNotNull(createModel(item)) { model ->
-            addModel(model)
-            model
-        }
+        return checkModelNotNull(createModel(item)) { model -> addModel(model) }
     }
 
     override suspend fun add(items: List<Parent>): List<Model> {
@@ -89,10 +58,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
 
     suspend fun add(position: Int, item: Parent): Model? {
         requireValidPosition(position)
-        return checkModelNotNull(createModel(item)) { model ->
-            addModel(position, model)
-            model
-        }
+        return checkModelNotNull(createModel(item)) { model -> addModel(position, model) }
     }
 
     override suspend fun add(position: Int, items: List<Parent>): List<Model> {
@@ -112,9 +78,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     suspend fun remove(items: List<Parent>): List<Model> {
-        return checkNotEmpty(items) {
-            items.mapNotNull { item -> remove(item) }
-        } ?: emptyList()
+        return items.mapNotNull { item -> remove(item) }
     }
 
     suspend fun update(items: List<Parent>): Boolean {
@@ -180,13 +144,8 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         )
     }
 
-    suspend fun <R> checkModelNotNull(model: Model?, block: suspend (Model) -> R): R? {
-        return if (model != null) block(model)
-        else null
-    }
-
-    suspend fun <M, R> checkNotEmpty(list: List<M>, block: suspend (list: List<M>) -> R): R? {
-        return if (list.isNotEmpty()) block(list)
-        else null
+    suspend fun checkModelNotNull(model: Model?, block: suspend (Model) -> Unit): Model? {
+        if (model != null) block(model)
+        return model
     }
 }

@@ -5,6 +5,8 @@ import com.merseyside.adapters.core.model.AdapterParentViewModel
 
 interface ModelListCallback<Model> {
 
+    suspend fun onModelListUpdated(newModelList: List<Model>) {}
+
     suspend fun onInserted(models: List<Model>, position: Int, count: Int = models.size) {}
 
     suspend fun onRemoved(models: List<Model>, position: Int, count: Int = models.size) {}

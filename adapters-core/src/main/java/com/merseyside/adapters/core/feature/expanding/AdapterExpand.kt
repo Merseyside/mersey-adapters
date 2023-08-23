@@ -21,9 +21,7 @@ class AdapterExpand<Parent, Model>(
 ) : HasOnItemExpandedListener<Parent>, ModelListCallback<Model>,
     ILogger where Model : VM<Parent> {
 
-    override val expandedListeners: MutableList<OnItemExpandedListener<Parent>> by lazy {
-        ArrayList()
-    }
+    override val expandedListeners by lazy { mutableListOf<OnItemExpandedListener<Parent>>() }
 
     private val expandedList: MutableList<ExpandableItem> by lazy { ArrayList() }
 

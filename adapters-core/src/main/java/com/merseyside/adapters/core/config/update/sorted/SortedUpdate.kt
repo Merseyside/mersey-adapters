@@ -5,6 +5,8 @@ import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.merseyLib.kotlin.extensions.subtractBy
+import com.merseyside.merseyLib.kotlin.logger.log
+import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
 
 class SortedUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>
@@ -34,7 +36,9 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             updateRequest.items.forEach { newItem ->
                 val model = getModelByItem(newItem, models)
                 if (model == null) {
-                    if (updateRequest.addNew) addList.add(newItem)
+                    if (updateRequest.addNew) {
+                        addList.add(newItem)
+                    }
                 } else {
                     if (!model.areContentsTheSame(newItem)) {
                         updateList.add(model to newItem)

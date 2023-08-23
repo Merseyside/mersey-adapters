@@ -21,8 +21,12 @@ class SortedModelList<Parent, Model : VM<Parent>>(
             onInserted(models, position)
         }
 
-        override suspend fun onRemoved(position: Int, count: Int) {
-            onRemoved(emptyList(), position, count)
+        /**
+         * Must be called with single item
+         */
+        override suspend fun onRemoved(position: Int, count: Int, model: Model) {
+            if (count > 1) throw IllegalArgumentException()
+            onRemoved(listOf(model), position, count)
         }
 
         override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
@@ -82,7 +86,8 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun removeAll(models: List<Model>) {
-        batchedUpdate { sortedList.removeAll(models) }
+        sortedList.removeAll(models)
+        //batchedUpdate { sortedList.removeAll(models) }
     }
 
     override suspend fun addAll(position: Int, models: List<Model>) {

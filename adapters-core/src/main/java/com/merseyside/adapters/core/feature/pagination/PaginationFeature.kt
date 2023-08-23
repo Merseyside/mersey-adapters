@@ -6,6 +6,7 @@ import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.feature.ConfigurableFeature
 import com.merseyside.adapters.core.feature.dataProvider.AddDataObserver
 import com.merseyside.adapters.core.feature.dataProvider.DataObserver
+import com.merseyside.adapters.core.feature.dataProvider.DataProvider
 import com.merseyside.adapters.core.feature.dataProvider.dataProvider
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.utils.safeLet
@@ -27,20 +28,12 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
         super.install(adapterConfig, adapter)
 
         with(config) {
-            adapter.dataProvider(
-                lifecycleOwner,
-                onNextPageFlow,
-                nextPageDataObserver,
-                observeWhenAttached
-            )
+            val nextPageProvider = DataProvider(adapter, onNextPageFlow, observeWhenAttached)
+            nextPageProvider.observeForever(nextPageDataObserver)
 
-            safeLet(onPrevPageFlow) { onPrev ->
-                adapter.dataProvider(
-                    lifecycleOwner,
-                    onPrev,
-                    prevPageDataObserver,
-                    observeWhenAttached
-                )
+            safeLet(onPrevPageFlow) { onPrevFlow ->
+                val prevPageProvider = DataProvider(adapter, onPrevFlow, observeWhenAttached)
+                prevPageProvider.observeForever(prevPageDataObserver)
             }
         }
     }

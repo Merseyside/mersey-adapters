@@ -20,9 +20,13 @@ class EmptyDataResolver<Parent, ParentModel : VM<Parent>>(
         }
     }
 
-    override suspend fun onModelListChanged(oldSize: Int, newSize: Int) {
-        if (newSize == 0 && (!ignoreClear || oldSize == 0)) addPlaceholder()
-        else removePlaceholder()
+    override suspend fun onModelListChanged(oldSize: Int, newSize: Int, hasChanges: Boolean) {
+        oldSize.log("oldSize")
+        newSize.log("new size")
+        if (hasChanges || ignoreClear) {
+            if (newSize == 0 && (!ignoreClear || oldSize == 0)) addPlaceholder()
+            else removePlaceholder()
+        }
     }
 
     override val tag: String = "EmptyDataResolver"

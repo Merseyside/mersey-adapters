@@ -11,54 +11,28 @@ import kotlinx.coroutines.flow.Flow
 
 open class DataProvider<Parent>(
     private val adapter: IBaseAdapter<Parent, *>,
-    private val viewLifecycleOwner: LifecycleOwner,
     private val providerFlow: Flow<*>,
     private val observeWhenAttached: Boolean = false
 ) {
-    private val dataObservers: MutableList<DataObserver<*, Parent>> = mutableListOf()
 
-    private var liveData: LiveData<*>? = null
+    private var liveData: LiveData<*> = providerFlow.asLiveData()
 
-    private val onAttachListener: OnAttachToRecyclerViewListener by lazy {
-        object : OnAttachToRecyclerViewListener {
-            override fun onAttached(recyclerView: RecyclerView, adapter: IBaseAdapter<*, *>) {
-                startObserving()
-            }
-
-            override fun onDetached(recyclerView: RecyclerView, adapter: IBaseAdapter<*, *>) {
-                stopObserving()
+    fun observe(lifecycleOwner: LifecycleOwner, observer: DataObserver<*, Parent>) {
+        liveData.observe(lifecycleOwner) { data ->
+            if (!observeWhenAttached || adapter.isAttached) {
+                @OptIn(InternalAdaptersApi::class)
+                observer.onDataProvidedInternal(adapter, data)
             }
         }
     }
 
-    init {
-        if (observeWhenAttached) {
-            adapter.addOnAttachToRecyclerViewListener(onAttachListener)
-        }
-    }
-
-    fun addObserver(observer: DataObserver<*, Parent>) {
-        dataObservers.add(observer)
-        if (!observeWhenAttached) startObserving()
-    }
-
-    private fun startObserving() {
-        if (liveData != null) return
-        liveData = providerFlow.asLiveData().apply {
-            observe(viewLifecycleOwner) {
-                notifyObservers(it ?: throw NullPointerException())
+    fun observeForever(observer: DataObserver<*, Parent>) {
+        liveData.observeForever { data ->
+            if (!observeWhenAttached || adapter.isAttached) {
+                @OptIn(InternalAdaptersApi::class)
+                observer.onDataProvidedInternal(adapter, data)
             }
         }
-    }
-
-    @OptIn(InternalAdaptersApi::class)
-    private fun notifyObservers(data: Any) {
-        dataObservers.forEach { it.onDataProvidedInternal(adapter, data) }
-    }
-
-    private fun stopObserving() {
-        liveData?.removeObservers(viewLifecycleOwner)
-        liveData = null
     }
 }
 

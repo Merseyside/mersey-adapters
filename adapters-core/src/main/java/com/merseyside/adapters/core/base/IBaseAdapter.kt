@@ -29,7 +29,9 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     override var workManager: AdapterWorkManager
     val adapterConfig: AdapterConfig<Parent, Model>
-    val models: List<Model>
+    var models: List<Model>
+
+    val isAttached: Boolean
 
     @InternalAdaptersApi
     val listManager: IModelListManager<Parent, Model>
@@ -67,6 +69,10 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         notifyPositionsChanged(toPosition, fromPosition)
     }
 
+    override suspend fun onModelListUpdated(newModelList: List<Model>) {
+        models = newModelList
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     override suspend fun onCleared() {
         adapter.notifyDataSetChanged()
@@ -86,7 +92,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     @InternalAdaptersApi
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
-        return if (isEmpty()) {
+        return if (isEmpty() && updateRequest.addNew) {
             add(updateRequest.items)
             true
         } else {
@@ -143,7 +149,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     fun getModelByPosition(position: Int): Model {
-        return listManager.getModelByPosition(position)
+        return models[position]
     }
 
     fun getModelByItem(item: Parent): Model? {

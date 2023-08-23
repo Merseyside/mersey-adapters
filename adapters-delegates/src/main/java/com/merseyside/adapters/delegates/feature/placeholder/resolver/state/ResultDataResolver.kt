@@ -41,5 +41,5 @@ open class ResultDataResolver<Parent, ParentModel : VM<Parent>>(
 
     override val tag: String = "ResultDataResolver"
 
-    override suspend fun onModelListChanged(oldSize: Int, newSize: Int) {}
+    override suspend fun onModelListChanged(oldSize: Int, newSize: Int, hasChanges: Boolean) {}
 }
