@@ -10,8 +10,6 @@ import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.merseyLib.kotlin.contract.Identifiable
-import com.merseyside.merseyLib.kotlin.logger.Logger
 
 interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAdapterWorkManager
         where Model : VM<Parent> {
@@ -112,8 +110,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     override suspend fun updateModel(model: Model, item: Parent): Boolean {
-        val payloads = model.payload(item)
-        modelList.onModelUpdated(model, payloads)
+        modelList.updateModel(model, item)
         return true
     }
 

@@ -679,7 +679,7 @@ class SortedList<T> @JvmOverloads constructor(
      * @see .updateItemAt
      * @see .add
      */
-    suspend fun recalculatePositionOfItemAt(index: Int) {
+    suspend fun recalculatePositionOfItemAt(index: Int): Int {
         throwIfInMutationOperation()
         // TODO can be improved
         val item = get(index)
@@ -688,6 +688,8 @@ class SortedList<T> @JvmOverloads constructor(
         if (index != newIndex) {
             mCallback.onMoved(index, newIndex)
         }
+
+        return newIndex
     }
 
     /**

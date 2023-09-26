@@ -160,9 +160,9 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
 
     abstract suspend fun removeAll(models: List<Model>)
 
-    abstract suspend fun onModelUpdated(
+    abstract suspend fun updateModel(
         model: Model,
-        payloads: List<AdapterParentViewModel.Payloadable>
+        newItem: Parent
     )
 
     protected abstract suspend fun clearAll()

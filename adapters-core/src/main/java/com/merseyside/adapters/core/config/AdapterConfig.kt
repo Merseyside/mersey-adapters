@@ -48,7 +48,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
         apply(config)
         if (errorHandler == null) errorHandler = { e -> throw e }
         workManager = AdapterWorkManager(
-            CoroutineQueue<Any, Unit>(coroutineScope).apply { fallOnException = true },
+            CoroutineQueue(coroutineScope),
             coroutineContext,
             errorHandler!!
         )

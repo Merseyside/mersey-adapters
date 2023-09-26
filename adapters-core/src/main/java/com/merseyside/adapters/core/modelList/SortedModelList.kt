@@ -2,7 +2,6 @@ package com.merseyside.adapters.core.modelList
 
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
-import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
 import com.merseyside.adapters.core.feature.sorting.sortedList.find
 import com.merseyside.adapters.core.feature.sorting.sortedList.removeAll
@@ -106,15 +105,16 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         return sortedList.indexOf(element)
     }
 
-    override suspend fun onModelUpdated(
+    override suspend fun updateModel(
         model: Model,
-        payloads: List<AdapterParentViewModel.Payloadable>
+        newItem: Parent
     ) {
-        val position = getPositionOfModel(model)
-        if (position != -1) {
-            sortedList.recalculatePositionOfItemAt(position)
-            onChanged(model, getPositionOfModel(model), payloads)
-        }
+        val oldPosition = getPositionOfModel(model)
+        if (oldPosition != -1) {
+            val payloads = model.payload(newItem)
+            val newPosition = sortedList.recalculatePositionOfItemAt(oldPosition)
+            if (oldPosition != newPosition) onChanged(model, newPosition, payloads)
+        } else throw NullPointerException("Item not found!")
     }
 
     override suspend fun clearAll() {
