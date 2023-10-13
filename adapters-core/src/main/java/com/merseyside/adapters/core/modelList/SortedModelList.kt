@@ -86,7 +86,6 @@ class SortedModelList<Parent, Model : VM<Parent>>(
 
     override suspend fun removeAll(models: List<Model>) {
         sortedList.removeAll(models)
-        //batchedUpdate { sortedList.removeAll(models) }
     }
 
     override suspend fun addAll(position: Int, models: List<Model>) {
@@ -123,6 +122,14 @@ class SortedModelList<Parent, Model : VM<Parent>>(
             sortedList.clear()
         }
         onCleared(sizeBeforeCleared)
+    }
+
+    suspend fun recalculateItemPositions() {
+        batchedUpdate {
+            val models = getModels()
+            clearAll()
+            addAll(models)
+        }
     }
 
     override fun listIterator(): ListIterator<Model> {

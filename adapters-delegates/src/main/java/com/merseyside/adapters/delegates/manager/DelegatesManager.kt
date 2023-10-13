@@ -9,7 +9,6 @@ import com.merseyside.adapters.delegates.set.DelegateAdapterSet
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
-import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.utils.ext.*
 
 open class DelegatesManager<Delegate, Parent, ParentModel>(

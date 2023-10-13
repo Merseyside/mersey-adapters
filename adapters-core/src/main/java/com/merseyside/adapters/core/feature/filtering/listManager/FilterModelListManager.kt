@@ -39,11 +39,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
                 filteredListProvider = { filteredList }
             )
 
-            setFilterCallback(object : AdapterFilter.FilterCallback<Model> {
-                override suspend fun onFiltered(models: List<Model>) {
-                    filterUpdate { update(models, filteredList) }
-                }
-            })
+            setFilterCallback { models -> filterUpdate { update(models, filteredList) } }
         }
     }
 
@@ -69,7 +65,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
         return true
     }
 
-    override fun getModelByItem(item: Parent): Model? {
+    override fun findModelByItem(item: Parent): Model? {
         return allModelList.find { model ->
             model.areItemsTheSameInternal(item)
         }

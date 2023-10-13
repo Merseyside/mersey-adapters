@@ -27,12 +27,8 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         return adapterActions.provideModelByItem(item)
     }
 
-    fun getModelByItem(item: Parent): Model? {
-        return modelList.getModelByItem(item)
-    }
-
     @CallSuper
-    suspend fun createModel(item: Parent): Model? {
+    suspend fun createModel(item: Parent): Model {
         return provideModel(item)
     }
 
@@ -45,7 +41,9 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     suspend fun add(item: Parent): Model? {
-        return checkModelNotNull(createModel(item)) { model -> addModel(model) }
+        return createModel(item).also { model ->
+            addModel(model)
+        }
     }
 
     override suspend fun add(items: List<Parent>): List<Model> {
@@ -56,7 +54,9 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
 
     suspend fun add(position: Int, item: Parent): Model? {
         requireValidPosition(position)
-        return checkModelNotNull(createModel(item)) { model -> addModel(position, model) }
+        return createModel(item).also { model ->
+            addModel(position, model)
+        }
     }
 
     override suspend fun add(position: Int, items: List<Parent>): List<Model> {
@@ -67,7 +67,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     suspend fun remove(item: Parent): Model? {
-        val model = getModelByItem(item)
+        val model = findModelByItem(item)
         return model?.also { removeModel(model) }
     }
 
@@ -126,6 +126,10 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         (modelList as SimpleModelList).move(fromPosition, toPosition)
     }
 
+    override fun findModelByItem(item: Parent): Model? {
+        return modelList.findModelByItem(item)
+    }
+
     fun getModelByPosition(position: Int): Model {
         return modelList[position]
     }
@@ -139,10 +143,5 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         if (models.size < position) throw IllegalArgumentException(
             "Models size is ${models.size} but position is $position."
         )
-    }
-
-    suspend fun checkModelNotNull(model: Model?, block: suspend (Model) -> Unit): Model? {
-        if (model != null) block(model)
-        return model
     }
 }

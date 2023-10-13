@@ -60,9 +60,9 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
         workManager.postMainWork(work)
     }
 
-    fun getModelByItem(item: Parent): Model? {
+    fun findModelByItem(item: Parent): Model? {
         return try {
-            getModelByIdentifiable(item)
+            findModelByIdentifiable(item)
         } catch (e: RuntimeException) {
             getModels().find { model ->
                 model.areItemsTheSameInternal(item)
@@ -71,7 +71,7 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
     }
 
     @Throws(RuntimeException::class)
-    private fun getModelByIdentifiable(item: Parent): Model? {
+    private fun findModelByIdentifiable(item: Parent): Model? {
         return if (item !is Identifiable<*>) throw RuntimeException("Item is not identifiable!")
         else hashMap[item.id]
     }
@@ -94,10 +94,15 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
 
     @MainThread
     protected suspend fun onInserted(models: List<Model>, position: Int, count: Int = models.size) {
-        models.forEach { model -> hashMap[model.id] = model }
+        models.forEach { model ->
+            if (!hashMap.containsKey(model.id)) {
+                hashMap[model.id] = model
+            } else throw IllegalArgumentException("Model with id ${model.id} already added." +
+                    " All model's ids must be unique")
+        }
 
-        if (!isBatched) onModelListChanged(size - count, size)
         postMainWork { callbacks.forEach { it.onInserted(models, position) } }
+        if (!isBatched) onModelListChanged(size - count, size)
     }
 
     @MainThread
@@ -106,10 +111,11 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
         position: Int,
         count: Int = models.size
     ) {
-        models.map { it.id }.forEach { id -> hashMap.remove(id) }
+        models.forEach { model -> hashMap.remove(model.id) }
 
+        postMainWork {
+            callbacks.forEach { it.onRemoved(models, position, count) } }
         if (!isBatched) onModelListChanged(size + count, size)
-        postMainWork { callbacks.forEach { it.onRemoved(models, position, count) } }
     }
 
     @MainThread
@@ -128,8 +134,9 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
 
     @MainThread
     protected suspend fun onCleared(sizeBeforeCleared: Int) {
-        if (!isBatched) onModelListChanged(sizeBeforeCleared, size)
+        hashMap.clear()
         postMainWork { callbacks.forEach { it.onCleared() } }
+        if (!isBatched) onModelListChanged(sizeBeforeCleared, size)
     }
 
     private suspend fun onModelListChanged(oldSize: Int, newSize: Int) {
@@ -165,7 +172,7 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
         newItem: Parent
     )
 
-    protected abstract suspend fun clearAll()
+    abstract suspend fun clearAll()
 
     suspend fun clear() {
         val models = getModels()

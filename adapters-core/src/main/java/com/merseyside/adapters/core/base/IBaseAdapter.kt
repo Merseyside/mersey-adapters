@@ -20,6 +20,7 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
+import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -153,7 +154,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     fun getModelByItem(item: Parent): Model? {
-        return listManager.getModelByItem(item)
+        return listManager.findModelByItem(item)
     }
 
     fun getPositionOfItem(item: Parent): Int {

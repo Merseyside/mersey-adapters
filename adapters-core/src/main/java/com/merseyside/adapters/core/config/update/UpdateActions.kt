@@ -21,4 +21,6 @@ interface UpdateActions<Parent, Model : VM<Parent>> {
     suspend fun updateModel(model: Model, item: Parent): Boolean
 
     suspend fun move(oldModel: Model, fromPosition: Int, toPosition: Int)
+
+    fun findModelByItem(item: Parent): Model?
 }

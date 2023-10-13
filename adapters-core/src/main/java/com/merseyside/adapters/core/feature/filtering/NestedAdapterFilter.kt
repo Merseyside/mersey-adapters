@@ -4,8 +4,8 @@ import com.merseyside.adapters.core.feature.filtering.listManager.Filters
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
 
-abstract class NestedAdapterFilter<Parent, Model : NestedAdapterParentViewModel<out Parent, Parent, *>> :
-    AdapterFilter<Parent, Model>() {
+abstract class NestedAdapterFilter<Parent, Model> : AdapterFilter<Parent, Model>()
+    where Model : NestedAdapterParentViewModel<out Parent, Parent, *> {
 
     internal lateinit var getAdapterFilterByModel: suspend (Model) -> AdapterFilter<*, *>?
 
@@ -29,21 +29,18 @@ abstract class NestedAdapterFilter<Parent, Model : NestedAdapterParentViewModel<
 
     final override suspend fun filter(model: Model, filters: Filters): Boolean {
         val isFiltered = super.filter(model, filters)
-        val adapterFilter = getAdapterFilterByModel(model)
 
-        if (adapterFilter != null) {
-            adapterFilter.applyFilters()
-            val innerItemsCount = adapterFilter.itemsCount
-
-            if (isFiltered) return filter(model, innerItemsCount.isNotZero())
+        return if (!isFiltered) return false
+        else {
+            val adapterFilter = getAdapterFilterByModel(model) ?: return false
+            workManager.subTaskForResult(adapterFilter) {
+                applyFilters()
+                filter(model, itemsCount.isNotZero())
+            }
         }
-
-        return isFiltered
     }
 
-    open fun filter(model: Model, hasItems: Boolean): Boolean {
-        return hasItems
-    }
+    open fun filter(model: Model, hasItems: Boolean): Boolean = hasItems
 
     internal suspend fun initAdapterFilter(adapterFilter: AdapterFilter<*, *>) {
         filters.forEach { (key, value) ->

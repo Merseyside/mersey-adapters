@@ -64,7 +64,7 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
         notAppliedFilters.clear()
     }
 
-    suspend fun applyFilters(): Boolean = withContext(Dispatchers.Main) {
+    suspend fun applyFilters(): Boolean {
 
         isFiltered = if (isFiltered && areFiltersEmpty()) {
             postResult(getAllModels())
@@ -72,7 +72,7 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
             false
         } else if (notAppliedFilters.isEmpty()) {
             Logger.logErr("AdapterFilter", "No new filters added. Filtering skipped!")
-            return@withContext false
+            return false
         } else {
             val filteredModels = filterModels()
             putAppliedFilters()
@@ -80,7 +80,7 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
             true
         }
 
-        true
+        return true
     }
 
     fun getAllModels(): List<Model> {
@@ -89,7 +89,7 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
 
     private suspend fun filterModels(): List<Model> {
         val canFilterCurrentItems = filters.isNotEmpty() &&
-                !notAppliedFilters.keys.any { filters.containsKey(it) }
+                !notAppliedFilters.keys.any { key -> filters.containsKey(key) }
 
         return if (canFilterCurrentItems) {
             filter(provideFilteredList(), notAppliedFilters)
@@ -151,7 +151,7 @@ abstract class AdapterFilter<Parent, Model : VM<Parent>> : HasAdapterWorkManager
         return filters.containsKey(key)
     }
 
-    interface FilterCallback<Model> {
+    fun interface FilterCallback<Model> {
         suspend fun onFiltered(models: List<Model>)
     }
 

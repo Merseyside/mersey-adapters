@@ -29,11 +29,24 @@ class AdapterWorkManager(
     private val hasQueueWork: Boolean
         get() = coroutineQueue.hasQueueWork
 
-    fun <Result, T: HasAdapterWorkManager> subTaskWith(adapter: T, block: suspend T.() -> Result) {
+    suspend fun <Instance : HasAdapterWorkManager, Result> subTaskForResult(
+        adapter: Instance,
+        action: suspend Instance.() -> Result
+    ): Result {
         val subWorkManager = adapter.workManager
         subWorkManager.parentWorkManager = this
         subManagers.add(subWorkManager)
-        subWorkManager.add { block(adapter) }
+        return action(adapter)
+    }
+
+    fun <Instance : HasAdapterWorkManager> pendingSubTaskWith(
+        adapter: Instance,
+        action: suspend Instance.() -> Unit
+    ) {
+        val subWorkManager = adapter.workManager
+        subWorkManager.parentWorkManager = this
+        subManagers.add(subWorkManager)
+        subWorkManager.add { action(adapter) }
     }
 
     fun addOnMainWorkStartedListener(listener: OnMainWorkStartedListener) {
@@ -55,6 +68,29 @@ class AdapterWorkManager(
 
     private fun executeAsync(): Job? {
         return coroutineQueue.executeAsync(coroutineContext)
+    }
+
+    private fun <Result> add(
+        onComplete: (Result) -> Unit = {},
+        onError: ((e: Exception) -> Unit)? = null,
+        work: suspend () -> Result
+    ) {
+        coroutineQueue.add {
+            try {
+                val result = work()
+                runSubManagersAsyncWork()
+
+                if (parentWorkManager == null) {
+                    runForUI {
+                        runMainWork()
+                        onComplete(result)
+                    }
+                }
+            } catch (e: Exception) {
+                Logger.logErr("AdapterWorkManager", e)
+                onError?.invoke(e) ?: errorHandler(e)
+            }
+        }
     }
 
     private suspend fun runSubManagersAsyncWork() {
@@ -88,29 +124,6 @@ class AdapterWorkManager(
             }
 
             subManagers.clear()
-        }
-    }
-
-    private fun <Result> add(
-        onComplete: (Result) -> Unit = {},
-        onError: ((e: Exception) -> Unit)? = null,
-        work: suspend () -> Result
-    ) {
-        coroutineQueue.add {
-            try {
-                val result = work()
-                runSubManagersAsyncWork()
-
-                if (parentWorkManager == null) {
-                    runForUI {
-                        runMainWork()
-                        onComplete(result)
-                    }
-                }
-            } catch(e: Exception) {
-                Logger.logErr("AdapterWorkManager", e)
-                onError?.invoke(e) ?: errorHandler(e)
-            }
         }
     }
 

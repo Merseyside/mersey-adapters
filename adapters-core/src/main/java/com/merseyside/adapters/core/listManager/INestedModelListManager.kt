@@ -36,20 +36,16 @@ interface INestedModelListManager<Parent, Model, InnerData, InnerAdapter> :
         return super.updateModel(model, item).also {
             val adapter = provideNestedAdapter(model)
             model.getNestedData()?.let { data ->
-                workManager.subTaskWith(adapter) {
-                    update(data)
-                }
+                workManager.pendingSubTaskWith(adapter) { update(data) }
             }
         }
     }
 
-    override suspend fun createModel(item: Parent): Model? {
-        return super.createModel(item)?.also { model ->
+    override suspend fun createModel(item: Parent): Model {
+        return super.createModel(item).also { model ->
             val adapter = provideNestedAdapter(model)
             model.getNestedData()?.let { data ->
-                workManager.subTaskWith(adapter) {
-                    add(data)
-                }
+                workManager.pendingSubTaskWith(adapter) { add(data) }
             }
         }
     }

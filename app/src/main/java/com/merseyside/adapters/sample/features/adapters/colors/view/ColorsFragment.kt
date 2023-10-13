@@ -64,14 +64,8 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
             .build().inject(this)
     }
 
-    private val textChangeListener = { view: View,
-                                       newValue: String?,
-                                       _: String?,
-                                       length: Int,
-                                       _: Int,
-                                       _: Int,
-                                       _: Int ->
-
+    private val textChangeListener = {
+            view: View, newValue: String?, _: String?, length: Int, _: Int, _: Int, _: Int ->
 
         if (newValue != null) {
             val filterName = when (view.id) {

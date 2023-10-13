@@ -16,13 +16,23 @@ import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.init.initAdapter
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import kotlinx.coroutines.CoroutineScope
+import java.lang.ref.WeakReference
 
 
 abstract class AdapterComposer(
-    val context: Context,
-    private val lifecycleOwner: LifecycleOwner,
+    context: Context,
+    lifecycleOwner: LifecycleOwner,
     private val coroutineScope: CoroutineScope
 ) {
+
+    private val contextWeakReference = WeakReference(context)
+    val context: Context
+        get() = contextWeakReference.get() ?: throw NullPointerException("Already destroyed")
+
+    private val lifecycleOwnerWeakReference = WeakReference(lifecycleOwner)
+    val lifecycleOwner: LifecycleOwner
+        get() = lifecycleOwnerWeakReference.get() ?: throw NullPointerException("Already destroyed")
+
 
     private lateinit var rootContext: ComposeContext
     private lateinit var compositeAdapter: SimpleViewCompositeAdapter
@@ -50,7 +60,7 @@ abstract class AdapterComposer(
     @CallSuper
     @OptIn(InternalAdaptersApi::class)
     open fun onAdapterCreated(adapter: SimpleViewCompositeAdapter) {
-        adapter.addOnAttachToRecyclerViewListener(object: OnAttachToRecyclerViewListener {
+        adapter.addOnAttachToRecyclerViewListener(object : OnAttachToRecyclerViewListener {
             override fun onAttached(recyclerView: RecyclerView, adapter: IBaseAdapter<*, *>) {
                 onRecyclerAttached(recyclerView, compositeAdapter)
             }

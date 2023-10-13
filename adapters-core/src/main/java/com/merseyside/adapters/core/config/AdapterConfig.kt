@@ -27,7 +27,7 @@ import kotlin.coroutines.CoroutineContext
 open class AdapterConfig<Parent, Model> internal constructor(
     config: AdapterConfig<Parent, Model>.() -> Unit = {}
 ) where Model : VM<Parent> {
-    protected lateinit var adapter: IBaseAdapter<Parent, Model>
+    internal lateinit var adapter: IBaseAdapter<Parent, Model>
 
     internal val featureList = ArrayList<Feature<Parent, Model>>()
 

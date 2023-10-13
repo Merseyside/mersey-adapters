@@ -13,9 +13,8 @@ import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
 import com.merseyside.adapters.sample.features.adapters.contacts.model.ContactItemViewModel
 
-class ContactAdapter(
-    config: AdapterConfig<String, ContactItemViewModel>
-): SimpleAdapter<String, ContactItemViewModel>(config) {
+class ContactAdapter(config: AdapterConfig<String, ContactItemViewModel>) :
+    SimpleAdapter<String, ContactItemViewModel>(config) {
 
     override fun getLayoutIdForViewType(position: Int) = R.layout.item_contact
     override fun getBindingVariable() = BR.model

@@ -16,14 +16,12 @@ import com.merseyside.adapters.core.feature.sorting.config.getItemComparators
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.SortedModelList
 import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
-import com.merseyside.adapters.core.feature.sorting.sortedList.recalculatePositions
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 
-open class SortFeature<Parent, Model> :
+open class SortFeature<Parent, Model> : ComparatorProvider<Parent, Model>,
     ConfigurableFeature<Parent, Model, SortFeature.Config<Parent, Model>>(),
-    ModelListProvider<Parent, Model>, UpdateLogicProvider<Parent, Model>,
-    ComparatorProvider<Parent, Model>
+    ModelListProvider<Parent, Model>, UpdateLogicProvider<Parent, Model>
         where Model : VM<Parent> {
 
     override val config: Config<Parent, Model> = Config()
@@ -61,7 +59,9 @@ open class SortFeature<Parent, Model> :
     ): Comparator<Parent, Model> {
         config.comparator.apply {
             workManager = adapterConfig.workManager
-            setOnComparatorUpdateCallback { modelList.sortedList.recalculatePositions() }
+            setOnComparatorUpdateCallback {
+                modelList.recalculateItemPositions()
+            }
         }
 
         return if (config.itemComparators.isEmpty()) config.comparator

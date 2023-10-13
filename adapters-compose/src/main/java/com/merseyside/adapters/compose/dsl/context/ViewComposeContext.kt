@@ -14,17 +14,25 @@ import com.merseyside.merseyLib.kotlin.observable.Disposable
 import com.merseyside.merseyLib.kotlin.observable.MutableObservableField
 import com.merseyside.merseyLib.kotlin.observable.ext.compareAndUpdateNullable
 import com.merseyside.merseyLib.kotlin.observable.ext.debounce
-import com.merseyside.merseyLib.kotlin.observable.ext.merge
 import com.merseyside.merseyLib.kotlin.observable.ext.mergeSingleEvent
+import java.lang.ref.WeakReference
 
 abstract class ViewComposeContext<View : SCV>(
     contextId: String,
-    val context: Context,
-    val lifecycleOwner: LifecycleOwner,
+    context: Context,
+    lifecycleOwner: LifecycleOwner,
     private val initContext: ViewComposeContext<View>.() -> Unit
 ) : ILogger, Identifiable<String> {
 
     override val id = contextId
+
+    private val contextWeakReference = WeakReference(context)
+    private val lifecycleOwnerWeakReference = WeakReference(lifecycleOwner)
+
+    val context: Context
+        get() = contextWeakReference.get() ?: throw NullPointerException("Already destroyed")
+    val lifecycleOwner: LifecycleOwner
+        get() = lifecycleOwnerWeakReference.get() ?: throw NullPointerException("Already destroyed")
 
     protected lateinit var relativeAdapter: ViewCompositeAdapter<SCV, VM<SCV>>
         private set

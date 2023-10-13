@@ -34,7 +34,7 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             val updateList = ArrayList<Pair<Model, Parent>>()
 
             updateRequest.items.forEach { newItem ->
-                val model = getModelByItem(newItem, models)
+                val model = updateActions.findModelByItem(newItem)
                 if (model == null) {
                     if (updateRequest.addNew) {
                         addList.add(newItem)
@@ -77,6 +77,7 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
         updateActions.transaction {
             val modelsToRemove = findOutdatedModels(dest.map { it.item }, source)
             updateActions.removeModels(modelsToRemove)
+
 
             val addModels = dest.subtractBy(source) { sourceModel, destItem ->
                 sourceModel.areItemsTheSameInternal(destItem.item)

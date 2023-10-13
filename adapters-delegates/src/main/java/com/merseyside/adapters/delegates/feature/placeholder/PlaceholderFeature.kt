@@ -181,7 +181,6 @@ object Placeholder {
                 Config(config).let {
                     dataResolver = AlwaysVisibleDataResolver(it.showOnAttach)
                     provider = it.provider
-
                 }
 
                 itemComparator =

@@ -4,11 +4,8 @@ import com.merseyside.adapters.core.config.update.UpdateActions
 import com.merseyside.adapters.core.config.update.UpdateLogic
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.model.ext.toItems
-import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.merseyLib.kotlin.extensions.findPosition
-import com.merseyside.merseyLib.kotlin.logger.log
-import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
 
 class SimpleUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>
@@ -57,9 +54,10 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         isUpdated = removeOutdatedModels(items, models)
 
         items.forEachIndexed { newPosition, item ->
-            val oldModel = findModelByItem(item, models)
+            val oldModel = findModelByItem(item)
             if (oldModel == null) {
-                add(newPosition, listOf(item))
+                if (newPosition == models.size) add(listOf(item))
+                else add(newPosition, listOf(item))
             } else {
                 val oldPosition = getPositionOfItem(item, models)
                 move(oldModel, oldPosition, newPosition)
@@ -79,7 +77,7 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         var isUpdated = false
 
         items.forEach { item ->
-            val oldModel = findModelByItem(item, models)
+            val oldModel = findModelByItem(item)
             if (oldModel != null) {
                 isUpdated = updateModel(oldModel, item) || isUpdated
             }
@@ -94,9 +92,5 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
     ): Boolean {
         val modelsToRemove = findOutdatedModels(items, models)
         return removeModels(modelsToRemove)
-    }
-
-    private fun findModelByItem(item: Parent, models: List<Model>): Model? {
-        return models.find { it.areItemsTheSameInternal(item) }
     }
 }

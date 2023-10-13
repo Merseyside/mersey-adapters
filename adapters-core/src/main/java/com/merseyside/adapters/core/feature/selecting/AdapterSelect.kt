@@ -125,7 +125,7 @@ class AdapterSelect<Parent, Model>(
     }
 
     fun selectItem(item: Parent): Boolean {
-        val selectable = modelList.getModelByItem(item).requireSelectable()
+        val selectable = modelList.findModelByItem(item).requireSelectable()
         return changeItemSelectedState(selectable)
     }
 
