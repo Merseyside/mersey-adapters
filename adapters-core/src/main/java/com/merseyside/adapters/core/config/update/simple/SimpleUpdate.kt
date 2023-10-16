@@ -49,18 +49,23 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         items: List<Parent>,
         models: List<Model>
     ): Boolean {
-        var isUpdated = false
+        var isUpdated: Boolean
 
         isUpdated = removeOutdatedModels(items, models)
+        var shiftPosition = 0
 
-        items.forEachIndexed { newPosition, item ->
+        items.forEachIndexed { itemPosition, item ->
+            val modelInList = models.getOrNull(itemPosition)
+            if (modelInList?.implicitPosition == itemPosition) shiftPosition++
+            val positionWithShift = itemPosition + shiftPosition
+
             val oldModel = findModelByItem(item)
             if (oldModel == null) {
-                if (newPosition == models.size) add(listOf(item))
-                else add(newPosition, listOf(item))
+                if (positionWithShift == models.size) add(listOf(item))
+                else add(positionWithShift, listOf(item))
             } else {
                 val oldPosition = getPositionOfItem(item, models)
-                move(oldModel, oldPosition, newPosition)
+                move(oldModel, oldPosition, positionWithShift)
                 if (!oldModel.areContentsTheSame(item)) {
                     isUpdated = updateModel(oldModel, item) || isUpdated
                 }

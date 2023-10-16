@@ -81,6 +81,7 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     override suspend fun add(position: Int, model: Model) {
         val list = listOf(model)
         mutModels.add(position, model)
+        mutModels.log("kek", "updated list")
         onInserted(list, position)
     }
 

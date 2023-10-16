@@ -70,13 +70,14 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         notifyPositionsChanged(toPosition, fromPosition)
     }
 
-    override suspend fun onModelListUpdated(newModelList: List<Model>) {
-        models = newModelList
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     override suspend fun onCleared() {
         adapter.notifyDataSetChanged()
+    }
+
+    override suspend fun onModelListUpdated(newModelList: List<Model>) {
+        newModelList.log()
+        models = newModelList
     }
 
     suspend fun add(item: Parent): Model? {

@@ -38,7 +38,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
 
     @OptIn(InternalAdaptersApi::class)
     protected fun getAttachedRecyclerView(): RecyclerView? {
-        return requireRelativeDelegatesManager()?.getRelativeAdapter()?.recyclerView
+        return requireRelativeDelegatesManager().getRelativeAdapter().recyclerView
     }
 
     @InternalAdaptersApi

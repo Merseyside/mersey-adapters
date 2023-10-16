@@ -14,7 +14,7 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     item: Item,
     clickable: Boolean = true,
     deletable: Boolean = true,
-    filterable: Boolean = true
+    filterable: Boolean = true,
 ) : BaseObservable(), PositionHandler {
 
     var item: Item = item
@@ -26,6 +26,8 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
                     " Please, override this method and provide id manually!"
         )
     }
+
+    internal var implicitPosition: Int? = null
 
     override var position: Int = NO_ITEM_POSITION
 

@@ -166,6 +166,7 @@ object Placeholder {
         class Config<Item : Parent, Parent>(config: Config<Item, Parent>.() -> Unit) {
 
             var provider: PlaceholderProvider<out Item, Parent>? = null
+            var position: Int = PlaceholderDataResolver.LAST_POSITION
             var showOnAttach: Boolean = false
 
             init {
@@ -178,9 +179,9 @@ object Placeholder {
             config: Config<Item, Parent>.() -> Unit
         ): PlaceholderFeature<Parent, Model> {
             return Placeholder {
-                Config(config).let {
-                    dataResolver = AlwaysVisibleDataResolver(it.showOnAttach)
-                    provider = it.provider
+                Config(config).let { conf ->
+                    dataResolver = AlwaysVisibleDataResolver(conf.position, conf.showOnAttach)
+                    provider = conf.provider
                 }
 
                 itemComparator =

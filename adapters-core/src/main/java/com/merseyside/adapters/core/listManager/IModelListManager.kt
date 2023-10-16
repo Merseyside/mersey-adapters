@@ -10,6 +10,7 @@ import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
+import com.merseyside.merseyLib.kotlin.logger.log
 
 interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAdapterWorkManager
         where Model : VM<Parent> {
@@ -95,6 +96,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     override suspend fun addModel(position: Int, model: Model): Boolean {
+        model.implicitPosition = position
         modelList.add(position, model)
         return true
     }

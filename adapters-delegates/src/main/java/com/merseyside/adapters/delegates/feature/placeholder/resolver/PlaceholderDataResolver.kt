@@ -11,7 +11,6 @@ import com.merseyside.adapters.delegates.DA
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
 import com.merseyside.merseyLib.kotlin.logger.ILogger
-import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import kotlinx.coroutines.job
 import kotlin.coroutines.coroutineContext
@@ -30,6 +29,7 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         this.provider = provider
     }
 
+    @Suppress("UNCHECKED_CAST")
     open fun initAdapter(adapter: CompositeAdapter<Parent, ParentModel>) {
         this.adapter = adapter
         modelList = adapter.adapterConfig.modelList
@@ -51,9 +51,9 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
     protected suspend fun addPlaceholder(position: Int = LAST_POSITION) {
         if (!isPlaceholderAdded) {
             turnMutableState {
-                isPlaceholderAdded = true
                 if (position == LAST_POSITION) adapter.add(provider.placeholder)
                 else adapter.add(position, provider.placeholder)
+                isPlaceholderAdded = true
             }
         }
     }
@@ -71,7 +71,6 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         }
     }
 
-
     private val onAttachListener = object : OnAttachToRecyclerViewListener {
         override fun onAttached(
             recyclerView: RecyclerView,
@@ -85,9 +84,9 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         }
     }
 
-    private suspend fun turnMutableState(block: suspend () -> Unit) {
+    private suspend fun turnMutableState(mutate: suspend () -> Unit) {
         disableModelListCallback()
-        block()
+        mutate()
         coroutineContext.job.invokeOnCompletion { enableModelListCallback() }
     }
 
