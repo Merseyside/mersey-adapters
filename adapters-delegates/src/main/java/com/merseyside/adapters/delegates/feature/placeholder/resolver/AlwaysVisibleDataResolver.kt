@@ -16,10 +16,6 @@ class AlwaysVisibleDataResolver<Parent, ParentModel : VM<Parent>>(
     }
 
     override suspend fun onModelListChanged(oldSize: Int, newSize: Int, hasChanges: Boolean) {
-        log("kek old size", oldSize)
-        log("kek new size", newSize)
-        log("kek", position)
-
-        if (!isPlaceholderAdded) addPlaceholder(position.log("kek1"))
+        if (!isPlaceholderAdded) addPlaceholder(position)
     }
 }

@@ -10,10 +10,11 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
+import com.merseyside.adapters.compose.delegate.ViewDelegate
+import com.merseyside.adapters.core.base.BaseAdapter
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
-import com.merseyside.adapters.core.base.callback.OnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.utils.layoutManager.LinearLayoutManager
@@ -46,14 +47,13 @@ open class ComposingList(
 
 open class ListConfig : HasOnItemClickListener<SCV> {
 
+    var adapterConfig: AdapterConfig<SCV, VM<SCV>>.() -> Unit = {}
     internal var attachToRecyclerViewListeners: MutableList<OnAttachToRecyclerViewListener> = mutableListOf()
     override val clickListeners: MutableList<OnItemClickListener<SCV>> = ArrayList()
 
     fun addOnAttachToRecyclerViewListener(listener: OnAttachToRecyclerViewListener) {
         attachToRecyclerViewListeners.add(listener)
     }
-
-    var adapterConfig: AdapterConfig<SCV, VM<SCV>>.() -> Unit = {}
 
     var decorator: RecyclerView.ItemDecoration? = null
 

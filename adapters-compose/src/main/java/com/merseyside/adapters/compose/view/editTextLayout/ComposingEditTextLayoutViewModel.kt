@@ -8,7 +8,7 @@ open class ComposingEditTextLayoutViewModel<Item : ComposingEditTextLayout<*>>(
     item: Item
 ) : ViewVM<Item>(item) {
 
-    override fun notifyUpdate() {
+    override suspend fun onUpdate() {
         notifyPropertyChanged(BR.text)
         notifyPropertyChanged(BR.clearFocus)
     }

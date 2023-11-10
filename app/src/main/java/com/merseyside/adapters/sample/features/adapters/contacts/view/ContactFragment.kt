@@ -24,7 +24,6 @@ import com.merseyside.adapters.sample.features.adapters.contacts.adapter.Contact
 import com.merseyside.adapters.sample.features.adapters.contacts.di.ContactsModule
 import com.merseyside.adapters.sample.features.adapters.contacts.di.DaggerContactsComponent
 import com.merseyside.adapters.sample.features.adapters.contacts.model.ContactViewModel
-import com.merseyside.merseyLib.kotlin.coroutines.utils.defaultDispatcher
 import com.merseyside.utils.ext.addTextChangeListener
 
 class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewModel>() {
@@ -33,7 +32,6 @@ class ContactFragment : BaseSampleFragment<FragmentContactsBinding, ContactViewM
 
     private val adapter = ContactNestedAdapter {
         coroutineScope = lifecycleScope
-        coroutineContext = defaultDispatcher
 
         Sorting {
             comparator = ContactsComparator

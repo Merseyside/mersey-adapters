@@ -61,6 +61,7 @@ class ComposingCardDelegate : ComposingViewGroupDelegate<ComposingCard, Composin
         model: ComposingCardViewModel<ComposingCard>,
         delegateManager: ViewDelegatesManager<SCV, ViewAdapterViewModel>
     ): ViewCompositeAdapter<SCV, ViewAdapterViewModel> {
+
         return ViewCompositeAdapter(delegateManager) {
             apply(model.item.listConfig.adapterConfig)
 

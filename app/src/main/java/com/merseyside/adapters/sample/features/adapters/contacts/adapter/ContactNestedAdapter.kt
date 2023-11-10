@@ -3,7 +3,7 @@ package com.merseyside.adapters.sample.features.adapters.contacts.adapter
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.NestedAdapter
 import com.merseyside.adapters.core.async.removeAsync
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.config.NestedAdapterConfig
 import com.merseyside.adapters.core.config.init.initNestedAdapter
 import com.merseyside.adapters.core.holder.ViewHolder

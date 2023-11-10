@@ -6,7 +6,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.updateAsync
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R

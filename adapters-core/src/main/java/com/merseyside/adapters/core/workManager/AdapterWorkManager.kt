@@ -10,6 +10,7 @@ import com.merseyside.merseyLib.kotlin.coroutines.utils.CompositeJob
 import com.merseyside.merseyLib.kotlin.logger.Logger
 import com.merseyside.merseyLib.kotlin.utils.ifTrue
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
 import java.util.Collections
 import java.util.LinkedList
 import kotlin.coroutines.CoroutineContext
@@ -55,6 +56,11 @@ class AdapterWorkManager(
 
     internal fun postMainWork(action: suspend () -> Unit) {
         mainWorkList.add(action)
+    }
+
+    fun <Result> doBlocking(work: suspend () -> Result) {
+        add(work = work)
+        return runBlocking { coroutineQueue.execute() }
     }
 
     fun <Result> doAsync(

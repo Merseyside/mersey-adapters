@@ -32,7 +32,8 @@ abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerM
     @OptIn(InternalAdaptersApi::class)
     override fun createNestedAdapter(model: Model): InnerAdapter {
         val innerDelegateManager = requireRelativeDelegatesManager() as ViewDelegatesManager<InnerParent, InnerModel>
-        return createCompositeAdapter(model, innerDelegateManager)
+        val childManager = innerDelegateManager.getChildDelegatesManager()
+        return createCompositeAdapter(model, childManager)
     }
 
     @InternalAdaptersApi

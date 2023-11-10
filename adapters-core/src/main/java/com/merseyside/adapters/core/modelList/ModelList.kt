@@ -5,6 +5,8 @@ import androidx.collection.ArraySet
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.model.update.ModelUpdater
+import com.merseyside.adapters.core.model.update.UpdatableModel
 import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.modelList.callback.OnModelListChangedCallback
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
@@ -22,9 +24,12 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
     private val callbacks = ArraySet<ModelListCallback<Model>>()
     private val modelListChangedCallbacks = ArraySet<OnModelListChangedCallback>()
 
+    private val onModelUpdateCallback =
+        ModelUpdater.ModelUpdaterCallback<Model> { model, payloads -> onUpdated(model, payloads) }
+
     private var isBatched = false
 
-    internal val hasNotAppliedChanges: Boolean
+    private val hasNotAppliedChanges: Boolean
         get() = workManager.mainWorkList.isNotEmpty()
 
     private val hashMap: MutableMap<Any, Model> = mutableMapOf()
@@ -92,13 +97,20 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
         modelListChangedCallbacks.remove(callback)
     }
 
+    @Suppress("UNCHECKED_CAST")
     @MainThread
     protected suspend fun onInserted(models: List<Model>, position: Int, count: Int = models.size) {
         models.forEach { model ->
             if (!hashMap.containsKey(model.id)) {
                 hashMap[model.id] = model
-            } else throw IllegalArgumentException("Model with id ${model.id} already added." +
-                    " All model's ids must be unique")
+                if (model is UpdatableModel<*>) {
+                    val updater = model.modelUpdater as ModelUpdater<Model>
+                    updater.addCallback(onModelUpdateCallback)
+                }
+            } else throw IllegalArgumentException(
+                "Model with id ${model.id} already added." +
+                        " All model's ids must be unique"
+            )
         }
 
         postMainWork { callbacks.forEach { it.onInserted(models, position) } }
@@ -114,7 +126,8 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
         models.forEach { model -> hashMap.remove(model.id) }
 
         postMainWork {
-            callbacks.forEach { it.onRemoved(models, position, count) } }
+            callbacks.forEach { it.onRemoved(models, position, count) }
+        }
         if (!isBatched) onModelListChanged(size + count, size)
     }
 
@@ -135,6 +148,7 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
     @MainThread
     protected suspend fun onCleared(sizeBeforeCleared: Int) {
         hashMap.clear()
+
         postMainWork { callbacks.forEach { it.onCleared() } }
         if (!isBatched) onModelListChanged(sizeBeforeCleared, size)
     }
@@ -144,6 +158,8 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
             callback.onModelListChanged(oldSize, newSize, hasNotAppliedChanges)
         }
     }
+
+    abstract suspend fun onUpdated(model: Model, payloads: List<AdapterParentViewModel.Payloadable>)
 
     abstract fun getModels(): List<Model>
 

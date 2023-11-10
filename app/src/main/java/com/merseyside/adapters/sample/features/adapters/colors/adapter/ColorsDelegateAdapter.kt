@@ -12,7 +12,7 @@ import com.merseyside.utils.view.ext.onClick
 class ColorsDelegateAdapter : SimpleDelegateAdapter<HexColor, ColorItemViewModel>() {
 
     init {
-        setupViewHolder(createView = { context ->
+        setupViewHolder(createView = { context, _ ->
             TextView(context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -25,7 +25,7 @@ class ColorsDelegateAdapter : SimpleDelegateAdapter<HexColor, ColorItemViewModel
             with(view) {
                 setBackgroundColor(model.getColor())
                 text = model.getColorHex()
-                onClick { model.onClick() }
+                onClick { model.click() }
             }
         })
     }

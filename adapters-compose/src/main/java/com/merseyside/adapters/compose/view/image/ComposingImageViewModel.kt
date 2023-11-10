@@ -12,8 +12,8 @@ class ComposingImageViewModel<Item : ComposingImage<*>>(item: Item) : ViewVM<Ite
         return item.drawable
     }
 
-    override fun notifyUpdate() {
-        super.notifyUpdate()
+    override suspend fun onUpdate() {
+        super.onUpdate()
         notifyPropertyChanged(BR.drawable)
     }
 }

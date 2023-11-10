@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView.ScaleType
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 

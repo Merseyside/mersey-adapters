@@ -4,9 +4,8 @@ package com.merseyside.adapters.core.base
 
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
-import com.merseyside.adapters.core.base.callback.OnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.ext.hasFeature
 import com.merseyside.adapters.core.holder.ViewHolder
@@ -19,8 +18,7 @@ import com.merseyside.merseyLib.kotlin.utils.safeLet
 
 abstract class BaseAdapter<Parent, Model>(
     override val adapterConfig: AdapterConfig<Parent, Model>,
-) : RecyclerView.Adapter<ViewHolder<Parent, Model>>(),
-    HasOnItemClickListener<Parent>, IBaseAdapter<Parent, Model>, ILogger
+) : RecyclerView.Adapter<ViewHolder<Parent, Model>>(), IBaseAdapter<Parent, Model>, ILogger
         where Model : VM<Parent> {
 
     override var models: List<Model> = emptyList()
@@ -28,7 +26,7 @@ abstract class BaseAdapter<Parent, Model>(
     override lateinit var workManager: AdapterWorkManager
 
     @InternalAdaptersApi
-    override val adapter: RecyclerView.Adapter<ViewHolder<Parent, Model>>
+    override val adapter: BaseAdapter<Parent, *>
         get() = this
 
     protected var isRecyclable: Boolean = true
@@ -58,9 +56,7 @@ abstract class BaseAdapter<Parent, Model>(
     abstract fun createModel(item: Parent): Model
 
     @InternalAdaptersApi
-    override val callbackClick: (Parent) -> Unit = { item ->
-        clickListeners.forEach { listener -> listener.onItemClicked(item) }
-    }
+    override val callbackClick: (Parent) -> Unit = { item -> notifyOnClick(item) }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         this.recyclerView = recyclerView
@@ -101,6 +97,11 @@ abstract class BaseAdapter<Parent, Model>(
         position: Int
     )
 
+    open fun onPayloadable(
+        holder: ViewHolder<Parent, Model>,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    ) {}
+
     open fun removeListeners() {
         removeAllClickListeners()
     }
@@ -115,5 +116,6 @@ abstract class BaseAdapter<Parent, Model>(
         this.recyclerView = null
     }
 
-    override val tag: String = "BaseAdapter"
+    override val tag: String
+        get() = this::class.simpleName.toString()
 }

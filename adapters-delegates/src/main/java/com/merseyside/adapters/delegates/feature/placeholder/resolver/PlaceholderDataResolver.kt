@@ -7,7 +7,7 @@ import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.callback.OnModelListChangedCallback
-import com.merseyside.adapters.delegates.DA
+import com.merseyside.adapters.delegates.Delegate
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
 import com.merseyside.merseyLib.kotlin.logger.ILogger
@@ -34,7 +34,7 @@ abstract class PlaceholderDataResolver<Parent, ParentModel : VM<Parent>> :
         this.adapter = adapter
         modelList = adapter.adapterConfig.modelList
         safeLet(provider.placeholderDelegate) {
-            adapter.delegatesManager.addDelegates(it as DA<Parent, ParentModel>)
+            adapter.delegatesManager.addDelegates(it as Delegate<Parent, ParentModel>)
         }
 
         adapter.addOnAttachToRecyclerViewListener(onAttachListener)

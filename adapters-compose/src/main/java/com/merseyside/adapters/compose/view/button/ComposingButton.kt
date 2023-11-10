@@ -6,7 +6,7 @@ import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.view.button.icon.Icon
 import com.merseyside.adapters.compose.view.text.ComposingText
 import com.merseyside.adapters.compose.view.text.ComposingTextStyle

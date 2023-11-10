@@ -6,7 +6,7 @@ import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.text.ComposingText
 import com.merseyside.adapters.compose.view.text.ComposingTextStyle
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 
 open class ComposingCheckBox<Style : ComposingCheckBoxStyle>(
     id: String,

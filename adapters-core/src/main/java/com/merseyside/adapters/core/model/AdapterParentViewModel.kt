@@ -1,6 +1,5 @@
 package com.merseyside.adapters.core.model
 
-import androidx.annotation.CallSuper
 import androidx.databinding.BaseObservable
 import androidx.databinding.ObservableBoolean
 import com.merseyside.adapters.core.feature.positioning.PositionHandler
@@ -39,7 +38,6 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     val filterableObservable = ObservableBoolean()
     val deletableObservable = ObservableBoolean()
 
-
     open var isClickable: Boolean = clickable
         set(value) {
             if (field != value) {
@@ -67,21 +65,17 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
             }
         }
 
-    @CallSuper
-    open fun onClick() {
-        if (isClickable) {
+    fun click() {
+        if (onClick()) {
             mutClickEvent.value = item
         }
     }
 
     /**
-     * Use this method with custom lambda databinding methods.
-     * https://discuss.kotlinlang.org/t/using-lambda-in-custom-bindingadapter-using-android-databinding-and-kotlin/4229
+     * @return true if click must be intercepted and listeners should be notified.
      */
-    @CallSuper
-    open fun onClickVoid(): Void? {
-        onClick()
-        return null
+    protected open fun onClick(): Boolean {
+        return isClickable
     }
 
     override fun onPositionChanged(fromPosition: Int, toPosition: Int) {}
@@ -114,12 +108,12 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     /**
      * Call notifyPropertyChanged(id) here.
      */
-    open fun notifyUpdate() {}
+    open suspend fun onUpdate() {}
 
-    internal fun payload(newItem: Parent): List<Payloadable> {
+    internal suspend fun payload(newItem: Parent): List<Payloadable> {
         val payloads = payload(item, newItem as Item)
         this.item = newItem
-        notifyUpdate()
+        onUpdate()
         return payloads
     }
 

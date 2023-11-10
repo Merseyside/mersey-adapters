@@ -7,11 +7,11 @@ import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.nested.INestedAdapter
 import com.merseyside.adapters.core.nested.OnInitNestedAdapterListener
-import com.merseyside.adapters.delegates.manager.SimpleDelegatesManager
+import com.merseyside.adapters.delegates.manager.DelegatesManager
 
 abstract class NestedCompositeAdapter<Parent, Model, Data, InnerAdapter>(
     final override val adapterConfig: NestedAdapterConfig<Parent, Model, Data, InnerAdapter>,
-    delegatesManager: SimpleDelegatesManager<Parent, Model> = SimpleDelegatesManager()
+    delegatesManager: DelegatesManager<Parent, Model> = DelegatesManager()
 ) : CompositeAdapter<Parent, Model>(adapterConfig, delegatesManager),
     INestedAdapter<Parent, Model, Data, InnerAdapter>
         where Model : NestedAdapterParentViewModel<out Parent, Parent, Data>,

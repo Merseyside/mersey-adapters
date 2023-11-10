@@ -17,7 +17,7 @@ class CheckpointItemViewModel(item: Checkpoint) : AdapterViewModel<Checkpoint>(i
     private var gapChange: Millis = Millis()
     private var rank: Int = 0
 
-    override fun notifyUpdate() {
+    override suspend fun onUpdate() {
         notifyPropertyChanged(BR.gap)
     }
 

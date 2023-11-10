@@ -5,7 +5,7 @@ import com.merseyside.adapters.compose.view.list.simple.ComposingList
 import com.merseyside.adapters.compose.view.list.simple.ComposingListStyle
 import com.merseyside.adapters.compose.view.list.simple.ListConfig
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.view.list.paging.dsl.context.PaginationComposeContext
 import com.merseyside.adapters.compose.view.list.paging.dsl.context.PagingContext
 

@@ -5,7 +5,7 @@ package com.merseyside.adapters.core.base
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
@@ -32,13 +32,13 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     val adapterConfig: AdapterConfig<Parent, Model>
     var models: List<Model>
 
+    override val adapter: BaseAdapter<Parent, *>
+
     val isAttached: Boolean
 
     @InternalAdaptersApi
     val listManager: IModelListManager<Parent, Model>
         get() = adapterConfig.listManager
-
-    val adapter: RecyclerView.Adapter<ViewHolder<Parent, Model>>
 
     @InternalAdaptersApi
     val callbackClick: (Parent) -> Unit
@@ -76,7 +76,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     override suspend fun onModelListUpdated(newModelList: List<Model>) {
-        newModelList.log()
         models = newModelList
     }
 
@@ -133,12 +132,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     fun isPayloadsValid(payloads: List<AdapterParentViewModel.Payloadable>): Boolean {
         return payloads.isNotEmpty() &&
                 !payloads.contains(AdapterParentViewModel.Payloadable.None)
-    }
-
-    fun onPayloadable(
-        holder: ViewHolder<Parent, Model>,
-        payloads: List<AdapterParentViewModel.Payloadable>
-    ) {
     }
 
     val size: Int
@@ -266,6 +259,10 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         } else {
             min(oldPosition, newPosition)..max(oldPosition, newPosition)
         }
+    }
+
+    fun setItemsClickableEnabled(enabled: Boolean) {
+        models.forEach { model -> model.isClickable = enabled }
     }
 
     fun hasFeature(key: String): Boolean

@@ -12,7 +12,7 @@ import com.merseyside.adapters.compose.view.list.simple.adapterConfig
 import com.merseyside.adapters.compose.view.text.Text
 import com.merseyside.adapters.compose.viewProvider.asComposeState
 import com.merseyside.adapters.compose.viewProvider.composeState
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.feature.selecting.SelectableMode
 import com.merseyside.adapters.core.feature.selecting.callback.onItemSelected
 import com.merseyside.adapters.core.feature.sorting.Sorting

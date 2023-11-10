@@ -4,12 +4,10 @@ import androidx.databinding.Bindable
 import com.merseyside.adapters.compose.BR
 import com.merseyside.adapters.compose.view.base.model.ViewVM
 
-open class ComposingTextViewModel<Item : ComposingText<*>>(
-    item: Item
-) : ViewVM<Item>(item) {
+open class ComposingTextViewModel<Item : ComposingText<*>>(item: Item) : ViewVM<Item>(item) {
 
-    override fun notifyUpdate() {
-        super.notifyUpdate()
+    override suspend fun onUpdate() {
+        super.onUpdate()
         notifyPropertyChanged(BR.text)
     }
 
@@ -23,5 +21,4 @@ open class ComposingTextViewModel<Item : ComposingText<*>>(
             item.text = value
         }
     }
-
 }

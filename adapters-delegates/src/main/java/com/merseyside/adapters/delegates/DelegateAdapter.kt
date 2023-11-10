@@ -6,15 +6,16 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
-import com.merseyside.adapters.core.base.callback.OnItemClickListener
+import com.merseyside.adapters.core.base.BaseAdapter
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.holder.ViewHolderBuilder
 import com.merseyside.adapters.core.holder.binding.BindingViewHolderBuilder
-import com.merseyside.adapters.core.holder.custom.CustomViewHolderBuilder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
+import com.merseyside.adapters.delegates.holder.CustomDelegateViewHolderBuilder
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.utils.reflection.ReflectionUtils
 
@@ -28,36 +29,44 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
 
     override var clickListeners: MutableList<OnItemClickListener<Item>> = ArrayList()
 
-    open var getRelativeDelegatesManager: (() -> DelegatesManager<*, Parent, Model>)? = null
+    open var getRelativeDelegatesManager: (() -> DelegatesManager<Parent, Model>)? = null
+
+    @Suppress("UNCHECKED_CAST")
+    override val adapter: BaseAdapter<Item, *>
+        get() = getRelativeCompositeAdapter() as BaseAdapter<Item, *>
+
+    fun getViewType(): Int {
+        val manager = getRelativeDelegatesManager?.invoke()
+        check(manager != null) {
+            "Delegate hasn't been attached to any delegate manager!"
+        }
+
+        return manager.getViewTypeByDelegate(this)
+    }
 
     @InternalAdaptersApi
-    protected fun requireRelativeDelegatesManager(): DelegatesManager<*, Parent, Model> {
+    protected fun requireRelativeDelegatesManager(): DelegatesManager<Parent, Model> {
         return getRelativeDelegatesManager?.invoke()
             ?: throw NullPointerException("Delegate not attached to delegates manager!")
     }
 
     @OptIn(InternalAdaptersApi::class)
     protected fun getAttachedRecyclerView(): RecyclerView? {
-        return requireRelativeDelegatesManager().getRelativeAdapter().recyclerView
+        return requireRelativeDelegatesManager().adapter.recyclerView
     }
 
     @InternalAdaptersApi
-    val onClick: (Item) -> Unit = { item ->
-        clickListeners.forEach { listener -> listener.onItemClicked(item) }
-    }
-
-    fun setViewHolderBuilder(builder: ViewHolderBuilder<Parent, Model>) {
-        viewHolderBuilder = builder
-    }
+    private val onClick: (Item) -> Unit = { item -> notifyOnClick(item) }
 
     fun <V : View> setupViewHolder(
-        createView: (context: Context) -> V,
+        createView: (context: Context, adapter: CompositeAdapter<Parent, Model>) -> V,
         bind: (V, Model) -> Unit
     ) {
-        viewHolderBuilder = CustomViewHolderBuilder<V, Item, Parent, Model>().apply {
-            this.createView = { context, _ -> createView(context) }
-            this.bind = bind
-        }
+        viewHolderBuilder =
+            CustomDelegateViewHolderBuilder<V, Item, Parent, Model, CompositeAdapter<Parent, Model>>().apply {
+                this.createView = { context, _, adapter -> createView(context, adapter) }
+                this.bind = bind
+            }
     }
 
     @LayoutRes
@@ -75,6 +84,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     open fun isResponsibleForParent(parent: Parent): Boolean {
         val isResponsible = parent?.let { isResponsibleForItemClass(it::class.java) }
             ?: throw NullPointerException("Parent is null!")
@@ -104,11 +114,17 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     /**
      * Delegates has no viewType by itself. That's why pass -1
      */
-    fun createViewHolder(parent: ViewGroup): ViewHolder<Parent, Model> {
+    @Suppress("UNCHECKED_CAST")
+    fun createViewHolder(
+        parent: ViewGroup,
+        adapter: CompositeAdapter<Parent, Model>
+    ): ViewHolder<Parent, Model> {
+        if (viewHolderBuilder is CustomDelegateViewHolderBuilder<*, *, *, *, *>) {
+            (viewHolderBuilder as CustomDelegateViewHolderBuilder<*, Item, Parent, Model, CompositeAdapter<Parent, Model>>)
+                .adapter = adapter
+        }
         return viewHolderBuilder.build(parent, -1)
     }
-
-    open suspend fun clear() {}
 
     @OptIn(InternalAdaptersApi::class)
     open fun onModelCreated(model: Model) {
@@ -116,7 +132,11 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     }
 
     @CallSuper
-    open fun onBindViewHolder(holder: ViewHolder<Parent, Model>, model: Model, position: Int) {
+    open fun onBindViewHolder(
+        holder: ViewHolder<Parent, Model>,
+        model: Model,
+        position: Int
+    ) {
         holder.bind(model)
     }
 
@@ -128,9 +148,11 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     ) {
     }
 
+    open suspend fun clear() {}
+
     @OptIn(InternalAdaptersApi::class)
     protected fun getRelativeCompositeAdapter(): CompositeAdapter<Parent, Model> {
-        return requireRelativeDelegatesManager().getRelativeAdapter()
+        return requireRelativeDelegatesManager().adapter
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -142,6 +164,7 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
         ) as Class<Item>
     }
 
+    @Suppress("UNCHECKED_CAST")
     internal val modelClass: Class<Model> by lazy {
         ReflectionUtils.getGenericParameterClass(
             this.javaClass,
@@ -151,4 +174,4 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     }
 }
 
-internal typealias DA<Parent, ParentModel> = DelegateAdapter<out Parent, Parent, ParentModel>
+typealias Delegate<Parent, ParentModel> = DelegateAdapter<out Parent, Parent, ParentModel>

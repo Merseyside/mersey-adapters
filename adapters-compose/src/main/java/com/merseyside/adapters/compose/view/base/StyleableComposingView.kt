@@ -1,11 +1,11 @@
 package com.merseyside.adapters.compose.view.base
 
 import androidx.annotation.CallSuper
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.style.StyleableItem
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
-import com.merseyside.adapters.core.base.callback.OnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.utils.getClassName
 

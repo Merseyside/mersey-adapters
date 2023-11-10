@@ -7,27 +7,26 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.utils.ext.values
+import com.merseyside.adapters.delegates.Delegate
 
 @Suppress("UNCHECKED_CAST")
 class ViewDelegatesManager<Parent : SCV, Model>(
-    delegates: List<DelegateAdapter<out Parent, Parent, Model>> = emptyList()
-) : DelegatesManager<DelegateAdapter<out Parent, Parent, Model>, Parent, Model>(delegates)
+    delegates: List<Delegate<Parent, Model>> = emptyList()
+) : DelegatesManager<Parent, Model>(delegates)
         where Model : VM<Parent> {
 
-    override fun getResponsibleDelegate(item: Parent): DelegateAdapter<out Parent, Parent, Model>? {
+    override fun getResponsibleDelegate(item: Parent): Delegate<Parent, Model>? {
         return super.getResponsibleDelegate(item) ?: getDelegateFromView(item)
     }
 
-    private fun getDelegateFromView(item: Parent): DelegateAdapter<out Parent, Parent, Model> {
+    private fun getDelegateFromView(item: Parent): Delegate<Parent, Model> {
         return (item.delegate as DelegateAdapter<out Parent, Parent, Model>).also { delegate ->
             addDelegates(delegate)
         }
     }
 
-    fun getAllDelegates(): List<ViewDelegateAdapter<out Parent, *, *>> {
-        return delegates.values() as List<ViewDelegateAdapter<out Parent, *, *>>
+    override fun getChildDelegatesManager(): ViewDelegatesManager<Parent, Model> {
+        return ViewDelegatesManager(getDelegates())
     }
 }
 
-typealias ViewDelegate<Style> = ViewDelegateAdapter<out StyleableComposingView<Style>, Style, out AdapterParentViewModel<out StyleableComposingView<Style>, SCV>>

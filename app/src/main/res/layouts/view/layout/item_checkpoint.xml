@@ -89,18 +89,12 @@
                 android:id="@+id/gap"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.gap}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="@{viewModel.gap}" />
 
             <TextView
                 android:id="@+id/gap_change"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:text="@{viewModel.changeGap}"
-                app:attrTextColor="@{viewModel.getGapChangeColor}"/>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@ package com.merseyside.adapters.compose.view.list.selectable
 import android.content.Context
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
 import com.merseyside.adapters.compose.view.list.dsl.context.ListContext

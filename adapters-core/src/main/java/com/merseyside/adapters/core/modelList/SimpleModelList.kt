@@ -1,5 +1,6 @@
 package com.merseyside.adapters.core.modelList
 
+import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.move
@@ -81,7 +82,6 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     override suspend fun add(position: Int, model: Model) {
         val list = listOf(model)
         mutModels.add(position, model)
-        mutModels.log("kek", "updated list")
         onInserted(list, position)
     }
 
@@ -106,6 +106,13 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
 
     override fun subList(fromIndex: Int, toIndex: Int): List<Model> {
         return mutModels.subList(fromIndex, toIndex)
+    }
+
+    override suspend fun onUpdated(
+        model: Model,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    ) {
+        onChanged(model, getPositionOfModel(model), payloads)
     }
 
     internal class SimpleModelListIterator<Model>(

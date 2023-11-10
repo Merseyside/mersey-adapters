@@ -5,20 +5,22 @@ import android.view.ViewGroup
 import androidx.core.util.isEmpty
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.delegates.Delegate
 import com.merseyside.adapters.delegates.set.DelegateAdapterSet
 import com.merseyside.adapters.delegates.DelegateAdapter
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
 import com.merseyside.utils.ext.*
 
-open class DelegatesManager<Delegate, Parent, ParentModel>(
+open class DelegatesManager<Parent, ParentModel>(
     delegates: List<DelegateAdapter<out Parent, Parent, ParentModel>> = emptyList()
-) where ParentModel : VM<Parent>,
-        Delegate : DelegateAdapter<out Parent, Parent, ParentModel> {
+) where ParentModel : VM<Parent> {
 
-    protected val delegates = SparseArray<Delegate>()
+    protected val delegates = SparseArray<Delegate<Parent, ParentModel>>()
     private lateinit var onDelegateRemoveCallback: suspend (DelegateAdapter<out Parent, Parent, *>) -> Unit
-    internal lateinit var getRelativeAdapter: () -> CompositeAdapter<Parent, ParentModel>
+
+    lateinit var adapter: CompositeAdapter<Parent, ParentModel>
+        internal set
 
     protected val count: Int
         get() = delegates.size()
@@ -27,7 +29,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         addDelegateList(delegates)
     }
 
-    private fun addDelegateListInternal(delegates: List<Delegate>) {
+    private fun addDelegateListInternal(delegates: List<Delegate<Parent, ParentModel>>) {
         val size = count
         delegates.forEachIndexed { index, delegateAdapter ->
             addDelegate(delegateAdapter, size + index)
@@ -35,23 +37,23 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun addDelegateList(delegates: List<DelegateAdapter<out Parent, Parent, out ParentModel>>) {
-        addDelegateListInternal(delegates as List<Delegate>)
+    fun addDelegateList(delegates: List<Delegate<Parent, out ParentModel>>) {
+        addDelegateListInternal(delegates as List<Delegate<Parent, ParentModel>>)
+    }
+
+    fun addDelegates(vararg delegates: Delegate<Parent, out ParentModel>) {
+        addDelegateList(delegates.toList())
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun addDelegates(vararg delegates: DelegateAdapter<out Parent, Parent, out ParentModel>) {
-        addDelegateList(delegates.toList() as List<Delegate>)
-    }
-
     fun addDelegateSet(delegateSet: DelegateAdapterSet<*, out Parent, Parent, out ParentModel>) {
         val list = delegateSet.getDelegates()
         list.forEachIndexed { index, delegateAdapter ->
-            delegates.put(count + index, delegateAdapter as Delegate)
+            delegates.put(count + index, delegateAdapter as Delegate<Parent, ParentModel>)
         }
     }
 
-    private fun addDelegate(delegate: Delegate, key: Int = count) {
+    private fun addDelegate(delegate: Delegate<Parent, ParentModel>, key: Int = count) {
         if (!delegates.containsKey(key)) {
             delegates.put(key, delegate)
 
@@ -61,13 +63,15 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
 //                            " to another manager. Reatached to another manager."
 //                )
 
-            delegate.getRelativeDelegatesManager = { this }
+            delegate.getRelativeDelegatesManager = {
+                this
+            }
 
         } else throw IllegalArgumentException("View type already exists!")
     }
 
     fun createViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Parent, ParentModel> {
-        return getDelegateByViewType(viewType).createViewHolder(parent)
+        return getDelegateByViewType(viewType).createViewHolder(parent, adapter)
     }
 
     internal fun onBindViewHolder(
@@ -88,33 +92,31 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
             .onBindViewHolder(holder, model, position, payloads)
     }
 
-    fun getViewTypeByItem(model: ParentModel): Int {
+    internal fun getViewTypeByDelegate(delegate: Delegate<Parent, ParentModel>): Int {
+        return delegates.findKey { (_, d) -> delegate == d }
+            ?: throw NullPointerException("View type of passed delegate not found!")
+    }
+
+    internal fun getViewTypeByItem(model: ParentModel): Int {
         return if (count.isNotZero()) {
-            delegates.findKey { it.second.isResponsibleForParent(model.item) }
+            delegates.findKey { (_, delegate) -> delegate.isResponsibleForParent(model.item) }
                 ?: throw IllegalArgumentException("No responsible delegates found!")
         } else throw IllegalStateException("Delegates are empty. Please, add delegates before using this!")
     }
 
-    fun getDelegateByViewType(viewType: Int): Delegate {
+    fun getDelegateByViewType(viewType: Int): Delegate<Parent, ParentModel> {
         return requireDelegate { delegates.get(viewType) }
     }
 
-    fun getDelegateKey(delegate: Delegate): Int {
-        val index = delegates.indexOfValue(delegate)
-        return if (index >= 0) {
-            delegates.keyAt(index)
-        } else throw IllegalArgumentException("View type of passed delegate not found!")
-    }
-
-    fun getResponsibleDelegate(clazz: Class<out Parent>): Delegate? {
+    fun getResponsibleDelegate(clazz: Class<out Parent>): Delegate<Parent, ParentModel>? {
         return delegates.findValue { it.second.isResponsibleForItemClass(clazz) }
     }
 
-    open fun getResponsibleDelegate(item: Parent): Delegate? {
+    open fun getResponsibleDelegate(item: Parent): Delegate<Parent, ParentModel>? {
         return delegates.findValue { it.second.isResponsibleForParent(item) }
     }
 
-    open fun getResponsibleDelegates(item: Parent): List<Delegate> {
+    open fun getResponsibleDelegates(item: Parent): List<Delegate<Parent, ParentModel>> {
         return delegates.filterValues { it.isResponsibleForParent(item) }
     }
 
@@ -122,7 +124,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
         val delegate = getResponsibleDelegate(clazz)
         return delegate?.let {
             onDelegateRemoveCallback(delegate)
-            val key = getDelegateKey(delegate)
+            val key = getViewTypeByDelegate(delegate)
             delegates.remove(key)
             true
         } ?: false
@@ -142,7 +144,7 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
 
     fun isEmpty(): Boolean = delegates.isEmpty()
 
-    internal open fun getResponsibleDelegate(model: ParentModel): Delegate {
+    internal open fun getResponsibleDelegate(model: ParentModel): Delegate<Parent, ParentModel> {
         return requireDelegate { getResponsibleDelegate(model.item) }
     }
 
@@ -158,12 +160,16 @@ open class DelegatesManager<Delegate, Parent, ParentModel>(
     }
 
     private fun requireDelegate(
-        block: () -> Delegate?
-    ): Delegate {
+        block: () -> Delegate<Parent, ParentModel>?
+    ): Delegate<Parent, ParentModel> {
         return block() ?: throw NullPointerException("Delegate is required but have null!")
     }
-}
 
-class SimpleDelegatesManager<Parent, ParentModel> :
-    DelegatesManager<DelegateAdapter<out Parent, Parent, ParentModel>, Parent, ParentModel>()
-        where ParentModel : VM<Parent>
+    open fun getDelegates(): List<Delegate<Parent, ParentModel>> {
+        return delegates.values()
+    }
+
+    open fun getChildDelegatesManager(): DelegatesManager<Parent, ParentModel> {
+        return DelegatesManager(getDelegates())
+    }
+}

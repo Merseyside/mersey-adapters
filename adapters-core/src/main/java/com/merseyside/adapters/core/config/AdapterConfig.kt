@@ -20,14 +20,14 @@ import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
-import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
 open class AdapterConfig<Parent, Model> internal constructor(
     config: AdapterConfig<Parent, Model>.() -> Unit = {}
 ) where Model : VM<Parent> {
-    internal lateinit var adapter: IBaseAdapter<Parent, Model>
+    lateinit var adapter: IBaseAdapter<Parent, Model>
 
     internal val featureList = ArrayList<Feature<Parent, Model>>()
 
@@ -39,7 +39,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
 
     var errorHandler: ((Exception) -> Unit)? = null
 
-    var coroutineScope: CoroutineScope = CoroutineScope(uiDispatcher)
+    var coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     var coroutineContext: CoroutineContext = AdaptersContext.coroutineContext
 
     internal val workManager: AdapterWorkManager
@@ -130,6 +130,12 @@ open class AdapterConfig<Parent, Model> internal constructor(
         }
 
         return _modelListManager
+    }
+
+    companion object {
+        fun <Parent, Model : VM<Parent>> EMPTY(): AdapterConfig<Parent, Model> {
+            return AdapterConfig()
+        }
     }
 }
 

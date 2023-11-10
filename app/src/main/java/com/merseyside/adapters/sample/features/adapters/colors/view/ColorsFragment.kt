@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.removeAsync
 import com.merseyside.adapters.core.async.updateAsync
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.config.init.initAdapter
 import com.merseyside.adapters.core.feature.filtering.Filtering
 import com.merseyside.adapters.core.feature.filtering.ext.addFilterAsync

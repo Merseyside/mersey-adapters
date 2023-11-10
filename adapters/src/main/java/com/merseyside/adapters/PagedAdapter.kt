@@ -4,8 +4,8 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
-import com.merseyside.adapters.core.base.callback.OnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.holder.ViewHolderBuilder
 import com.merseyside.adapters.core.holder.binding.BindingViewHolderBuilder

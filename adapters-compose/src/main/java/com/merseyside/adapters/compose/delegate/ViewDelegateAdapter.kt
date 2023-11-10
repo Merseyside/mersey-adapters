@@ -68,3 +68,6 @@ abstract class ViewDelegateAdapter<View : StyleableComposingView<Style>, Style :
         applyStyle(holder.context, holder, model.item.composingStyle)
     }
 }
+
+typealias ViewDelegate<Style> = ViewDelegateAdapter<out StyleableComposingView<Style>, Style,
+        out AdapterParentViewModel<out StyleableComposingView<Style>, SCV>>

@@ -9,9 +9,9 @@ import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.merseyLib.kotlin.extensions.remove
 
-interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, NestedAdapter>
-        where Model : NestedAdapterParentViewModel<Item, Parent, out Data>,
-              NestedAdapter : BaseAdapter<Data, out VM<Data>> {
+interface INestedDelegateAdapter<Item : Parent, Parent, Model, InnerData, NestedAdapter>
+        where Model : NestedAdapterParentViewModel<Item, Parent, out InnerData>,
+              NestedAdapter : BaseAdapter<InnerData, out VM<InnerData>> {
 
     val adapterList: MutableList<Pair<Model, NestedAdapter>>
 
@@ -55,7 +55,7 @@ interface INestedDelegateAdapter<Item : Parent, Parent, Model, Data, NestedAdapt
         }
     }
 
-    fun handleInnerData(adapter: NestedAdapter, data: List<Data>) {
+    fun handleInnerData(adapter: NestedAdapter, data: List<InnerData>) {
         adapter.updateAsync(data)
     }
 

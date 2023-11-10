@@ -9,7 +9,7 @@ import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.dsl.context.addView
-import com.merseyside.adapters.compose.manager.ViewDelegate
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.view.list.selectable.SelectableListConfig
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroup
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
