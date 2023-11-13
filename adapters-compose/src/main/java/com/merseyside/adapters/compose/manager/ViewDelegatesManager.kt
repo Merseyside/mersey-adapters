@@ -1,13 +1,10 @@
 package com.merseyside.adapters.compose.manager
 
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
-import com.merseyside.adapters.delegates.DelegateAdapter
+import com.merseyside.adapters.delegates.simple.DelegateAdapter
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.adapters.compose.view.base.SCV
-import com.merseyside.adapters.compose.view.base.StyleableComposingView
-import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.delegates.Delegate
+import com.merseyside.adapters.delegates.simple.Delegate
 
 @Suppress("UNCHECKED_CAST")
 class ViewDelegatesManager<Parent : SCV, Model>(

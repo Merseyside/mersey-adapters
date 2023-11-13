@@ -6,10 +6,12 @@ import androidx.core.view.updateLayoutParams
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
+import com.merseyside.adapters.compose.view.base.model.ViewVM
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.DelegateAdapter
+import com.merseyside.adapters.delegates.composites.CompositeAdapter
+import com.merseyside.adapters.delegates.simple.DelegateAdapter
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import com.merseyside.utils.ext.setMarginsRes
 import com.merseyside.utils.view.ext.padding
@@ -45,12 +47,6 @@ abstract class ViewDelegateAdapter<View : StyleableComposingView<Style>, Style :
                 }
             }
         }
-    }
-
-    @InternalAdaptersApi
-    override fun onModelCreated(model: Model) {
-        super.onModelCreated(model)
-        model.addOnClickListener { item -> model.item.notifyOnClick(item) }
     }
 
     override fun onBindViewHolder(holder: ViewHolder<SCV, Model>, model: Model, position: Int) {

@@ -1,4 +1,4 @@
-package com.merseyside.adapters.delegates
+package com.merseyside.adapters.delegates.simple
 
 import android.content.Context
 import android.view.View
@@ -7,7 +7,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.base.BaseAdapter
-import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.holder.ViewHolderBuilder
@@ -19,7 +18,7 @@ import com.merseyside.adapters.delegates.holder.CustomDelegateViewHolderBuilder
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 import com.merseyside.utils.reflection.ReflectionUtils
 
-abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickListener<Item>
+abstract class DelegateAdapter<Item : Parent, Parent, Model> : IDelegateAdapter<Item, Parent, Model>
         where Model : AdapterParentViewModel<Item, Parent> {
 
     private val getLayoutIdInternal: (viewType: Int) -> Int = { getLayoutIdForItem() }
@@ -104,11 +103,11 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
     abstract fun createItemViewModel(item: Item): Model
 
     @Suppress("UNCHECKED_CAST")
-    internal open fun createViewModel(parent: Parent): Model {
+    internal open fun createViewModel(parent: Parent, parentAdapter: CompositeAdapter<Parent, Model>): Model {
         val item = (parent as? Item) ?: throw IllegalArgumentException(
             "This delegate is not responsible for ${parent!!::class}"
         )
-        return createItemViewModel(item).also { model -> onModelCreated(model) }
+        return createItemViewModel(item).also { model -> onModelCreated(model, parentAdapter) }
     }
 
     /**
@@ -124,11 +123,6 @@ abstract class DelegateAdapter<Item : Parent, Parent, Model> : HasOnItemClickLis
                 .adapter = adapter
         }
         return viewHolderBuilder.build(parent, -1)
-    }
-
-    @OptIn(InternalAdaptersApi::class)
-    open fun onModelCreated(model: Model) {
-        model.addOnClickListener(onClick)
     }
 
     @CallSuper

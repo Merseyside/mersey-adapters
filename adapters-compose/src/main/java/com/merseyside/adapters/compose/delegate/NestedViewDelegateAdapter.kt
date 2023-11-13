@@ -1,5 +1,6 @@
 package com.merseyside.adapters.compose.delegate
 
+import com.merseyside.adapters.compose.adapter.SimpleViewCompositeAdapter
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.manager.ViewDelegatesManager
 import com.merseyside.adapters.compose.style.ComposingStyle
@@ -9,6 +10,7 @@ import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
+import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.nestedDelegate.INestedDelegateAdapter
 
 abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerModel, InnerAdapter> :
@@ -29,11 +31,13 @@ abstract class NestedViewDelegateAdapter<View, Style, Model, InnerParent, InnerM
     ): InnerAdapter
 
     @Suppress("UNCHECKED_CAST")
-    @OptIn(InternalAdaptersApi::class)
-    override fun createNestedAdapter(model: Model): InnerAdapter {
-        val innerDelegateManager = requireRelativeDelegatesManager() as ViewDelegatesManager<InnerParent, InnerModel>
-        val childManager = innerDelegateManager.getChildDelegatesManager()
-        return createCompositeAdapter(model, childManager)
+    override fun createNestedAdapter(
+        model: Model,
+        parentAdapter: CompositeAdapter<SCV, Model>
+    ): InnerAdapter {
+        val parentManager = (parentAdapter as SimpleViewCompositeAdapter).delegatesManager
+        val childManager = parentManager.getChildDelegatesManager()
+        return createCompositeAdapter(model, childManager as ViewDelegatesManager<InnerParent, InnerModel>)
     }
 
     @InternalAdaptersApi

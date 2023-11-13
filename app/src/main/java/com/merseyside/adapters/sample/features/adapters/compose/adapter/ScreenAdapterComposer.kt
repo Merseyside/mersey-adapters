@@ -155,7 +155,10 @@ class ScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(fragme
                     setTextSize(R.dimen.large_text_size)
                 }) {
                 text = "Click me!"
-                onClick { someState++ }
+                onClick {
+                "here!!".log()
+                    someState++
+                }
             }
 
             Text("text1_clicks",

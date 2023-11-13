@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.core.util.isEmpty
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.delegates.Delegate
+import com.merseyside.adapters.delegates.simple.Delegate
 import com.merseyside.adapters.delegates.set.DelegateAdapterSet
-import com.merseyside.adapters.delegates.DelegateAdapter
+import com.merseyside.adapters.delegates.simple.DelegateAdapter
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.merseyLib.kotlin.extensions.isNotZero
 import com.merseyside.utils.ext.*
@@ -150,7 +150,7 @@ open class DelegatesManager<Parent, ParentModel>(
 
     internal fun createModel(item: Parent): ParentModel {
         val delegate = requireDelegate { getResponsibleDelegate(item) }
-        return delegate.createViewModel(item)
+        return delegate.createViewModel(item, adapter)
     }
 
     internal fun setOnDelegateRemoveCallback(

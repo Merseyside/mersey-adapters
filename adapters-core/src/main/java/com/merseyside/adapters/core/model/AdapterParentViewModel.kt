@@ -32,7 +32,8 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
 
     private val mutClickEvent = SingleObservableField<Item>()
 
-    private val clickEvent: ObservableField<Item> = mutClickEvent
+    @PublishedApi
+    internal val clickEvent: ObservableField<Item> = mutClickEvent
 
     val clickableObservable = ObservableBoolean()
     val filterableObservable = ObservableBoolean()
@@ -122,7 +123,7 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     }
 
     @InternalAdaptersApi
-    fun addOnClickListener(onClick: (Item) -> Unit) {
+    inline fun addOnClickListener(crossinline onClick: (Item) -> Unit) {
         clickEvent.observe { onClick(it) }
     }
 

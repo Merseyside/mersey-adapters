@@ -7,7 +7,7 @@ import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.callback.OnModelListChangedCallback
-import com.merseyside.adapters.delegates.Delegate
+import com.merseyside.adapters.delegates.simple.Delegate
 import com.merseyside.adapters.delegates.composites.CompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.provider.PlaceholderProvider
 import com.merseyside.merseyLib.kotlin.logger.ILogger

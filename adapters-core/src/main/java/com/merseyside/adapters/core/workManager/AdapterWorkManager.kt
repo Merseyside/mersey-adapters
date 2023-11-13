@@ -54,7 +54,7 @@ class AdapterWorkManager(
         onMainWorkStartedListeners.add(listener)
     }
 
-    internal fun postMainWork(action: suspend () -> Unit) {
+    fun postMainWork(action: suspend () -> Unit) {
         mainWorkList.add(action)
     }
 

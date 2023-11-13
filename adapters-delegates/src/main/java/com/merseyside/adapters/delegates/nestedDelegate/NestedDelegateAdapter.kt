@@ -5,7 +5,7 @@ import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.DelegateAdapter
+import com.merseyside.adapters.delegates.simple.DelegateAdapter
 
 abstract class NestedDelegateAdapter<Item : Parent, Parent, Model, Data, InnerAdapter>
     : DelegateAdapter<Item, Parent, Model>(),

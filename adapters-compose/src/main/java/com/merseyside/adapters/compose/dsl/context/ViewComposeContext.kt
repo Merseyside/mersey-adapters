@@ -3,11 +3,15 @@ package com.merseyside.adapters.compose.dsl.context
 import android.content.Context
 import androidx.annotation.CallSuper
 import androidx.lifecycle.LifecycleOwner
+import com.merseyside.adapters.compose.adapter.SimpleViewCompositeAdapter
 import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.viewProvider.MutableComposeState
 import com.merseyside.adapters.core.async.clearAsync
+import com.merseyside.adapters.core.async.runForUI
+import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import com.merseyside.merseyLib.kotlin.observable.Disposable
@@ -22,19 +26,22 @@ abstract class ViewComposeContext<View : SCV>(
     context: Context,
     lifecycleOwner: LifecycleOwner,
     private val initContext: ViewComposeContext<View>.() -> Unit
-) : ILogger, Identifiable<String> {
+) : HasAdapterWorkManager, Identifiable<String>, ILogger  {
 
     override val id = contextId
 
     private val contextWeakReference = WeakReference(context)
     private val lifecycleOwnerWeakReference = WeakReference(lifecycleOwner)
 
+    override val workManager: AdapterWorkManager
+        get() = relativeAdapter.workManager
+
     val context: Context
         get() = contextWeakReference.get() ?: throw NullPointerException("Already destroyed")
     val lifecycleOwner: LifecycleOwner
         get() = lifecycleOwnerWeakReference.get() ?: throw NullPointerException("Already destroyed")
 
-    protected lateinit var relativeAdapter: ViewCompositeAdapter<SCV, VM<SCV>>
+    lateinit var relativeAdapter: ViewCompositeAdapter<SCV, VM<SCV>>
         private set
     private val childContextList = HashMap<String, ComposeContext>()
     private val composeStates: MutableSet<MutableComposeState<*>> = mutableSetOf()
@@ -63,16 +70,16 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     @CallSuper
-    open fun setRelativeAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
+    open fun setRelativeAdapter(adapter: SimpleViewCompositeAdapter) {
         relativeAdapter = adapter
         onInitAdapter(adapter)
     }
 
-    open fun onInitAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
+    open fun onInitAdapter(adapter: SimpleViewCompositeAdapter) {
         invalidateContext()
     }
 
-    abstract fun onViewsChanged(adapter: ViewCompositeAdapter<SCV, VM<SCV>>, data: List<View>)
+    abstract fun onViewsChanged(adapter: SimpleViewCompositeAdapter, data: List<View>)
 
     /**
      * Calls when state changes. Usually when declared compose state handle new value.
@@ -96,7 +103,7 @@ abstract class ViewComposeContext<View : SCV>(
     }
 
     fun getComposeState(propertyName: String): MutableComposeState<*>? {
-        return composeStates.find { it.propertyName == propertyName }
+        return composeStates.find { state -> state.propertyName == propertyName }
     }
 
     protected fun clearViews() {
@@ -115,9 +122,15 @@ abstract class ViewComposeContext<View : SCV>(
         childContextList.forEach { (_, context) -> context.clear() }
         childContextList.clear()
         clearViews()
+        clearComposeStates()
     }
 
-    protected fun mutableState(block: () -> Unit) {
+    private fun clearComposeStates() {
+        composeStates.forEach { state -> state.close() }
+        composeStates.clear()
+    }
+
+    protected fun mutableState(block: () -> Unit) = runForUI {
         stopObservingViews()
         block()
         startObservingViews()
@@ -130,7 +143,7 @@ abstract class ViewComposeContext<View : SCV>(
     private fun observeComposeStates() {
         composeStatesDisposable?.dispose()
         composeStatesDisposable = mergeSingleEvent(composeStates.map { it.onChangeEvent })
-            .debounce(50L)
+            .debounce(10L)
             .observe { onContextStateChanged() }
     }
 

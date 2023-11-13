@@ -10,6 +10,7 @@ import com.merseyside.adapters.compose.dsl.context.compose
 import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.async.doAsync
+import com.merseyside.adapters.core.async.runForUI
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
 import com.merseyside.adapters.core.config.AdapterConfig
@@ -83,7 +84,9 @@ abstract class AdapterComposer(
     abstract fun ComposeContext.compose()
 
     private fun composeInternal() {
-        rootContext = compose(context, lifecycleOwner, compositeAdapter) { compose() }
+        rootContext = compose(context, lifecycleOwner, compositeAdapter) {
+            compose()
+        }
     }
 
     fun clear() {
@@ -100,6 +103,8 @@ abstract class AdapterComposer(
 
     @InternalAdaptersApi
     fun invalidate() {
-        composeInternal()
+        runForUI {
+            composeInternal()
+        }
     }
 }
