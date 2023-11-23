@@ -18,8 +18,9 @@ import com.merseyside.merseyLib.kotlin.logger.ILogger
  * When all mutations completed it calls [OnModelListChangedCallback]'s method onModelListUpdated(newModelList).
  * Adapter handles it and use as a source of models data.
  */
-abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: AdapterWorkManager) :
-    List<Model>, HasAdapterWorkManager, ILogger {
+abstract class ModelList<Parent, Model : VM<Parent>>(
+    final override val workManager: AdapterWorkManager
+) : List<Model>, HasAdapterWorkManager, ILogger {
 
     private val callbacks = ArraySet<ModelListCallback<Model>>()
     private val modelListChangedCallbacks = ArraySet<OnModelListChangedCallback>()
@@ -132,7 +133,7 @@ abstract class ModelList<Parent, Model : VM<Parent>>(override val workManager: A
     }
 
     @MainThread
-    protected suspend fun onChanged(
+    protected fun onChanged(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>

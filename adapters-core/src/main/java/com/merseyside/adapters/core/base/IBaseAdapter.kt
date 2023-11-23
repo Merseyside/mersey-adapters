@@ -4,13 +4,11 @@ package com.merseyside.adapters.core.base
 
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
-import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.feature.positioning.PositionFeature
-import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
@@ -20,7 +18,6 @@ import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.isZero
-import com.merseyside.merseyLib.kotlin.logger.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -92,7 +89,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     }
 
     @InternalAdaptersApi
-    suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
+    private suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
         return if (isEmpty() && updateRequest.addNew) {
             add(updateRequest.items)
             true

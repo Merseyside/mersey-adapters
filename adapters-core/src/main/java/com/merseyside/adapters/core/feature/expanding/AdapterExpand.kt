@@ -112,17 +112,16 @@ class AdapterExpand<Parent, Model>(
         newState: Boolean = !item.isExpanded(),
         isExpandedByUser: Boolean = false
     ): Boolean {
-        return if (item.isExpanded() xor newState) {
-            item.expandState.expanded = newState
-            if (newState) {
-                expandedList.add(item)
-            } else {
-                expandedList.remove(item)
-            }
+        if (item.isExpanded() xor newState) {
+            return if (item.expandState.setExpandState(newState)) {
+                if (newState) expandedList.add(item)
+                else expandedList.remove(item)
+                notifyItemExpanded(item, isExpandedByUser)
+                true
+            } else false
+        }
 
-            notifyItemExpanded(item, isExpandedByUser)
-            true
-        } else false
+        return false
     }
 
     fun canItemBeExpanded(item: ExpandableItem): Boolean {

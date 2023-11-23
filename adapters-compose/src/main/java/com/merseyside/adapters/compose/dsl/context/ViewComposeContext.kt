@@ -72,7 +72,7 @@ abstract class ViewComposeContext<View : SCV>(
     @CallSuper
     open fun setRelativeAdapter(adapter: SimpleViewCompositeAdapter) {
         relativeAdapter = adapter
-        onInitAdapter(adapter)
+        runForUI { onInitAdapter(adapter) }
     }
 
     open fun onInitAdapter(adapter: SimpleViewCompositeAdapter) {
@@ -94,7 +94,7 @@ abstract class ViewComposeContext<View : SCV>(
             if (views.isNullOrEmpty()) {
                 mutViews.value = null
                 relativeAdapter.clearAsync()
-            } else onViewsChanged(relativeAdapter, views)
+            } else onViewsChanged(relativeAdapter, views).log("on views changed")
         }
     }
 
@@ -130,7 +130,7 @@ abstract class ViewComposeContext<View : SCV>(
         composeStates.clear()
     }
 
-    protected fun mutableState(block: () -> Unit) = runForUI {
+    protected fun mutableState(block: () -> Unit) {
         stopObservingViews()
         block()
         startObservingViews()

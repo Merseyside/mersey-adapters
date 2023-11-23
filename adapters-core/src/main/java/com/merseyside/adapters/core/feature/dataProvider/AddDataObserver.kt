@@ -3,7 +3,6 @@ package com.merseyside.adapters.core.feature.dataProvider
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.addAsyncToStart
 import com.merseyside.adapters.core.base.IBaseAdapter
-import com.merseyside.merseyLib.kotlin.logger.logSimpleTag
 
 /**
  * Works in pair with [DataProvider]

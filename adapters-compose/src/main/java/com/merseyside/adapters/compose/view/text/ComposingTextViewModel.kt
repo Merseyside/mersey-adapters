@@ -6,7 +6,7 @@ import com.merseyside.adapters.compose.view.base.model.ViewVM
 
 open class ComposingTextViewModel<Item : ComposingText<*>>(item: Item) : ViewVM<Item>(item) {
 
-    override suspend fun onUpdate() {
+    override fun onUpdate() {
         super.onUpdate()
         notifyPropertyChanged(BR.text)
     }

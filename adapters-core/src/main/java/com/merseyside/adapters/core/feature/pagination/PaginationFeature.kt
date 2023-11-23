@@ -1,6 +1,7 @@
 package com.merseyside.adapters.core.feature.pagination
 
 import androidx.lifecycle.LifecycleOwner
+import com.merseyside.adapters.core.async.clearAsync
 import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.feature.ConfigurableFeature
@@ -9,6 +10,8 @@ import com.merseyside.adapters.core.feature.dataProvider.DataObserver
 import com.merseyside.adapters.core.feature.dataProvider.DataProvider
 import com.merseyside.adapters.core.feature.dataProvider.dataProvider
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.merseyLib.kotlin.observable.EventObservableField
+import com.merseyside.merseyLib.kotlin.observable.lifecycle.asLiveData
 import com.merseyside.merseyLib.kotlin.utils.safeLet
 import kotlinx.coroutines.flow.Flow
 
@@ -35,6 +38,10 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
                 val prevPageProvider = DataProvider(adapter, onPrevFlow, observeWhenAttached)
                 prevPageProvider.observeForever(prevPageDataObserver)
             }
+
+            resetObservableEvent.asLiveData().observe(lifecycleOwner) {
+                adapter.clearAsync()
+            }
         }
     }
 
@@ -56,6 +63,8 @@ open class Config<Parent, Model>(
 
     var nextPageDataObserver: DataObserver<out Any, Parent> = AddDataObserver()
     var prevPageDataObserver: DataObserver<out Any, Parent> = AddDataObserver(addToStart = true)
+
+    lateinit var resetObservableEvent: EventObservableField
 
     var observeWhenAttached: Boolean = true
 

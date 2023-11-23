@@ -6,14 +6,11 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.merseyLib.kotlin.logger.log
 
 abstract class ViewVM<View : SCV>(view: View): AdapterParentViewModel<View, SCV>(view) {
 
     init {
-        addOnClickListener { item -> "here".log()
-            view.clickListeners.log("kek", "listeners")
-            item.notifyOnClick(item) }
+        addOnClickListener { item -> item.notifyOnClick(item) }
     }
 }
 

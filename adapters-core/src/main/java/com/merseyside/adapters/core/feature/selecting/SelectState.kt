@@ -7,10 +7,7 @@ import com.merseyside.merseyLib.kotlin.observable.ext.combineFields
 import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import com.merseyside.merseyLib.kotlin.observable.ext.valueNotNull
 
-class SelectState(
-    selected: Boolean = false,
-    selectable: Boolean = true
-) {
+class SelectState(selected: Boolean = false, selectable: Boolean = true) {
 
     internal var globalSelectable = MutableObservableField(true)
     private val itemSelectable = MutableObservableField(selectable)
@@ -18,16 +15,15 @@ class SelectState(
     internal val selectEvent = SingleObservableEvent()
 
     val selectedObservable = MutableObservableField(selected)
-    val selectableObservable: ObservableField<Boolean> = combineFields(
-        globalSelectable, itemSelectable
-    ) { first, second ->
-        first && second
-    }
+    val selectableObservable: ObservableField<Boolean> =
+        combineFields(globalSelectable, itemSelectable) { first, second ->
+            first && second
+        }
 
     private var listener: OnSelectStateListener? = null
 
     var selected: Boolean = selected
-        set(value) {
+        private set(value) {
             if (field != value) {
                 field = value
 
@@ -38,7 +34,9 @@ class SelectState(
 
     var selectable: Boolean
         get() = selectableObservable.valueNotNull()
-        set(value) { itemSelectable.compareAndSet(value) }
+        set(value) {
+            itemSelectable.compareAndSet(value)
+        }
 
     init {
         selectableObservable.observe { value ->
@@ -46,12 +44,23 @@ class SelectState(
         }
     }
 
-    fun onSelect() {
+    fun select() {
         selectEvent.call()
     }
 
-    fun onSelect(state: Boolean) {
-        if (selected != state) onSelect()
+    fun select(state: Boolean) {
+        if (selected != state) select()
+    }
+
+    internal fun setSelectState(state: Boolean): Boolean {
+        return if (onSelect(state)) {
+            selected = state
+            true
+        } else false
+    }
+
+    private fun onSelect(state: Boolean): Boolean {
+        return listener?.onSelected(state) ?: true
     }
 
     fun setOnSelectStateListener(listener: OnSelectStateListener) {
@@ -59,7 +68,7 @@ class SelectState(
     }
 
     interface OnSelectStateListener {
-        fun onSelected(selected: Boolean)
+        fun onSelected(selected: Boolean): Boolean = true
 
         fun onSelectable(selectable: Boolean)
     }

@@ -25,7 +25,7 @@
             android:background="@color/transparent_white"
             android:textSize="@dimen/medium_text_size"
             android:paddingStart="@dimen/very_small_spacing"
-            android:onClick="@{_ -> model.expandState.onExpand() }"/>
+            android:onClick="@{_ -> model.expandState.expand() }"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler"

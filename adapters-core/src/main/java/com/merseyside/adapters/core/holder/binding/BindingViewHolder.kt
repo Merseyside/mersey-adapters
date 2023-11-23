@@ -12,5 +12,6 @@ class BindingViewHolder<Parent, Model : VM<Parent>>(
     override fun bind(model: Model) {
         this.model = model
         binding.setVariable(variableId(), model)
+        binding.executePendingBindings()
     }
 }

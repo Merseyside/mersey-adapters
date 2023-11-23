@@ -109,9 +109,9 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     /**
      * Call notifyPropertyChanged(id) here.
      */
-    open suspend fun onUpdate() {}
+    open fun onUpdate() {}
 
-    internal suspend fun payload(newItem: Parent): List<Payloadable> {
+    internal fun payload(newItem: Parent): List<Payloadable> {
         val payloads = payload(item, newItem as Item)
         this.item = newItem
         onUpdate()
