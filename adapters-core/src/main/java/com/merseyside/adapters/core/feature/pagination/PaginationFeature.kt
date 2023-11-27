@@ -8,7 +8,6 @@ import com.merseyside.adapters.core.config.feature.ConfigurableFeature
 import com.merseyside.adapters.core.feature.dataProvider.AddDataObserver
 import com.merseyside.adapters.core.feature.dataProvider.DataObserver
 import com.merseyside.adapters.core.feature.dataProvider.DataProvider
-import com.merseyside.adapters.core.feature.dataProvider.dataProvider
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.observable.EventObservableField
 import com.merseyside.merseyLib.kotlin.observable.lifecycle.asLiveData
@@ -32,11 +31,11 @@ class PaginationFeature<Parent, Model : VM<Parent>> :
 
         with(config) {
             val nextPageProvider = DataProvider(adapter, onNextPageFlow, observeWhenAttached)
-            nextPageProvider.observeForever(nextPageDataObserver)
+            nextPageProvider.observe(lifecycleOwner, nextPageDataObserver)
 
             safeLet(onPrevPageFlow) { onPrevFlow ->
                 val prevPageProvider = DataProvider(adapter, onPrevFlow, observeWhenAttached)
-                prevPageProvider.observeForever(prevPageDataObserver)
+                prevPageProvider.observe(lifecycleOwner, prevPageDataObserver)
             }
 
             resetObservableEvent.asLiveData().observe(lifecycleOwner) {

@@ -15,19 +15,19 @@ open class DataProvider<Parent>(
 
     private var liveData: LiveData<*> = providerFlow.asLiveData()
 
+    @OptIn(InternalAdaptersApi::class)
     fun observe(lifecycleOwner: LifecycleOwner, observer: DataObserver<*, Parent>) {
         liveData.observe(lifecycleOwner) { data ->
             if (!observeWhenAttached || adapter.isAttached) {
-                @OptIn(InternalAdaptersApi::class)
                 observer.onDataProvidedInternal(adapter, data)
             }
         }
     }
 
+    @OptIn(InternalAdaptersApi::class)
     fun observeForever(observer: DataObserver<*, Parent>) {
         liveData.observeForever { data ->
             if (!observeWhenAttached || adapter.isAttached) {
-                @OptIn(InternalAdaptersApi::class)
                 observer.onDataProvidedInternal(adapter, data)
             }
         }

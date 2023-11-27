@@ -108,10 +108,11 @@ abstract class ModelList<Parent, Model : VM<Parent>>(
                     val updater = model.modelUpdater as ModelUpdater<Model>
                     updater.addCallback(onModelUpdateCallback)
                 }
-            } else throw IllegalArgumentException(
-                "Model with id ${model.id} already added." +
-                        " All model's ids must be unique"
-            )
+            } else {
+                throw IllegalArgumentException(
+                    "Model with id ${model.id} already added. All model's ids must be unique"
+                )
+            }
         }
 
         postMainWork { callbacks.forEach { it.onInserted(models, position) } }

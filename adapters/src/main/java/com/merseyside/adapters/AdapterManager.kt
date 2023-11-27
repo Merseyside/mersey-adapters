@@ -61,7 +61,7 @@ abstract class AdapterManager<Key, Adapter> where Adapter : BaseAdapter<*, *> {
         recyclerLifecycleOwner: LifecycleOwner
     )
 
-    fun setLifecycleOwner(lifecycleOwner: LifecycleOwner?) {
+    fun setAdaptersLifecycleOwner(lifecycleOwner: LifecycleOwner?) {
         this.lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
         this.lifecycleOwner = lifecycleOwner
         lifecycleOwner?.lifecycle?.addObserver(lifecycleObserver)
@@ -69,10 +69,6 @@ abstract class AdapterManager<Key, Adapter> where Adapter : BaseAdapter<*, *> {
 
     @CallSuper
     open fun setRecyclerView(recyclerView: RecyclerView?) {
-        check(lifecycleOwner != null) {
-            "Lifecycle owner wasn't set. Set it before set a RecyclerView"
-        }
-
         if (this.recyclerView == recyclerView) return
 
         if (this.recyclerView != null) {
@@ -102,7 +98,7 @@ abstract class AdapterManager<Key, Adapter> where Adapter : BaseAdapter<*, *> {
         this.listener = listener
     }
 
-    fun clear() {
+    fun reset() {
         recyclerView?.adapter = null
         currentKey = null
         adapterMap.clear()
@@ -120,6 +116,10 @@ abstract class AdapterManager<Key, Adapter> where Adapter : BaseAdapter<*, *> {
         this.recyclerView = recyclerView
         recyclerView.doOnAttach {
             this.recyclerLifecycleOwner = recyclerView.findViewTreeLifecycleOwner()
+            if (lifecycleOwner == null) {
+                setAdaptersLifecycleOwner(recyclerLifecycleOwner)
+            }
+
             requireNotNull(recyclerLifecycleOwner).lifecycle.addObserver(recyclerLifecycleObserver)
             onRecyclerAttached(recyclerView, requireNotNull(recyclerLifecycleOwner))
         }
