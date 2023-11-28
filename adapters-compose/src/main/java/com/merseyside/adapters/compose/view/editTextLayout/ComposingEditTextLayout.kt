@@ -10,6 +10,7 @@ import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 
 open class ComposingEditTextLayout<Style : ComposingEditTextLayoutStyle>(
     id: String,
@@ -20,9 +21,7 @@ open class ComposingEditTextLayout<Style : ComposingEditTextLayoutStyle>(
     var isClearFocus = false
     var textWatcherCallback: (String) -> Unit = {}
 
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<Style>, Style, *> {
-        return ComposingEditTextLayoutDelegate()
-    }
+    override val delegate: ViewDelegate<Style> = ComposingEditTextLayoutDelegate()
 
     companion object {
         context (ComposeContext) operator fun invoke(

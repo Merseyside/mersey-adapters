@@ -11,7 +11,7 @@ inline fun <reified R: Parent, Parent> IBaseAdapter<Parent, *>.findItemsIsInstan
     return filterItemsIsInstance<R, Parent>().first()
 }
 
-suspend inline fun <Item> IBaseAdapter<Item, *>.findPosition(predicate: (item: Item) -> Boolean): Int {
+inline fun <Item> IBaseAdapter<Item, *>.findPosition(predicate: (item: Item) -> Boolean): Int {
     return getAll().find { predicate(it) }?.run {
         getPositionOfItem(this)
     } ?: -1

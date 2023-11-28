@@ -1,26 +1,18 @@
 package com.merseyside.adapters.sample.features.adapters.compose.adapter
 
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.*
+import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.compose.composer.FragmentAdapterComposer
-import com.merseyside.adapters.compose.adapter.SimpleViewCompositeAdapter
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
-import com.merseyside.adapters.compose.dsl.context.RootComposeContext
-import com.merseyside.adapters.compose.model.ViewAdapterViewModel
 import com.merseyside.adapters.compose.style.ComposingStyle
-import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.checkBox.CheckBox
-import com.merseyside.adapters.compose.view.checkBox.ComposingCheckBoxDelegate
 import com.merseyside.adapters.compose.view.list.selectable.ComposingSelectableList
-import com.merseyside.adapters.compose.view.list.selectable.ComposingSelectableListDelegate
-import com.merseyside.adapters.compose.view.list.simple.ComposingListDelegate
 import com.merseyside.adapters.compose.view.list.simple.adapterConfig
-import com.merseyside.adapters.compose.view.text.ComposingTextDelegate
 import com.merseyside.adapters.compose.view.text.Text
 import com.merseyside.adapters.compose.viewProvider.asComposeState
 import com.merseyside.adapters.compose.viewProvider.composeState
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.feature.selecting.SelectableMode
 import com.merseyside.adapters.core.feature.selecting.callback.onItemSelected
 import com.merseyside.adapters.core.feature.sorting.Sorting
@@ -33,33 +25,21 @@ import com.merseyside.utils.randomColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import com.merseyside.adapters.sample.features.adapters.compose.adapter.views.MarginComposingList as List
-import kotlin.collections.List as ArrayList
 
-class MovieScreenAdapterComposer(
-    fragment: Fragment,
-    adapter: SimpleViewCompositeAdapter,
-) : FragmentAdapterComposer(fragment, adapter), ILogger {
-
-    override val delegates: ArrayList<ViewDelegateAdapter<out SCV, out ComposingStyle, out ViewAdapterViewModel>> =
-        listOf(
-            ComposingCheckBoxDelegate(),
-            ComposingTextDelegate(),
-            ComposingSelectableListDelegate(),
-            ComposingListDelegate()
-        )
+class ScreenAdapterComposer(fragment: Fragment) : FragmentAdapterComposer(fragment), ILogger {
 
     init {
         fragment.lifecycleScope.launchWhenStarted {
             while(isActive) {
-                delay(Millis(400))
+                delay(Millis(500))
                 stateFlow.value = randomColor()
             }
         }
     }
 
-    private val stateFlow = MutableStateFlow(R.color.red)
+    private val stateFlow = MutableStateFlow(ContextCompat.getColor(context, R.color.red))
 
-    override suspend fun composeScreen(): ComposeContext.() -> Unit = {
+    override fun ComposeContext.compose() {
 
         val color2: Int by stateFlow.asComposeState(this)
 
@@ -101,7 +81,7 @@ class MovieScreenAdapterComposer(
                 //checked = true
             }
         }
-//
+
         List("list") {
             List("inner_list1") {
                 List("inner_list2") {
@@ -167,16 +147,18 @@ class MovieScreenAdapterComposer(
                 }
             }
 
-            val color1: Int by stateFlow.asComposeState(this)
-            var someState: Int by composeState(this) { 0 }
+            var someState: Int by composeState { 0 }
 
             Text("text1",
                 style = {
-                    textColor = color1
+                    textColor = randomColor()
                     setTextSize(R.dimen.large_text_size)
                 }) {
                 text = "Click me!"
-                onClick { someState++ }
+                onClick {
+                "here!!".log()
+                    someState++
+                }
             }
 
             Text("text1_clicks",

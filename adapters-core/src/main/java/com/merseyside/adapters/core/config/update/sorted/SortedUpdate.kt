@@ -10,7 +10,10 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
     override var updateActions: UpdateActions<Parent, Model>
 ) : UpdateLogic<Parent, Model> {
 
-    override suspend fun update(updateRequest: UpdateRequest<Parent>, models: List<Model>): Boolean {
+    override suspend fun update(
+        updateRequest: UpdateRequest<Parent>,
+        models: List<Model>
+    ): Boolean {
         val updateTransaction = getUpdateTransaction(updateRequest, models)
         return applyUpdateTransaction(updateTransaction)
     }
@@ -18,7 +21,7 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
     private suspend fun getUpdateTransaction(
         updateRequest: UpdateRequest<Parent>,
         models: List<Model>
-    ): UpdateTransaction<Parent, Model>  {
+    ): UpdateTransaction<Parent, Model> {
         val updateTransaction = UpdateTransaction<Parent, Model>()
         with(updateTransaction) {
             if (updateRequest.removeOld) {
@@ -29,9 +32,11 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
             val updateList = ArrayList<Pair<Model, Parent>>()
 
             updateRequest.items.forEach { newItem ->
-                val model = getModelByItem(newItem, models)
+                val model = updateActions.findModelByItem(newItem)
                 if (model == null) {
-                    if (updateRequest.addNew) addList.add(newItem)
+                    if (updateRequest.addNew) {
+                        addList.add(newItem)
+                    }
                 } else {
                     if (!model.areContentsTheSame(newItem)) {
                         updateList.add(model to newItem)
@@ -51,26 +56,30 @@ class SortedUpdate<Parent, Model : VM<Parent>>(
     ): Boolean = updateActions.transaction {
         with(updateTransaction) {
             if (modelsToRemove.isNotEmpty()) {
-                updateActions.removeModels(modelsToRemove)
+                removeModels(modelsToRemove)
             }
 
             if (modelsToUpdate.isNotEmpty()) {
-                updateActions.updateModels(modelsToUpdate)
+                updateModels(modelsToUpdate)
             }
 
             if (itemsToAdd.isNotEmpty()) {
-                updateActions.add(itemsToAdd)
+                add(itemsToAdd)
             }
+
+            !updateTransaction.isEmpty()
         }
-
-        !updateTransaction.isEmpty()
     }
 
-    override suspend fun update(dest: List<Model>, source: List<Model>) {
-        val modelsToRemove = findOutdatedModels(dest.map { it.item }, source)
-        updateActions.removeModels(modelsToRemove)
+    override suspend fun update(dest: List<Model>, source: List<Model>) =
+        updateActions.transaction {
+            val modelsToRemove = findOutdatedModels(dest.map { it.item }, source)
+            updateActions.removeModels(modelsToRemove)
 
-        val addModels = dest.subtractBy(source) { sourceModel, destItem -> sourceModel.areItemsTheSameInternal(destItem.item)}
-        addModels.forEach { updateActions.addModel(it) }
-    }
+
+            val addModels = dest.subtractBy(source) { sourceModel, destItem ->
+                sourceModel.areItemsTheSameInternal(destItem.item)
+            }
+            addModels.forEach { updateActions.addModel(it) }
+        }
 }

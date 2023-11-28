@@ -8,19 +8,18 @@ import com.merseyside.adapters.core.base.IBaseAdapter
 import com.merseyside.adapters.core.config.NestedAdapterConfig
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.listManager.INestedModelListManager
-import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
+import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.merseyLib.kotlin.extensions.remove
 
 interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<Parent, Model>,
     NestedAdapterActions<Parent, Model, InnerData, InnerAdapter>, HasNestedAdapterListener<InnerData>
         where Model : NestedAdapterParentViewModel<out Parent, Parent, InnerData>,
-              InnerAdapter : BaseAdapter<InnerData, out AdapterParentViewModel<out InnerData, InnerData>> {
+              InnerAdapter : BaseAdapter<InnerData, out VM<InnerData>> {
 
     override val adapterConfig: NestedAdapterConfig<Parent, Model, InnerData, InnerAdapter>
 
-    var adapterList: MutableList<Pair<Model, InnerAdapter>>
+    var adapterMap: MutableMap<Any, InnerAdapter>
 
     override val listManager: INestedModelListManager<Parent, Model, InnerData, InnerAdapter>
         get() = adapterConfig.listManager
@@ -28,9 +27,10 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
     fun initNestedAdapter(model: Model): InnerAdapter
     fun getNestedView(holder: ViewHolder<Parent, Model>): RecyclerView?
 
-    private fun internalInitInnerAdapter(model: Model): InnerAdapter {
+    override fun initNestedAdapterByModel(model: Model): InnerAdapter {
         return initNestedAdapter(model).also { innerAdapter ->
             onInitAdapterListener?.onInitNestedAdapter(innerAdapter)
+            putAdapter(model, innerAdapter)
         }
     }
 
@@ -42,11 +42,11 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
     }
 
     private fun putAdapter(model: Model, adapter: InnerAdapter) {
-        adapterList.add(model to adapter)
+        adapterMap[model.id] = adapter
     }
 
     private fun getAdapterIfExists(model: Model): InnerAdapter? {
-        return adapterList.find { it.first.areItemsTheSameInternal(model.item) }?.second
+        return adapterMap[model.id]
     }
 
     /* Models list actions */
@@ -54,16 +54,8 @@ interface INestedAdapter<Parent, Model, InnerData, InnerAdapter> : IBaseAdapter<
         return getAdapterIfExists(model)
     }
 
-    override fun initNestedAdapterByModel(model: Model): InnerAdapter {
-        return internalInitInnerAdapter(model).also { adapter ->
-            putAdapter(model, adapter)
-        }
-    }
-
     override fun removeNestedAdapterByModel(model: Model): Boolean {
-        return adapterList.remove { (adaptersModel, _) ->
-            adaptersModel == model
-        }
+        return adapterMap.remove(model.id) != null
     }
 
 //    override suspend fun clear() {

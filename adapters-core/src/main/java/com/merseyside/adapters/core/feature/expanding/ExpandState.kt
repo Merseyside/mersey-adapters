@@ -7,10 +7,7 @@ import com.merseyside.merseyLib.kotlin.observable.ext.combineFields
 import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import com.merseyside.merseyLib.kotlin.observable.ext.valueNotNull
 
-class ExpandState(
-    expanded: Boolean = false,
-    expandable: Boolean = true
-) {
+class ExpandState(expanded: Boolean = false, expandable: Boolean = true) {
 
     internal var globalExpandable = MutableObservableField(true)
     private val itemExpandable = MutableObservableField(expandable)
@@ -19,28 +16,28 @@ class ExpandState(
 
     internal val expandEvent = SingleObservableEvent()
 
-    val expandableField: ObservableField<Boolean> = combineFields(
+    val expandableObservable: ObservableField<Boolean> = combineFields(
         globalExpandable, itemExpandable
     ) { first, second -> first && second }
 
     private var listener: OnExpandStateListener? = null
 
     var expanded: Boolean = expanded
-        set(value) {
+        private set(value) {
             if (field != value) {
                 field = value
 
                 expandedObservable.compareAndSet(value)
-                listener?.onExpanded(value)
+                listener?.onExpand(value)
             }
         }
 
     var expandable: Boolean
-        get() = expandableField.valueNotNull()
+        get() = expandableObservable.valueNotNull()
         set(value) { itemExpandable.compareAndSet(value) }
 
     init {
-        expandableField.observe { value ->
+        expandableObservable.observe { value ->
             listener?.onExpandable(value)
         }
     }
@@ -49,16 +46,27 @@ class ExpandState(
         this.listener = listener
     }
 
-    fun onExpand() {
+    fun expand() {
         expandEvent.call()
     }
 
-    fun onExpand(state: Boolean) {
-        if (expanded != state) onExpand()
+    fun expand(state: Boolean) {
+        if (expanded != state) expand()
+    }
+
+    private fun onExpand(state: Boolean): Boolean {
+        return listener?.onExpand(state) ?: true
+    }
+
+    internal fun setExpandState(state: Boolean): Boolean {
+        return if (onExpand(state)) {
+            expanded = state
+            true
+        } else false
     }
 
     interface OnExpandStateListener {
-        fun onExpanded(expanded: Boolean)
+        fun onExpand(expanded: Boolean): Boolean = true
 
         fun onExpandable(expandable: Boolean)
     }

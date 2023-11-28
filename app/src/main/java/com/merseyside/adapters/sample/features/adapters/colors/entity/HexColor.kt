@@ -6,6 +6,8 @@ data class HexColor(
     val color: Int
 ): Identifiable<Int> {
 
+    override val id = color
+
     fun getHex(): String  {
         return String.format("#%06X", 0xFFFFFF and color)
     }
@@ -21,8 +23,6 @@ data class HexColor(
     fun getBHexColor(): String {
         return getHex().substring(5..6)
     }
-
-    override fun getId() = color
 
     override fun toString(): String {
         return getHex()

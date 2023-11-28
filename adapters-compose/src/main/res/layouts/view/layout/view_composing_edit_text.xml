@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:maxLines="1"
-            android:onClick="@{_ -> model.onClick()}"
+            android:onClick="@{_ -> model.click()}"
             android:onTextChanged="@{(text, start, before, count) -> model.onTextChanged(text)}"
             android:text="@{model.text}" />
 

@@ -1,4 +1,4 @@
-package com.merseyside.adapters.core.holder.builder
+package com.merseyside.adapters.core.holder
 
 import android.view.ViewGroup
 import com.merseyside.adapters.core.holder.ViewHolder

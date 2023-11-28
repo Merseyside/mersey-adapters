@@ -2,22 +2,14 @@ package com.merseyside.adapters.compose.view.button
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.DimenRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.GravityInt
+import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
-import com.google.android.material.button.MaterialButton.ICON_GRAVITY_START
-import com.google.android.material.button.MaterialButton.IconGravity
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
+import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.view.button.icon.Icon
 import com.merseyside.adapters.compose.view.text.ComposingText
 import com.merseyside.adapters.compose.view.text.ComposingTextStyle
-import com.merseyside.adapters.compose.dsl.context.addView
 import com.merseyside.utils.ext.getColorFromAttr
 import com.merseyside.utils.ext.getDimensionPixelSize
 
@@ -27,9 +19,7 @@ open class ComposingButton<Style : ComposingButtonStyle>(
 ) : ComposingText<Style>(id, composingStyle) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out ComposingButton<Style>, Style, *> {
-        return ComposingButtonDelegate()
-    }
+    override val delegate: ViewDelegate<Style> = ComposingButtonDelegate()
 
     companion object {
         context (ComposeContext) operator fun invoke(
@@ -50,7 +40,8 @@ open class ComposingButtonStyle(context: Context) : ComposingTextStyle(context) 
 
     var textColorStateList: ColorStateList? = null
     var textAllCaps: Boolean? = null
-    @GravityInt var textGravity: Int? = null
+    @GravityInt
+    var textGravity: Int? = null
 
     var backgroundTint: ColorStateList? = null
     var cornerRadius: Int? = null

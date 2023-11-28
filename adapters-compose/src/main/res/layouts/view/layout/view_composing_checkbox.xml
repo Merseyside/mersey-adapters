@@ -12,6 +12,6 @@
             android:layout_height="wrap_content"
             android:text="@{model.text}"
             android:checked="@{model.selectState.selectedObservable.value}"
-            android:onCheckedChanged="@{(_, bool) -> model.selectState.onSelect(bool)}"/>
+            android:onCheckedChanged="@{(_, bool) -> model.selectState.select(bool)}"/>
 
 </layout>

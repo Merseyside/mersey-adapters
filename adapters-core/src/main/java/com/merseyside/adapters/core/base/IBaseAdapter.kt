@@ -4,17 +4,15 @@ package com.merseyside.adapters.core.base
 
 import android.annotation.SuppressLint
 import androidx.annotation.CallSuper
-import androidx.recyclerview.widget.RecyclerView
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
 import com.merseyside.adapters.core.base.callback.OnAttachToRecyclerViewListener
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.contract.HasAdapterWorkManager
 import com.merseyside.adapters.core.feature.positioning.PositionFeature
-import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
@@ -23,20 +21,21 @@ import com.merseyside.merseyLib.kotlin.extensions.isZero
 import kotlin.math.max
 import kotlin.math.min
 
-@SuppressLint("NotifyDataSetChanged")
 interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     HasOnItemClickListener<Parent>, ModelListCallback<Model>, HasAdapterWorkManager
         where Model : VM<Parent> {
 
     override var workManager: AdapterWorkManager
     val adapterConfig: AdapterConfig<Parent, Model>
-    val models: List<Model>
+    var models: List<Model>
+
+    override val adapter: BaseAdapter<Parent, *>
+
+    val isAttached: Boolean
 
     @InternalAdaptersApi
     val listManager: IModelListManager<Parent, Model>
         get() = adapterConfig.listManager
-
-    val adapter: RecyclerView.Adapter<ViewHolder<Parent, Model>>
 
     @InternalAdaptersApi
     val callbackClick: (Parent) -> Unit
@@ -45,24 +44,13 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     @CallSuper
     override suspend fun onInserted(models: List<Model>, position: Int, count: Int) {
-        if (count == 1) {
-            adapter.notifyItemInserted(position)
-        } else {
-            adapter.notifyItemRangeInserted(position, count)
-        }
-
+        adapter.notifyItemRangeInserted(position, count)
         notifyPositionsChanged(position)
     }
 
-
     @CallSuper
     override suspend fun onRemoved(models: List<Model>, position: Int, count: Int) {
-        if (count == 1) {
-            adapter.notifyItemRemoved(position)
-        } else {
-            adapter.notifyItemRangeRemoved(position, count)
-        }
-
+        adapter.notifyItemRangeRemoved(position, count)
         notifyPositionsChanged(position)
     }
 
@@ -79,8 +67,13 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         notifyPositionsChanged(toPosition, fromPosition)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override suspend fun onCleared() {
         adapter.notifyDataSetChanged()
+    }
+
+    override suspend fun onModelListUpdated(newModelList: List<Model>) {
+        models = newModelList
     }
 
     suspend fun add(item: Parent): Model? {
@@ -89,18 +82,16 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     /**
      * Delegates items adding to [IModelListManager]
-     * @return Added models
+     * @return true if mew models have been
      */
-    suspend fun add(items: List<Parent>) {
-        listManager.add(items)
+    suspend fun add(items: List<Parent>): Boolean {
+        return listManager.add(items).isNotEmpty()
     }
 
     @InternalAdaptersApi
-    suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
-        return if (isEmpty()) {
-            if (updateRequest.addNew) {
-                add(updateRequest.items)
-            } else add(emptyList())
+    private suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
+        return if (isEmpty() && updateRequest.addNew) {
+            add(updateRequest.items)
             true
         } else {
             listManager.update(updateRequest)
@@ -117,18 +108,17 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     @InternalAdaptersApi
     @CallSuper
     suspend fun onModelCreated(model: Model) {
-        model.clickEvent.observe(observer = callbackClick)
+        model.addOnClickListener(callbackClick)
     }
 
     /**
      * Removes model by item
      * Calls onItemRemoved callback method on success.
-     * @return position of removed item
+     * @return removed model
      */
     suspend fun remove(item: Parent): Model? {
         return listManager.remove(item)
     }
-
 
     suspend fun remove(items: List<Parent>): List<Model> {
         return listManager.remove(items)
@@ -141,26 +131,21 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
                 !payloads.contains(AdapterParentViewModel.Payloadable.None)
     }
 
-    fun onPayloadable(
-        holder: ViewHolder<Parent, Model>,
-        payloads: List<AdapterParentViewModel.Payloadable>
-    ) {
-    }
+    val size: Int
+        get() = models.size
 
-    fun getItemCount(): Int
-
-    fun getLastPositionIndex(): Int = getItemCount() - 1
+    fun getLastPositionIndex(): Int = size - 1
 
     fun getItemByPosition(position: Int): Parent {
         return getModelByPosition(position).item
     }
 
     fun getModelByPosition(position: Int): Model {
-        return listManager.getModelByPosition(position)
+        return models[position]
     }
 
     fun getModelByItem(item: Parent): Model? {
-        return listManager.getModelByItem(item)
+        return listManager.findModelByItem(item)
     }
 
     fun getPositionOfItem(item: Parent): Int {
@@ -180,7 +165,6 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         }
     }
 
-
     suspend fun clear() {
         listManager.clear()
     }
@@ -188,7 +172,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
     /**
      * @return true if modelList has items else - false
      */
-    fun isEmpty(): Boolean = getItemCount().isZero()
+    fun isEmpty(): Boolean = size.isZero()
 
     fun isNotEmpty(): Boolean = !isEmpty()
 
@@ -258,6 +242,7 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
 
     fun notifyPositionsChanged(newPosition: Int, oldPosition: Int = -1) {
         if (hasFeature(PositionFeature.key)) {
+
             val range = calculateChangedPositionsRange(newPosition, oldPosition)
             for (index in range) {
                 models[index].onPositionChanged(index)
@@ -273,8 +258,9 @@ interface IBaseAdapter<Parent, Model> : AdapterActions<Parent, Model>,
         }
     }
 
-    fun hasFeature(key: String): Boolean
+    fun setItemsClickableEnabled(enabled: Boolean) {
+        models.forEach { model -> model.isClickable = enabled }
+    }
 
-    @Throws(IllegalStateException::class)
-    fun getModelClass(): Class<Model>
+    fun hasFeature(key: String): Boolean
 }

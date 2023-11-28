@@ -18,7 +18,7 @@
             android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{ _ -> model.onClick()}"
+            android:onClick="@{ _ -> model.click()}"
             app:layoutManager="com.merseyside.utils.layoutManager.LinearLayoutManager" />
 
     </androidx.cardview.widget.CardView>

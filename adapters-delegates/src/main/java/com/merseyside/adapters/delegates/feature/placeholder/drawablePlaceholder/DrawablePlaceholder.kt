@@ -4,5 +4,5 @@ import androidx.annotation.DrawableRes
 import com.merseyside.merseyLib.kotlin.contract.Identifiable
 
 data class DrawablePlaceholder(@DrawableRes val drawable: Int): Identifiable<String> {
-    override fun getId(): String = "drawable_placeholder"
+    override val id: String = "drawable_placeholder"
 }

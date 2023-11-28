@@ -2,16 +2,18 @@ package com.merseyside.adapters.core.modelList
 
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
-import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.feature.sorting.sortedList.SortedList
 import com.merseyside.adapters.core.feature.sorting.sortedList.find
 import com.merseyside.adapters.core.feature.sorting.sortedList.removeAll
 import com.merseyside.adapters.core.feature.sorting.sortedList.subList
+import com.merseyside.adapters.core.model.AdapterParentViewModel
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 
 class SortedModelList<Parent, Model : VM<Parent>>(
-    internal val sortedList: SortedList<Model>,
+    workManager: AdapterWorkManager,
+    private val sortedList: SortedList<Model>,
     private val comparator: Comparator<Parent, Model>
-) : ModelList<Parent, Model>() {
+) : ModelList<Parent, Model>(workManager) {
 
     private val sortedListCallback = object : SortedList.Callback<Model>() {
         override suspend fun onInserted(position: Int, count: Int) {
@@ -19,8 +21,12 @@ class SortedModelList<Parent, Model : VM<Parent>>(
             onInserted(models, position)
         }
 
-        override suspend fun onRemoved(position: Int, count: Int) {
-            onRemoved(emptyList(), position, count)
+        /**
+         * Must be called with single item
+         */
+        override suspend fun onRemoved(position: Int, count: Int, model: Model) {
+            if (count > 1) throw IllegalArgumentException()
+            onRemoved(listOf(model), position, count)
         }
 
         override suspend fun onMoved(fromPosition: Int, toPosition: Int) {
@@ -30,7 +36,8 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         override suspend fun onChanged(position: Int, count: Int) {}
 
         override fun compare(item1: Model, item2: Model): Int {
-            return comparator.compare(item1, item2)
+            return if (item1 != item2) comparator.compare(item1, item2)
+            else 0
         }
 
         override fun areContentsTheSame(oldItem: Model, newItem: Model): Boolean {
@@ -46,20 +53,35 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         sortedList.setCallback(sortedListCallback)
     }
 
+    override suspend fun onUpdated(
+        model: Model,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    ) {
+        val oldPosition = getPositionOfModel(model)
+        val newPosition = sortedList.recalculatePositionOfItemAt(oldPosition)
+        if (oldPosition == newPosition) {
+            onChanged(model, oldPosition, payloads)
+        }
+    }
+
     override fun getModels(): List<Model> {
         return sortedList.getAll()
     }
 
-    override fun getModelByItem(item: Parent): Model? {
+    override fun getModelByItemInternal(item: Parent): Model? {
         return sortedList.find { it.areItemsTheSameInternal(item) }
     }
 
-    override suspend fun addAll(position: Int, models: List<Model>) {
-        throw Exception("Adding by position is not supported.")
+    override fun getPositionOfModel(model: Model): Int {
+        return sortedList.indexOf(model)
     }
 
-    override suspend fun add(position: Int, model: Model) {
-        throw Exception("Adding by position is not supported.")
+    override suspend fun add(model: Model) {
+        sortedList.add(model)
+    }
+
+    override suspend fun addAll(models: List<Model>) {
+        batchedUpdate { sortedList.addAll(models) }
     }
 
     override fun get(index: Int): Model {
@@ -71,13 +93,19 @@ class SortedModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun remove(model: Model): Boolean {
-        onRemove(listOf(model))
         return sortedList.remove(model)
     }
 
     override suspend fun removeAll(models: List<Model>) {
-        onRemove(models)
         sortedList.removeAll(models)
+    }
+
+    override suspend fun addAll(position: Int, models: List<Model>) {
+        throw Exception("Adding by position is not supported.")
+    }
+
+    override suspend fun add(position: Int, model: Model) {
+        throw Exception("Adding by position is not supported.")
     }
 
     override fun lastIndexOf(element: Model): Int {
@@ -88,32 +116,32 @@ class SortedModelList<Parent, Model : VM<Parent>>(
         return sortedList.indexOf(element)
     }
 
-    override suspend fun addAll(models: List<Model>) {
-        onInsert(models)
-        sortedList.addAll(models)
-    }
-
-    override suspend fun add(model: Model) {
-        onInsert(listOf(model))
-        sortedList.add(model)
-    }
-
-    override suspend fun onModelUpdated(
+    override suspend fun updateModel(
         model: Model,
-        payloads: List<AdapterParentViewModel.Payloadable>
+        newItem: Parent
     ) {
-        val position = getPositionOfModel(model)
-        if (position != -1) {
-            sortedList.recalculatePositionOfItemAt(position)
-            onChanged(model, getPositionOfModel(model), payloads)
-        }
+        val oldPosition = getPositionOfModel(model)
+        if (oldPosition != -1) {
+            val payloads = model.payload(newItem)
+            val newPosition = sortedList.recalculatePositionOfItemAt(oldPosition)
+            if (oldPosition != newPosition) onChanged(model, newPosition, payloads)
+        } else throw NullPointerException("Item not found!")
     }
 
-    override suspend fun clear() {
+    override suspend fun clearAll() {
+        val sizeBeforeCleared = count()
         doWithoutCallback {
             sortedList.clear()
         }
-        onCleared()
+        onCleared(sizeBeforeCleared)
+    }
+
+    suspend fun recalculateItemPositions() {
+        batchedUpdate {
+            val models = getModels()
+            clearAll()
+            addAll(models)
+        }
     }
 
     override fun listIterator(): ListIterator<Model> {

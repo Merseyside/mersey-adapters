@@ -12,6 +12,7 @@ import com.merseyside.adapters.sample.features.adapters.news.model.News
 import com.merseyside.merseyLib.time.Time
 import com.merseyside.utils.view.ext.onClick
 import com.merseyside.adapters.sample.features.adapters.news.adapter.NewsAdapter
+import com.merseyside.archy.utils.ext.navigateUp
 import java.util.*
 
 class NewsFragment: BaseBindingFragment<FragmentNewsBinding>() {
@@ -21,13 +22,19 @@ class NewsFragment: BaseBindingFragment<FragmentNewsBinding>() {
     override fun getLayoutId() = R.layout.fragment_news
     override fun performInjection(bundle: Bundle?, vararg params: Any) {}
     override fun getTitle(context: Context) = "News"
+    override fun isNavigateUpEnabled(): Boolean {
+        return true
+    }
+
+    override fun onNavigateUp() {
+        navigateUp()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         requireBinding().generate.onClick {
             adapter.updateAsync(generateNews(Random().nextInt(10), Random().nextInt(5)))
-            //adapter.addAfter(someNews, generateNews(3))
         }
 
         requireBinding().recycler.adapter = adapter

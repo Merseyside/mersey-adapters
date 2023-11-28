@@ -5,7 +5,8 @@ import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.utils.reflection.ReflectionUtils
 import com.merseyside.adapters.core.feature.sorting.comparator.Comparator
 
-abstract class ViewComparator<Model : ViewAdapterViewModel> : Comparator<SCV, ViewAdapterViewModel>() {
+abstract class ViewComparator<Model : ViewAdapterViewModel>
+    : Comparator<SCV, ViewAdapterViewModel>() {
 
     @Suppress("UNCHECKED_CAST")
     override fun compare(

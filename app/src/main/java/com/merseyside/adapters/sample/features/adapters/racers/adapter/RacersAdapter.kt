@@ -4,7 +4,7 @@ import com.merseyside.adapters.SimpleAdapter
 import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.config.config
 import com.merseyside.adapters.core.holder.ViewHolder
-import com.merseyside.adapters.core.holder.viewBinding.asBindingHolder
+import com.merseyside.adapters.core.holder.binding.asBindingHolder
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.animators.template.SetTextFadeOutInAnimator
 import com.merseyside.adapters.sample.BR
@@ -18,7 +18,7 @@ import com.merseyside.utils.ext.setTextColorAttr
 
 class RacersAdapter(config: AdapterConfig<Checkpoint, CheckpointItemViewModel>) :
     SimpleAdapter<Checkpoint, CheckpointItemViewModel>(config) {
-    override fun getLayoutIdForPosition(position: Int) = R.layout.item_checkpoint
+    override fun getLayoutIdForViewType(position: Int) = R.layout.item_checkpoint
     override fun getBindingVariable() = BR.viewModel
     override fun createItemViewModel(item: Checkpoint) = CheckpointItemViewModel(item)
 

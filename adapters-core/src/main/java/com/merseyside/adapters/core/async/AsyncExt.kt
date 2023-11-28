@@ -78,7 +78,7 @@ fun <Parent, Model : VM<Parent>> IBaseAdapter<Parent, Model>.getModelByItemAsync
     doAsync(onComplete) { getModelByItem(item) }
 }
 
-fun <Parent, Model : VM<Parent>> IBaseAdapter<Parent, Model>.clearAsync(
+fun IBaseAdapter<*, *>.clearAsync(
     onComplete: (Unit) -> Unit = {}
 ) {
     doAsync(onComplete) { clear() }

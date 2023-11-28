@@ -9,7 +9,7 @@ import com.merseyside.adapters.compose.delegate.NestedViewDelegateAdapter
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.simple.ComposingList
 import com.merseyside.adapters.compose.view.list.simple.ComposingListStyle
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
@@ -24,7 +24,7 @@ abstract class BaseComposingListDelegate<View, Model, InnerParent, InnerModel, I
               InnerModel : VM<InnerParent>,
               InnerAdapter : ViewCompositeAdapter<InnerParent, out InnerModel> {
 
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_list
+    override fun getLayoutIdForItem() = R.layout.view_composing_list
 
     override fun getNestedRecyclerView(holder: ViewHolder<SCV, Model>, model: Model): RecyclerView? {
         return (holder.root as RecyclerView).also { recyclerView ->

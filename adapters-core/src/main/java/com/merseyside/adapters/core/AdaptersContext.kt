@@ -1,8 +1,8 @@
 package com.merseyside.adapters.core
 
+import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 object AdaptersContext {
-    var coroutineContext: CoroutineContext = EmptyCoroutineContext
+    var coroutineContext: CoroutineContext = Dispatchers.Default
 }

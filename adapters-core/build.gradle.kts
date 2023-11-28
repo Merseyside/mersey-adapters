@@ -63,17 +63,15 @@ val androidLibz = listOf(
     androidLibs.material,
     androidLibs.recyclerView,
     androidLibs.coroutines,
-    androidLibs.lifecycleRuntime,
-    androidLibs.asyncLayoutInflater,
     androidLibs.lifecycleLiveDataKtx
 )
 
 val merseyLibs = listOf(
+    common.mersey.kotlin.ext,
     androidLibs.mersey.utils
 )
 
 dependencies {
-    api(common.mersey.kotlin.ext)
     androidLibz.forEach { lib -> api(lib) }
     merseyLibs.forEach { lib -> api(lib) }
 }

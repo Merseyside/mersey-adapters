@@ -17,10 +17,9 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
     override val adapterActions: AdapterActions<Parent, Model>,
     val adapterFilter: AdapterFilter<Parent, Model>,
     override val workManager: AdapterWorkManager
-): IModelListManager<Parent, Model>, ILogger {
+) : IModelListManager<Parent, Model>, ILogger {
 
     override lateinit var updateLogic: UpdateLogic<Parent, Model>
-    override val hashMap: MutableMap<Any, Model> = mutableMapOf()
 
     protected var isFiltering: Boolean = false
 
@@ -40,11 +39,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
                 filteredListProvider = { filteredList }
             )
 
-            setFilterCallback(object : AdapterFilter.FilterCallback<Model> {
-                override suspend fun onFiltered(models: List<Model>) {
-                    filterUpdate { update(models, filteredList) }
-                }
-            })
+            setFilterCallback { models -> filterUpdate { update(models, filteredList) } }
         }
     }
 
@@ -70,8 +65,10 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
         return true
     }
 
-    override fun getModelByItem(item: Parent): Model? {
-        return getModelByItem(item, allModelList)
+    override fun findModelByItem(item: Parent): Model? {
+        return allModelList.find { model ->
+            model.areItemsTheSameInternal(item)
+        }
     }
 
     @InternalAdaptersApi
@@ -81,9 +78,8 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
     }
 
     final override suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
-        return update(updateRequest, allModelList)
+        return updateLogic.update(updateRequest, allModelList)
     }
-
 
     override suspend fun addModels(models: List<Model>): Boolean {
         if (!isFiltering) {
@@ -91,7 +87,7 @@ open class FilterModelListManager<Parent, Model : VM<Parent>>(
         }
 
         val filteredModels = if (isFiltered) {
-             adapterFilter.filter(models)
+            adapterFilter.filter(models)
         } else models
 
         return super.addModels(filteredModels)

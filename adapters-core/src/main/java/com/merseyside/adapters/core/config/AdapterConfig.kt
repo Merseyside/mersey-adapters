@@ -16,18 +16,18 @@ import com.merseyside.adapters.core.listManager.IModelListManager
 import com.merseyside.adapters.core.listManager.impl.ModelListManager
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.coroutines.queue.CoroutineQueue
-import com.merseyside.merseyLib.kotlin.coroutines.utils.uiDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
 open class AdapterConfig<Parent, Model> internal constructor(
     config: AdapterConfig<Parent, Model>.() -> Unit = {}
 ) where Model : VM<Parent> {
-    protected lateinit var adapter: IBaseAdapter<Parent, Model>
+    lateinit var adapter: IBaseAdapter<Parent, Model>
 
     internal val featureList = ArrayList<Feature<Parent, Model>>()
 
@@ -39,7 +39,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
 
     var errorHandler: ((Exception) -> Unit)? = null
 
-    var coroutineScope: CoroutineScope = CoroutineScope(uiDispatcher)
+    var coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     var coroutineContext: CoroutineContext = AdaptersContext.coroutineContext
 
     internal val workManager: AdapterWorkManager
@@ -48,7 +48,7 @@ open class AdapterConfig<Parent, Model> internal constructor(
         apply(config)
         if (errorHandler == null) errorHandler = { e -> throw e }
         workManager = AdapterWorkManager(
-            CoroutineQueue<Any, Unit>(coroutineScope).apply { fallOnException = true },
+            CoroutineQueue(coroutineScope),
             coroutineContext,
             errorHandler!!
         )
@@ -83,11 +83,11 @@ open class AdapterConfig<Parent, Model> internal constructor(
             featureList.filterIsInstance<ModelListProvider<Parent, Model>>()
 
         if (listProviders.size > 1) throw IllegalArgumentException(
-            "There are few list provider features. Have to be zero or one"
+            "There are few list provider features. It must to be zero or one"
         )
 
         return if (listProviders.isEmpty()) {
-            SimpleModelList()
+            SimpleModelList(workManager)
         } else {
             val listProvider = listProviders.first()
             val listProviderFeature = listProvider as Feature<Parent, Model>
@@ -131,4 +131,12 @@ open class AdapterConfig<Parent, Model> internal constructor(
 
         return _modelListManager
     }
+
+    companion object {
+        fun <Parent, Model : VM<Parent>> EMPTY(): AdapterConfig<Parent, Model> {
+            return AdapterConfig()
+        }
+    }
 }
+
+typealias SimpleAdapterConfig = AdapterConfig<Any, VM<Any>>

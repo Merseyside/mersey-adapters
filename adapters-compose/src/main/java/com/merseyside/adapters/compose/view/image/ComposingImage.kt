@@ -3,9 +3,9 @@ package com.merseyside.adapters.compose.view.image
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.widget.ImageView.ScaleType
-import com.merseyside.adapters.compose.delegate.ViewDelegateAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 
@@ -16,9 +16,7 @@ class ComposingImage<Style : ComposingImageStyle>(
 
     lateinit var drawable: Drawable
 
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out StyleableComposingView<out Style>, out Style, *> {
-        return ComposingImageDelegate()
-    }
+    override val delegate: ViewDelegate<Style> = ComposingImageDelegate()
 
     companion object {
         context (ComposeContext) operator fun invoke(
@@ -31,7 +29,6 @@ class ComposingImage<Style : ComposingImageStyle>(
                 .addView()
         }
     }
-
 
 }
 

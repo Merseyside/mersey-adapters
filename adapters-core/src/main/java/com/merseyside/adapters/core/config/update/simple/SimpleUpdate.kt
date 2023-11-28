@@ -20,8 +20,10 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         } else if (updateRequest.isFullUpdate()) {
             fullUpdate(updateRequest.items, models)
         } else {
-            throw UnsupportedOperationException("Simple update support only full update or update" +
-                    " without adding or removing items. Please use simple add/remove operations")
+            throw UnsupportedOperationException(
+                "Simple update support only full update or update" +
+                        " without adding or removing items. Please use simple add/remove operations"
+            )
         }
     }
 
@@ -47,17 +49,23 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         items: List<Parent>,
         models: List<Model>
     ): Boolean {
-        var isUpdated = false
+        var isUpdated: Boolean
 
         isUpdated = removeOutdatedModels(items, models)
+        var shiftPosition = 0
 
-        items.forEachIndexed { newPosition, item ->
-            val oldModel = findModelByItem(item, models)
+        items.forEachIndexed { itemPosition, item ->
+            val modelInList = models.getOrNull(itemPosition)
+            if (modelInList?.implicitPosition == itemPosition) shiftPosition++
+            val positionWithShift = itemPosition + shiftPosition
+
+            val oldModel = findModelByItem(item)
             if (oldModel == null) {
-                add(newPosition, listOf(item))
+                if (positionWithShift == models.size) add(listOf(item))
+                else add(positionWithShift, listOf(item))
             } else {
                 val oldPosition = getPositionOfItem(item, models)
-                move(oldModel, oldPosition, newPosition)
+                move(oldModel, oldPosition, positionWithShift)
                 if (!oldModel.areContentsTheSame(item)) {
                     isUpdated = updateModel(oldModel, item) || isUpdated
                 }
@@ -74,7 +82,7 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
         var isUpdated = false
 
         items.forEach { item ->
-            val oldModel = findModelByItem(item, models)
+            val oldModel = findModelByItem(item)
             if (oldModel != null) {
                 isUpdated = updateModel(oldModel, item) || isUpdated
             }
@@ -89,9 +97,5 @@ class SimpleUpdate<Parent, Model : VM<Parent>>(
     ): Boolean {
         val modelsToRemove = findOutdatedModels(items, models)
         return removeModels(modelsToRemove)
-    }
-
-    private fun findModelByItem(item: Parent, models: List<Model>): Model? {
-        return models.find { it.areItemsTheSameInternal(item) }
     }
 }

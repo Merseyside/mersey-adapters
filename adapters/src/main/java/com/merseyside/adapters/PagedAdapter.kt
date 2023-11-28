@@ -4,27 +4,29 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import com.merseyside.adapters.core.base.callback.HasOnItemClickListener
-import com.merseyside.adapters.core.base.callback.OnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.HasOnItemClickListener
+import com.merseyside.adapters.core.base.callback.click.OnItemClickListener
 import com.merseyside.adapters.core.holder.ViewHolder
-import com.merseyside.adapters.core.holder.builder.BindingViewHolderBuilder
-import com.merseyside.adapters.core.holder.builder.ViewHolderBuilder
+import com.merseyside.adapters.core.holder.ViewHolderBuilder
+import com.merseyside.adapters.core.holder.binding.BindingViewHolderBuilder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.merseyLib.kotlin.logger.Logger
 
-abstract class PagedAdapter<Parent : Any, Model : VM<Parent>>(diffUtil: DiffUtil.ItemCallback<Parent>)
-    : PagedListAdapter<Parent, ViewHolder<Parent, Model>>(diffUtil),
+abstract class PagedAdapter<Parent : Any, Model : VM<Parent>>(diffUtil: DiffUtil.ItemCallback<Parent>) :
+    PagedListAdapter<Parent, ViewHolder<Parent, Model>>(diffUtil),
     HasOnItemClickListener<Parent> {
 
     override var clickListeners: MutableList<OnItemClickListener<Parent>> = ArrayList()
 
-    private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> = BindingViewHolderBuilder(::getBindingVariable)
+    private var viewHolderBuilder: ViewHolderBuilder<Parent, Model> =
+        BindingViewHolderBuilder({0}, ::getBindingVariable)
 
     protected fun setViewHolderBuilder(builder: ViewHolderBuilder<Parent, Model>) {
         viewHolderBuilder = builder
     }
 
     enum class NetworkState { ERROR, NO_CONNECTION, CONNECTED, LOADING }
+
     private var networkState: INetworkState? = null
 
     interface INetworkState {
@@ -44,20 +46,22 @@ abstract class PagedAdapter<Parent : Any, Model : VM<Parent>>(diffUtil: DiffUtil
 
     protected abstract fun createItemViewModel(obj: Parent): Model
 
-    protected abstract fun getLayoutIdForPosition(position: Int): Int
+    protected abstract fun getLayoutIdForViewType(viewType: Int): Int
 
     protected abstract fun getBindingVariable(): Int
 
     protected open fun getNetworkConnectionModel(): INetworkState {
-        throw IllegalArgumentException("You have to override this method" +
-                "in order to use network states")
+        throw IllegalArgumentException(
+            "You have to override this method" +
+                    "in order to use network states"
+        )
     }
 
     override fun getItemViewType(position: Int): Int {
         return if (hasExtraRow() && position == itemCount - 1) {
             getNetworkConnectionLayout()
         } else {
-            getLayoutIdForPosition(position)
+            getLayoutIdForViewType(position)
         }
     }
 
@@ -78,7 +82,8 @@ abstract class PagedAdapter<Parent : Any, Model : VM<Parent>>(diffUtil: DiffUtil
 //
 //    }
 
-    private fun hasExtraRow() = networkState != null && networkState!!.getNetworkState() != NetworkState.CONNECTED
+    private fun hasExtraRow() =
+        networkState != null && networkState!!.getNetworkState() != NetworkState.CONNECTED
 
     @LayoutRes
     open fun getNetworkConnectionLayout(): Int {

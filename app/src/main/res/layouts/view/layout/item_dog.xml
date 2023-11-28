@@ -17,7 +17,7 @@
         android:elevation="@dimen/small_spacing"
         app:contentPadding="@dimen/small_spacing"
         app:cardCornerRadius="@dimen/small_spacing"
-        android:onClick="@{_ -> model.onClick()}">
+        android:onClick="@{_ -> model.click()}">
 
         <LinearLayout
             android:orientation="vertical"

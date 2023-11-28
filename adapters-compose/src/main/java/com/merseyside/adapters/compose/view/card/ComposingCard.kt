@@ -9,6 +9,7 @@ import com.merseyside.adapters.compose.style.ComposingStyle
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.base.StyleableComposingView
 import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 import com.merseyside.adapters.compose.view.list.selectable.SelectableListConfig
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroup
 import com.merseyside.adapters.compose.view.viewGroup.ComposingViewGroupStyle
@@ -21,10 +22,7 @@ open class ComposingCard(
     viewGroupComposeContext: ViewGroupComposeContext<SCV>
 ) : ComposingViewGroup<ComposingCardStyle>(id, composingStyle, viewGroupComposeContext) {
 
-    override fun getSuitableDelegate():
-            ViewDelegateAdapter<out StyleableComposingView<out ComposingCardStyle>, out ComposingCardStyle, *> {
-        return ComposingCardDelegate()
-    }
+    override val delegate: ViewDelegate<ComposingCardStyle> = ComposingCardDelegate()
 
     open val listConfig: SelectableListConfig by lazy { SelectableListConfig().apply(configure) }
 

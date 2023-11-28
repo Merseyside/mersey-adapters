@@ -3,22 +3,20 @@ package com.merseyside.adapters.sample.features.adapters.compose.view
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import com.merseyside.adapters.compose.adapter.SimpleViewCompositeAdapter
-import com.merseyside.adapters.core.config.init.initAdapter
+import com.merseyside.adapters.compose.adapter.setAdapterComposer
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
 import com.merseyside.adapters.sample.application.base.BaseSampleFragment
 import com.merseyside.adapters.sample.databinding.FragmentComposeBinding
-import com.merseyside.adapters.sample.features.adapters.compose.adapter.MovieScreenAdapterComposer
-import com.merseyside.adapters.sample.features.adapters.compose.di.DaggerComposeComponent
+import com.merseyside.adapters.sample.features.adapters.compose.adapter.ScreenAdapterComposer
 import com.merseyside.adapters.sample.features.adapters.compose.di.ComposeModule
+import com.merseyside.adapters.sample.features.adapters.compose.di.DaggerComposeComponent
 import com.merseyside.adapters.sample.features.adapters.compose.model.ComposeViewModel
 
 class ComposeFragment : BaseSampleFragment<FragmentComposeBinding, ComposeViewModel>() {
 
-    private val screenBuilder: MovieScreenAdapterComposer by lazy {
-        MovieScreenAdapterComposer(this, initAdapter(::SimpleViewCompositeAdapter))
+    private val screenBuilder: ScreenAdapterComposer by lazy {
+        ScreenAdapterComposer(this)
     }
 
     override fun getTitle(context: Context) = "ComposeScreen"
@@ -32,11 +30,9 @@ class ComposeFragment : BaseSampleFragment<FragmentComposeBinding, ComposeViewMo
             .build().inject(this)
     }
 
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireBinding().composite.adapter = screenBuilder.adapter
+        requireBinding().composite.setAdapterComposer(screenBuilder)
     }
 }

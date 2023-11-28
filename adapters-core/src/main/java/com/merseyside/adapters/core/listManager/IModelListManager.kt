@@ -10,7 +10,7 @@ import com.merseyside.adapters.core.modelList.ModelList
 import com.merseyside.adapters.core.modelList.SimpleModelList
 import com.merseyside.adapters.core.modelList.update.UpdateRequest
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.merseyLib.kotlin.contract.Identifiable
+import com.merseyside.merseyLib.kotlin.logger.log
 
 interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAdapterWorkManager
         where Model : VM<Parent> {
@@ -20,12 +20,6 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
 
     val modelList: ModelList<Parent, Model>
 
-    val hashMap: MutableMap<Any, Model>
-
-    fun getItemCount(): Int {
-        return modelList.size
-    }
-
     fun getPositionOfModel(model: Model): Int {
         return modelList.indexOf(model)
     }
@@ -34,56 +28,23 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         return adapterActions.provideModelByItem(item)
     }
 
-    fun getPositionOfItem(item: Parent, models: List<Model> = modelList): Int {
-        models.forEachIndexed { index, model ->
-            if (model.areItemsTheSameInternal(item)) return index
-        }
-
-        throw IllegalArgumentException("No data found")
-    }
-
-    fun getModelByItem(item: Parent): Model? {
-        return getModelByItem(item, modelList)
-    }
-
-    fun getModelByItem(item: Parent, models: List<Model>): Model? {
-        return if (item is Identifiable<*>) {
-            getModelByIdentifiable(item)
-        } else {
-            models.find { model ->
-                model.areItemsTheSameInternal(item)
-            }
-        }
-    }
-
-    private fun getModelByIdentifiable(identifiable: Identifiable<*>): Model? {
-        return hashMap[identifiable.getId()]
-    }
-
     @CallSuper
     suspend fun createModel(item: Parent): Model {
-        return provideModel(item).also { model ->
-            if (item is Identifiable<*>) {
-                val id = item.getId()
-                id?.let {
-                    hashMap[id] = model
-                }
-            }
-        }
+        return provideModel(item)
     }
 
     suspend fun createModels(items: List<Parent>): List<Model> {
-        return items.map { item -> createModel(item) }
-    }
-
-    suspend fun add(item: Parent): Model {
-        val model = createModel(item)
-        addModel(model)
-        return model
+        return items.mapNotNull { item -> createModel(item) }
     }
 
     override suspend fun <R> transaction(block: suspend UpdateActions<Parent, Model>.() -> R): R {
         return modelList.batchedUpdate { block() }
+    }
+
+    suspend fun add(item: Parent): Model? {
+        return createModel(item).also { model ->
+            addModel(model)
+        }
     }
 
     override suspend fun add(items: List<Parent>): List<Model> {
@@ -92,11 +53,11 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         return models
     }
 
-    suspend fun add(position: Int, item: Parent): Model {
+    suspend fun add(position: Int, item: Parent): Model? {
         requireValidPosition(position)
-        val model = createModel(item)
-        addModel(position, model)
-        return model
+        return createModel(item).also { model ->
+            addModel(position, model)
+        }
     }
 
     override suspend fun add(position: Int, items: List<Parent>): List<Model> {
@@ -107,31 +68,16 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     suspend fun remove(item: Parent): Model? {
-        return try {
-            val model = getModelByItem(item)
-            model?.let { removeModel(model) }
-
-            if (item is Identifiable<*>) {
-                val id = item.getId()
-                id?.let {
-                    hashMap.remove(id)
-                }
-            }
-
-            model
-        } catch (e: IllegalArgumentException) {
-            null
-        }
+        val model = findModelByItem(item)
+        return model?.also { removeModel(model) }
     }
 
     suspend fun update(updateRequest: UpdateRequest<Parent>): Boolean {
-        return update(updateRequest, modelList)
+        return updateLogic.update(updateRequest, modelList)
     }
 
     suspend fun remove(items: List<Parent>): List<Model> {
-        return checkNotEmpty(items) {
-            items.mapNotNull { item -> remove(item) }
-        } ?: emptyList()
+        return items.mapNotNull { item -> remove(item) }
     }
 
     suspend fun update(items: List<Parent>): Boolean {
@@ -142,14 +88,6 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         updateLogic.update(dest, source)
     }
 
-    suspend fun update(
-        updateRequest: UpdateRequest<Parent>,
-        sourceList: List<Model>
-    ): Boolean {
-        return updateLogic.update(updateRequest, sourceList)
-    }
-
-
     /* Models */
 
     override suspend fun addModel(model: Model): Boolean {
@@ -158,6 +96,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     override suspend fun addModel(position: Int, model: Model): Boolean {
+        model.implicitPosition = position
         modelList.add(position, model)
         return true
     }
@@ -173,8 +112,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
     }
 
     override suspend fun updateModel(model: Model, item: Parent): Boolean {
-        val payloads = model.payload(item)
-        modelList.onModelUpdated(model, payloads)
+        modelList.updateModel(model, item)
         return true
     }
 
@@ -190,6 +128,10 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
         (modelList as SimpleModelList).move(fromPosition, toPosition)
     }
 
+    override fun findModelByItem(item: Parent): Model? {
+        return modelList.findModelByItem(item)
+    }
+
     fun getModelByPosition(position: Int): Model {
         return modelList[position]
     }
@@ -201,13 +143,7 @@ interface IModelListManager<Parent, Model> : UpdateActions<Parent, Model>, HasAd
 
     fun requireValidPosition(position: Int, models: List<Model> = modelList) {
         if (models.size < position) throw IllegalArgumentException(
-            "Models size is ${models.size}" +
-                    " but position is $position."
+            "Models size is ${models.size} but position is $position."
         )
-    }
-
-    suspend fun <M, R> checkNotEmpty(list: List<M>, block: suspend (list: List<M>) -> R): R? {
-        return if (list.isNotEmpty()) block(list)
-        else null
     }
 }

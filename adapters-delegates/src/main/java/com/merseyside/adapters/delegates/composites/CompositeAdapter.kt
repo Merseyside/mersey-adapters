@@ -6,25 +6,24 @@ import com.merseyside.adapters.core.config.AdapterConfig
 import com.merseyside.adapters.core.holder.ViewHolder
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.utils.InternalAdaptersApi
-import com.merseyside.adapters.delegates.DA
 import com.merseyside.adapters.delegates.manager.DelegatesManager
 
 open class CompositeAdapter<Parent, ParentModel>(
     adapterConfig: AdapterConfig<Parent, ParentModel>,
-    delegatesManager: DelegatesManager<DA<Parent, ParentModel>, Parent, ParentModel> = DelegatesManager()
+    delegatesManager: DelegatesManager<Parent, ParentModel> = DelegatesManager()
 ) : BaseAdapter<Parent, ParentModel>(adapterConfig)
         where ParentModel : VM<Parent> {
 
-    open val delegatesManager: DelegatesManager<DA<Parent, ParentModel>, Parent, ParentModel> =
+    open val delegatesManager: DelegatesManager<Parent, ParentModel> =
         delegatesManager
 
     init {
         delegatesManager.setOnDelegateRemoveCallback { delegate ->
-            val removeList = models.filter { delegate.isResponsibleFor(it.item) }
+            val removeList = models.filter { delegate.isResponsibleForParent(it.item) }
             remove(removeList.map { it.item })
         }
 
-        delegatesManager.getRelativeAdapter = { this }
+        delegatesManager.adapter = this
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -44,7 +43,6 @@ open class CompositeAdapter<Parent, ParentModel>(
         model: ParentModel,
         position: Int
     ) {
-        super.bindModel(holder, model, position)
         delegatesManager.onBindViewHolder(holder, model, position)
     }
 

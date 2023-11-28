@@ -9,7 +9,7 @@ import com.merseyside.adapters.core.feature.selecting.callback.OnSelectEnabledLi
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.addOrSet
 import com.merseyside.merseyLib.kotlin.logger.ILogger
@@ -104,7 +104,8 @@ class AdapterSelect<Parent, Model>(
         model: Model,
         position: Int,
         payloads: List<AdapterParentViewModel.Payloadable>
-    ) {}
+    ) {
+    }
 
     override suspend fun onMoved(fromPosition: Int, toPosition: Int) {}
 
@@ -125,7 +126,7 @@ class AdapterSelect<Parent, Model>(
     }
 
     fun selectItem(item: Parent): Boolean {
-        val selectable = modelList.getModelByItem(item).requireSelectable()
+        val selectable = modelList.findModelByItem(item).requireSelectable()
         return changeItemSelectedState(selectable)
     }
 
@@ -148,12 +149,15 @@ class AdapterSelect<Parent, Model>(
         newState: Boolean = !item.isSelected(),
         isSelectedByUser: Boolean = false
     ): Boolean {
-        return if (item.isSelected() xor newState) {
-            item.selectState.selected = newState
-            updateSelectedListWithItem(item)
-            notifyItemSelected(item, isSelectedByUser)
-            true
-        } else false
+        if (item.isSelected() xor newState) {
+            return if (item.selectState.setSelectState(newState)) {
+                updateSelectedListWithItem(item)
+                notifyItemSelected(item, isSelectedByUser)
+                true
+            } else false
+        }
+
+        return false
     }
 
     private fun updateSelectedListWithItem(item: SelectableItem): Boolean {
@@ -177,9 +181,10 @@ class AdapterSelect<Parent, Model>(
 
                 //make another items not selected
                 val wrongSelectedItems = selected.toMutableList().apply { remove(lastSelectedItem) }
-                wrongSelectedItems.forEach {
-                    it.selectState.selected = false
-                    notifyItemSelected(it, false)
+                wrongSelectedItems.forEach { item ->
+                    if (item.selectState.setSelectState(false)) {
+                        notifyItemSelected(item, false)
+                    }
                 }
             }
         } else {
@@ -188,7 +193,10 @@ class AdapterSelect<Parent, Model>(
         }
     }
 
-    fun changeItemSelectedState(item: SelectableItem, isSelectedByUser: Boolean = false): Boolean {
+    private fun changeItemSelectedState(
+        item: SelectableItem,
+        isSelectedByUser: Boolean = false
+    ): Boolean {
 
         return with(item) {
             if (canItemBeSelected(item)) {

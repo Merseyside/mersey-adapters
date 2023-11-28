@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.removeAsync
 import com.merseyside.adapters.core.async.updateAsync
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.config.init.initAdapter
 import com.merseyside.adapters.core.feature.filtering.Filtering
 import com.merseyside.adapters.core.feature.filtering.ext.addFilterAsync
@@ -18,7 +18,6 @@ import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.core.modelList.update.UpdateBehaviour
 import com.merseyside.adapters.delegates.composites.SimpleCompositeAdapter
 import com.merseyside.adapters.delegates.feature.placeholder.Placeholder
-import com.merseyside.adapters.delegates.feature.placeholder.resolver.EmptyDataResolver
 import com.merseyside.adapters.delegates.feature.placeholder.textPlaceholder.TextPlaceholderProvider
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
@@ -41,22 +40,18 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
 
     private val adapter = initAdapter(::SimpleCompositeAdapter) {
         coroutineScope = lifecycleScope
+        Sorting { comparator = colorsComparator }
+        Filtering { filter = colorsFilter }
 
-        Sorting {
-            comparator = colorsComparator
+        Placeholder.EmptyData {
+            showOnAttach = true
+            provider = TextPlaceholderProvider("No colors. Press button below :)")
         }
-
-        Filtering {
-            filter = colorsFilter
-        }
-
-        Placeholder {
-            placeholderProvider = TextPlaceholderProvider("No colors. Press button below :)")
-            placeholderDataResolver = EmptyDataResolver(showPlaceholderOnAttach = true)
-        }
-    }.apply { delegatesManager.addDelegates(ColorsDelegateAdapter().also {
-        it.onClick { color -> this@apply.removeAsync(color) }
-    }) }
+    }.apply {
+        delegatesManager.addDelegates(ColorsDelegateAdapter().also {
+            it.onClick { color -> this@apply.removeAsync(color) }
+        })
+    }
 
     override fun getBindingVariable() = BR.viewModel
     override fun getLayoutId() = R.layout.fragment_colors
@@ -69,14 +64,8 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
             .build().inject(this)
     }
 
-    private val textChangeListener = { view: View,
-                                       newValue: String?,
-                                       _: String?,
-                                       length: Int,
-                                       _: Int,
-                                       _: Int,
-                                       _: Int ->
-
+    private val textChangeListener = {
+            view: View, newValue: String?, _: String?, length: Int, _: Int, _: Int, _: Int ->
 
         if (newValue != null) {
             val filterName = when (view.id) {
@@ -87,6 +76,7 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
             }
 
             if (length in 1..2) {
+                listOf<String>().toMutableList()
                 colorsFilter.addFilterAsync(filterName, newValue)
                 true
             } else {
@@ -105,7 +95,7 @@ class ColorsFragment : BaseSampleFragment<FragmentColorsBinding, ColorsViewModel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireBinding().run {
+        requireBinding().apply {
             recyclerView.adapter = adapter
             rColor.addTextChangeListener(textChangeListener)
             gColor.addTextChangeListener(textChangeListener)

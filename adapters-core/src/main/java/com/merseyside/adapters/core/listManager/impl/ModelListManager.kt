@@ -14,8 +14,6 @@ open class ModelListManager<Parent, Model>(
 ) : IModelListManager<Parent, Model>
         where Model : VM<Parent> {
 
-    override val hashMap: MutableMap<Any, Model> = mutableMapOf()
-
     override lateinit var updateLogic: UpdateLogic<Parent, Model>
 
     override suspend fun removeModels(models: List<Model>): Boolean {

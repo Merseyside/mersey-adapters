@@ -1,6 +1,5 @@
 package com.merseyside.adapters.core.model
 
-import androidx.annotation.CallSuper
 import androidx.databinding.BaseObservable
 import androidx.databinding.ObservableBoolean
 import com.merseyside.adapters.core.feature.positioning.PositionHandler
@@ -14,18 +13,27 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     item: Item,
     clickable: Boolean = true,
     deletable: Boolean = true,
-    filterable: Boolean = true
+    filterable: Boolean = true,
 ) : BaseObservable(), PositionHandler {
 
     var item: Item = item
         internal set
 
+    open val id: Any by lazy {
+        (item as? Identifiable<*>)?.id ?: throw NotImplementedError(
+            "${this::class.simpleName}'s item is not Identifiable." +
+                    " Please, override this method and provide id manually!"
+        )
+    }
+
+    internal var implicitPosition: Int? = null
+
     override var position: Int = NO_ITEM_POSITION
 
     private val mutClickEvent = SingleObservableField<Item>()
 
-    @InternalAdaptersApi
-    val clickEvent: ObservableField<Item> = mutClickEvent
+    @PublishedApi
+    internal val clickEvent: ObservableField<Item> = mutClickEvent
 
     val clickableObservable = ObservableBoolean()
     val filterableObservable = ObservableBoolean()
@@ -58,21 +66,17 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
             }
         }
 
-    @CallSuper
-    open fun onClick() {
-        if (isClickable) {
+    fun click() {
+        if (onClick()) {
             mutClickEvent.value = item
         }
     }
 
     /**
-     * Use this method with custom lambda databinding methods.
-     * https://discuss.kotlinlang.org/t/using-lambda-in-custom-bindingadapter-using-android-databinding-and-kotlin/4229
+     * @return true if click must be intercepted and listeners should be notified.
      */
-    @CallSuper
-    open fun onClickVoid(): Void? {
-        onClick()
-        return null as Void?
+    protected open fun onClick(): Boolean {
+        return isClickable
     }
 
     override fun onPositionChanged(fromPosition: Int, toPosition: Int) {}
@@ -87,7 +91,7 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     }
 
     protected open fun areItemsTheSame(other: Item): Boolean = try {
-        (item as Identifiable<*>).getId() == (other as Identifiable<*>).getId()
+        id == (other as Identifiable<*>).id
     } catch (e: ClassCastException) {
         throw NotImplementedError(
             "Items are not Identifiable. " +
@@ -105,17 +109,22 @@ abstract class AdapterParentViewModel<Item : Parent, Parent>(
     /**
      * Call notifyPropertyChanged(id) here.
      */
-    open fun notifyUpdate() {}
+    open fun onUpdate() {}
 
     internal fun payload(newItem: Parent): List<Payloadable> {
         val payloads = payload(item, newItem as Item)
         this.item = newItem
-        notifyUpdate()
+        onUpdate()
         return payloads
     }
 
     protected open fun payload(oldItem: Item, newItem: Item): List<Payloadable> {
         return listOf(Payloadable.None)
+    }
+
+    @InternalAdaptersApi
+    inline fun addOnClickListener(crossinline onClick: (Item) -> Unit) {
+        clickEvent.observe { onClick(it) }
     }
 
     interface Payloadable {

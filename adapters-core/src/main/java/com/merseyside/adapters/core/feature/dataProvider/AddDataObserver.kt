@@ -10,7 +10,7 @@ import com.merseyside.adapters.core.base.IBaseAdapter
  * Simply add data to start or end of the
  * @param addToStart set's behaviour of adding
  */
-class AddDataObserver<Item, Parent>(
+class AddDataObserver<Item: Parent, Parent>(
     private val addToStart: Boolean = false
 ) : DataObserver<Item, Parent> {
 
@@ -22,6 +22,8 @@ class AddDataObserver<Item, Parent>(
 
     @Suppress("UNCHECKED_CAST")
     private fun castToAdaptersList(data: Item): List<Parent> {
-        return data as List<Parent>
+        return if (data is List<*>) {
+            data as List<Parent>
+        } else listOf(data as Parent)
     }
 }

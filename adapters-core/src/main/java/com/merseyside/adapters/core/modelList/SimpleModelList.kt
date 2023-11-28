@@ -2,29 +2,35 @@ package com.merseyside.adapters.core.modelList
 
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.workManager.AdapterWorkManager
 import com.merseyside.merseyLib.kotlin.extensions.move
 
 open class SimpleModelList<Parent, Model : VM<Parent>>(
+    workManager: AdapterWorkManager,
     private val mutModels: MutableList<Model> = ArrayList()
-) : ModelList<Parent, Model>() {
+) : ModelList<Parent, Model>(workManager) {
 
     override fun getModels(): List<Model> {
         return mutModels
     }
 
-    override suspend fun onModelUpdated(
+    override suspend fun updateModel(
         model: Model,
-        payloads: List<AdapterParentViewModel.Payloadable>
+        newItem: Parent
     ) {
         val position = getPositionOfModel(model)
-        onChanged(model, position, payloads)
+        onChanged(model, position, model.payload(newItem))
     }
 
     override fun get(index: Int): Model {
         return mutModels[index]
     }
 
-    override fun getModelByItem(item: Parent): Model? {
+    override fun getPositionOfModel(model: Model): Int {
+        return mutModels.indexOf(model)
+    }
+
+    override fun getModelByItemInternal(item: Parent): Model? {
         return mutModels.find { it.areItemsTheSameInternal(item) }
     }
 
@@ -35,7 +41,6 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     override suspend fun remove(model: Model): Boolean {
         val position = getPositionOfModel(model)
         return try {
-            onRemove(listOf(model))
             val removedModel = mutModels.removeAt(position)
             val list = listOf(removedModel)
 
@@ -59,27 +64,23 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
     }
 
     override suspend fun addAll(models: List<Model>) {
-        onInsert(models)
         mutModels.addAll(models)
         onInserted(models, size - models.size)
     }
 
     override suspend fun add(model: Model) {
         val list = listOf(model)
-        onInsert(list)
         mutModels.add(model)
         onInserted(list, lastIndex)
     }
 
     override suspend fun addAll(position: Int, models: List<Model>) {
-        onInsert(models)
         mutModels.addAll(position, models)
         onInserted(models, position)
     }
 
     override suspend fun add(position: Int, model: Model) {
         val list = listOf(model)
-        onInsert(list)
         mutModels.add(position, model)
         onInserted(list, position)
     }
@@ -89,9 +90,10 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
         onMoved(fromIndex, toIndex)
     }
 
-    override suspend fun clear() {
+    override suspend fun clearAll() {
+        val sizeBeforeCleared = count()
         mutModels.clear()
-        onCleared()
+        onCleared(sizeBeforeCleared)
     }
 
     override fun listIterator(): ListIterator<Model> {
@@ -104,6 +106,13 @@ open class SimpleModelList<Parent, Model : VM<Parent>>(
 
     override fun subList(fromIndex: Int, toIndex: Int): List<Model> {
         return mutModels.subList(fromIndex, toIndex)
+    }
+
+    override suspend fun onUpdated(
+        model: Model,
+        payloads: List<AdapterParentViewModel.Payloadable>
+    ) {
+        onChanged(model, getPositionOfModel(model), payloads)
     }
 
     internal class SimpleModelListIterator<Model>(

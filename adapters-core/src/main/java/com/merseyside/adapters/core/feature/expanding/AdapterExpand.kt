@@ -7,7 +7,7 @@ import com.merseyside.adapters.core.feature.expanding.callback.OnItemExpandedLis
 import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.modelList.ModelList
-import com.merseyside.adapters.core.modelList.ModelListCallback
+import com.merseyside.adapters.core.modelList.callback.ModelListCallback
 import com.merseyside.merseyLib.kotlin.logger.ILogger
 import com.merseyside.merseyLib.kotlin.observable.ext.compareAndSet
 import org.jetbrains.annotations.Contract
@@ -21,9 +21,7 @@ class AdapterExpand<Parent, Model>(
 ) : HasOnItemExpandedListener<Parent>, ModelListCallback<Model>,
     ILogger where Model : VM<Parent> {
 
-    override val expandedListeners: MutableList<OnItemExpandedListener<Parent>> by lazy {
-        ArrayList()
-    }
+    override val expandedListeners by lazy { mutableListOf<OnItemExpandedListener<Parent>>() }
 
     private val expandedList: MutableList<ExpandableItem> by lazy { ArrayList() }
 
@@ -114,17 +112,16 @@ class AdapterExpand<Parent, Model>(
         newState: Boolean = !item.isExpanded(),
         isExpandedByUser: Boolean = false
     ): Boolean {
-        return if (item.isExpanded() xor newState) {
-            item.expandState.expanded = newState
-            if (newState) {
-                expandedList.add(item)
-            } else {
-                expandedList.remove(item)
-            }
+        if (item.isExpanded() xor newState) {
+            return if (item.expandState.setExpandState(newState)) {
+                if (newState) expandedList.add(item)
+                else expandedList.remove(item)
+                notifyItemExpanded(item, isExpandedByUser)
+                true
+            } else false
+        }
 
-            notifyItemExpanded(item, isExpandedByUser)
-            true
-        } else false
+        return false
     }
 
     fun canItemBeExpanded(item: ExpandableItem): Boolean {

@@ -1,15 +1,15 @@
 package com.merseyside.adapters.core.listManager
 
 import com.merseyside.adapters.core.base.BaseAdapter
-import com.merseyside.adapters.core.model.AdapterParentViewModel
 import com.merseyside.adapters.core.model.NestedAdapterParentViewModel
+import com.merseyside.adapters.core.model.VM
 import com.merseyside.adapters.core.nested.NestedAdapterActions
 
 
 interface INestedModelListManager<Parent, Model, InnerData, InnerAdapter> :
     IModelListManager<Parent, Model>
         where Model : NestedAdapterParentViewModel<out Parent, Parent, InnerData>,
-              InnerAdapter : BaseAdapter<InnerData, out AdapterParentViewModel<out InnerData, InnerData>> {
+              InnerAdapter : BaseAdapter<InnerData, out VM<InnerData>> {
 
     override val adapterActions: NestedAdapterActions<Parent, Model, InnerData, InnerAdapter>
 
@@ -29,17 +29,14 @@ interface INestedModelListManager<Parent, Model, InnerData, InnerAdapter> :
     }
 
     fun removeNestedAdapterByModel(model: Model): Boolean {
-        adapterActions.removeNestedAdapterByModel(model)
-        return true
+        return adapterActions.removeNestedAdapterByModel(model)
     }
 
     override suspend fun updateModel(model: Model, item: Parent): Boolean {
         return super.updateModel(model, item).also {
             val adapter = provideNestedAdapter(model)
             model.getNestedData()?.let { data ->
-                workManager.subTaskWith(adapter) {
-                    update(data)
-                }
+                workManager.pendingSubTaskWith(adapter) { update(data) }
             }
         }
     }
@@ -48,9 +45,7 @@ interface INestedModelListManager<Parent, Model, InnerData, InnerAdapter> :
         return super.createModel(item).also { model ->
             val adapter = provideNestedAdapter(model)
             model.getNestedData()?.let { data ->
-                workManager.subTaskWith(adapter) {
-                    add(data)
-                }
+                workManager.pendingSubTaskWith(adapter) { add(data) }
             }
         }
     }

@@ -1,5 +1,5 @@
 package com.merseyside.adapters.delegates.feature.placeholder.provider
 
-import com.merseyside.adapters.core.model.VM
+import com.merseyside.adapters.core.model.AdapterParentViewModel
 
-typealias SimplePlaceholderProvider = PlaceholderProvider<Any, VM<Any>>
+typealias SimplePlaceholderProvider<Item> = PlaceholderProvider<Item, Any>

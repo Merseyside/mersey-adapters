@@ -10,13 +10,16 @@ class ContactItemViewModel(item: String, override val selectState: SelectState) 
 
     init {
         selectState.setOnSelectStateListener(object : SelectState.OnSelectStateListener {
-            override fun onSelected(selected: Boolean) {
+            override fun onSelected(selected: Boolean): Boolean {
                 selected.log("select", "selected")
+                return true
             }
 
             override fun onSelectable(selectable: Boolean) {}
         })
     }
+
+    override val id: Any = item
 
     override fun areItemsTheSame(other: String): Boolean {
         return item == other

@@ -13,7 +13,6 @@ class ComposingSelectableListDelegate : BaseComposingListDelegate<ComposingSelec
 
     override fun createItemViewModel(item: ComposingSelectableList) = ComposingSelectableListViewModel(item)
 
-
     override fun createCompositeAdapter(
         model: ComposingSelectableListViewModel,
         delegateManager: ViewDelegatesManager<SCV, ViewAdapterViewModel>

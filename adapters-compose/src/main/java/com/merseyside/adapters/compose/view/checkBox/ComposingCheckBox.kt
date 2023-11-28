@@ -6,6 +6,7 @@ import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.text.ComposingText
 import com.merseyside.adapters.compose.view.text.ComposingTextStyle
 import com.merseyside.adapters.compose.dsl.context.addView
+import com.merseyside.adapters.compose.delegate.ViewDelegate
 
 open class ComposingCheckBox<Style : ComposingCheckBoxStyle>(
     id: String,
@@ -15,9 +16,8 @@ open class ComposingCheckBox<Style : ComposingCheckBoxStyle>(
     var checked: Boolean = false
 
     @Suppress("UNCHECKED_CAST")
-    override fun getSuitableDelegate(): ViewDelegateAdapter<out ComposingCheckBox<Style>, Style, *> {
-        return ComposingCheckBoxDelegate() as ViewDelegateAdapter<out ComposingCheckBox<Style>, Style, *>
-    }
+    override val delegate: ViewDelegate<Style> =
+        ComposingCheckBoxDelegate() as ViewDelegateAdapter<out ComposingCheckBox<Style>, Style, *>
 
     companion object {
         context (ComposeContext) operator fun invoke(

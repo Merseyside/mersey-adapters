@@ -25,7 +25,7 @@ class SelectableAdapterGroup<Item>(
                         if (adaptersWithSelectedItems.isNotEmpty()) {
                             adaptersWithSelectedItems
                                 .find { it.getSelectedItem() != item }
-                                ?.let { adapter -> workManager.subTaskWith(adapter) { clear() }}
+                                ?.let { adapter -> workManager.pendingSubTaskWith(adapter) { clear() }}
                         }
                     }
                 }

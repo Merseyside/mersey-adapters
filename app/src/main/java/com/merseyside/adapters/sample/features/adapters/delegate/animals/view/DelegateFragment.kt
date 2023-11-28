@@ -3,9 +3,10 @@ package com.merseyside.adapters.sample.features.adapters.delegate.animals.view
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.adapters.core.async.addAsync
 import com.merseyside.adapters.core.async.updateAsync
-import com.merseyside.adapters.core.base.callback.onClick
+import com.merseyside.adapters.core.base.callback.click.onClick
 import com.merseyside.adapters.core.feature.sorting.Sorting
 import com.merseyside.adapters.sample.BR
 import com.merseyside.adapters.sample.R
@@ -19,15 +20,18 @@ import com.merseyside.adapters.sample.features.adapters.delegate.animals.entity.
 import com.merseyside.adapters.sample.features.adapters.delegate.animals.entity.Dog
 import com.merseyside.adapters.sample.features.adapters.delegate.animals.model.DelegateViewModel
 import com.merseyside.adapters.sample.features.adapters.delegate.animals.di.DaggerDelegateComponent
+import com.merseyside.merseyLib.kotlin.logger.log
 import com.merseyside.utils.view.ext.onClick
+import com.merseyside.utils.delayedMainThread
+import com.merseyside.merseyLib.time.units.Seconds
 
 class DelegateFragment : BaseSampleFragment<FragmentDelegateBinding, DelegateViewModel>() {
 
-    private val adapter = AnimalsAdapter {
+    private val animalsAdapter = AnimalsAdapter {
         Sorting {
             comparator = AnimalsComparator()
         }
-    }.apply { onClick { showMsg("Clicked!") } }
+    }.apply { onClick { showMsg("Clicked!") }}
 
     override fun getLayoutId() = R.layout.fragment_delegate
     override fun getTitle(context: Context) = "Delegate"
@@ -43,11 +47,13 @@ class DelegateFragment : BaseSampleFragment<FragmentDelegateBinding, DelegateVie
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireBinding().recycler.adapter = adapter
-        adapter.addAsync(Cat("Squirty", 5, "abc"))
+        with(requireBinding().recycler) {
+            this.adapter = animalsAdapter
+        }
+        animalsAdapter.addAsync(Cat("Squirty", 5, "abc"))
 
         requireBinding().populate.onClick {
-            adapter.updateAsync(getData())
+            animalsAdapter.updateAsync(getData())
         }
     }
 

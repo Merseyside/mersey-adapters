@@ -5,6 +5,8 @@ import com.merseyside.adapters.sample.features.adapters.delegate.animals.entity.
 
 abstract class AnimalItemViewModel<T : Animal>(item: T) : AdapterParentViewModel<T, Animal>(item) {
 
+    override val id: Any = item.id
+
     fun getName() = item.name
     fun getAge() = item.age
 }

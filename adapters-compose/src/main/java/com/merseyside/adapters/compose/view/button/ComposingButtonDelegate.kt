@@ -59,7 +59,7 @@ open class ComposingButtonDelegate<View : ComposingButton<Style>,
 
     @Suppress("UNCHECKED_CAST")
     override fun createItemViewModel(item: View) = ComposingButtonViewModel(item) as Model
-    override fun getLayoutIdForItem(viewType: Int) = R.layout.view_composing_button
+    override fun getLayoutIdForItem() = R.layout.view_composing_button
 
     override fun isResponsibleForItemClass(clazz: Class<out SCV>): Boolean {
         return clazz == ComposingButton::class.java

@@ -11,7 +11,7 @@ import com.merseyside.adapters.sample.features.adapters.concat.model.AdsItemView
 class AdsAdapter private constructor(
     override val adapterConfig: AdapterConfig<Ads, AdsItemViewModel>
 ) : SimpleAdapter<Ads, AdsItemViewModel>(adapterConfig) {
-    override fun getLayoutIdForPosition(position: Int) = R.layout.item_ads
+    override fun getLayoutIdForViewType(position: Int) = R.layout.item_ads
     override fun getBindingVariable() = BR.obj
     override fun createItemViewModel(item: Ads) = AdsItemViewModel(item)
 

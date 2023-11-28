@@ -10,8 +10,6 @@ class AdsItemViewModel(obj: Ads): AdapterViewModel<Ads>(obj) {
         return this.item.id == other.id
     }
 
-    override fun notifyUpdate() {}
-
     @Bindable
     fun getTitle(): String = this.item.title
 

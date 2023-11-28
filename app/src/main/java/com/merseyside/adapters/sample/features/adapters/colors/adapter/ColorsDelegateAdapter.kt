@@ -1,29 +1,35 @@
 package com.merseyside.adapters.sample.features.adapters.colors.adapter
 
-import com.merseyside.adapters.core.base.callback.onClick
+import android.util.TypedValue
+import android.view.ViewGroup
+import android.widget.TextView
 import com.merseyside.adapters.delegates.simple.SimpleDelegateAdapter
-import com.merseyside.adapters.sample.BR
-import com.merseyside.adapters.sample.R
 import com.merseyside.adapters.sample.features.adapters.colors.entity.HexColor
 import com.merseyside.adapters.sample.features.adapters.colors.model.ColorItemViewModel
+import com.merseyside.utils.convertDpToPixel
+import com.merseyside.utils.view.ext.onClick
 
-class ColorsDelegateAdapter: SimpleDelegateAdapter<HexColor, ColorItemViewModel>() {
+class ColorsDelegateAdapter : SimpleDelegateAdapter<HexColor, ColorItemViewModel>() {
 
-//    init {
-//        onClick {
-//            removeAsync(it)
-//        }
-//    }
+    init {
+        setupViewHolder(createView = { context, _ ->
+            TextView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    convertDpToPixel(context, 20F).toInt()
+                )
 
-    override fun getLayoutIdForItem(viewType: Int)  = R.layout.item_color
-
-    override fun getBindingVariable() = BR.viewModel
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14F)
+            }
+        }, bind = { view, model ->
+            with(view) {
+                setBackgroundColor(model.getColor())
+                text = model.getColorHex()
+                onClick { model.click() }
+            }
+        })
+    }
 
     override fun createItemViewModel(item: HexColor) = ColorItemViewModel(item)
 
-//    companion object {
-//        operator fun invoke(configure: AdapterConfig<HexColor, ColorItemViewModel>.() -> Unit): ColorsAdapter {
-//            return initAdapter(::ColorsAdapter, configure)
-//        }
-//    }
 }

@@ -7,10 +7,8 @@ import com.merseyside.adapters.compose.adapter.ViewCompositeAdapter
 import com.merseyside.adapters.compose.dsl.context.ComposeContext
 import com.merseyside.adapters.compose.view.base.SCV
 import com.merseyside.adapters.compose.view.list.dsl.context.ListComposeContext
-import com.merseyside.adapters.core.async.clearAsync
 import com.merseyside.adapters.core.model.VM
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 
 object PagingContext {
     context(ComposeContext)
@@ -38,23 +36,23 @@ class PaginationComposeContext<Data>(
     lateinit var onNextPage: Flow<Data>
     lateinit var onPrevPage: Flow<Data>
 
-    lateinit var viewProvider: (Data) -> List<SCV>
+    lateinit var viewProvider: (Data) -> List<SCV>?
 
-    private val nextLiveData by lazy { onNextPage.map(viewProvider).asLiveData() }
-    private val prevLiveData by lazy { onPrevPage.map(viewProvider).asLiveData() }
+    private val nextLiveData by lazy { onNextPage.map(viewProvider).filterNotNull().asLiveData() }
+    private val prevLiveData by lazy { onPrevPage.map(viewProvider).filterNotNull().asLiveData() }
 
     override fun onInitAdapter(adapter: ViewCompositeAdapter<SCV, VM<SCV>>) {
         super.onInitAdapter(adapter)
         checkValid()
 
-        nextLiveData.observe(viewLifecycleOwner) { views ->
+        nextLiveData.observe(lifecycleOwner) { views ->
             updateViews { current ->
                 current + views
             }
         }
 
         if (this::onPrevPage.isInitialized) {
-            prevLiveData.observe(viewLifecycleOwner) { views ->
+            prevLiveData.observe(lifecycleOwner) { views ->
                 updateViews { current -> views + current }
             }
         }
@@ -67,8 +65,8 @@ class PaginationComposeContext<Data>(
     override fun clear() {
         super.clear()
 
-        nextLiveData.removeObservers(viewLifecycleOwner)
-        if (this::onPrevPage.isInitialized) prevLiveData.removeObservers(viewLifecycleOwner)
+        nextLiveData.removeObservers(lifecycleOwner)
+        if (this::onPrevPage.isInitialized) prevLiveData.removeObservers(lifecycleOwner)
     }
 
 
